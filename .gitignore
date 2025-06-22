@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+outputs/
+*.pyc
+*.pkl
+*.db
+.env
+.DS_Store
+*.log
