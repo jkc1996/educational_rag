@@ -1,0 +1,241 @@
+Hybrid RAG Dissertation Chapter Structure
+Chapter 1: Introduction and Objectives
+
+Background, motivation, and objectives.
+
+Why academic QA? Why a hybrid/multi-stage system is valuable.
+
+Chapter 2: Literature Survey
+
+Brief on classic QA, RAG, BERT-based systems.
+
+Recent advances: LLMs, LangChain, vector DBs, new ecosystem tools.
+
+Chapter 3: Baseline RAG System (Traditional Approach)
+
+3.1 Document Chunking & Preprocessing
+
+Sentence-BERT, chunking strategy, organization.
+
+3.2 Embedding & Retrieval
+
+FAISS index, similarity search, evaluation.
+
+3.3 Reader Module
+
+QA with BERT (SQuAD or similar), answer extraction.
+
+3.4 Observations & Limitations
+
+Results from traditional pipeline, shortcomings, and challenges.
+
+Chapter 4: Modern RAG System with LLMs & Ecosystem Tools
+
+4.1 Motivation for Advancing the Pipeline
+
+Why move beyond traditional BERT?
+
+Challenges with scale, flexibility, and generative capability.
+
+4.2 New Architecture Overview
+
+Show new pipeline: LangChain orchestration, ChromaDB for vector storage, Groq/Gemini as LLM reader, optional APIs.
+
+Diagram showing differences from baseline.
+
+4.3 Enhanced Retriever Module
+
+Document storage and embedding with ChromaDB.
+
+Integration with LangChain’s retriever framework.
+
+4.4 Advanced Reader/LLM Module
+
+Prompting LLMs (Groq, Gemini, etc.) for answer generation/extraction.
+
+Handling multi-document context, improved QA experience.
+
+4.5 Implementation Highlights & Code Snapshots
+
+Key code patterns: how you switched from legacy to LangChain/LLM.
+
+4.6 Early Results, Comparative Analysis
+
+Table: Baseline vs. Advanced system—retrieval quality, answer richness, response time.
+
+Sample outputs.
+
+4.7 Current Limitations & Ongoing Work
+
+Chapter 5: Discussion & Path Forward
+
+What you’ve learned from the comparison.
+
+Next steps: user feedback, UI, scaling, more sources, continuous improvement.
+
+Bibliography / References
+
+How This Helps:
+Shows your technical journey—not just one system, but an evolution!
+
+Smoothly transitions from classic models to state-of-the-art LLM-based RAG.
+
+Makes your report future-proof—if you experiment more, you can add subsections to Chapter 4.
+
+-------------------------------------------------------------------------------
+“Retrieval-Augmented Generation for Large Language Models” (Dec 2023)
+A comprehensive review of RAG from Naive to Modular approaches, with diagrams of retrieval/generation pipelines and evaluation frameworks 
+github.com
++14
+arxiv.org
++14
+arxiv.org
++14
+.
+
+“A Comprehensive Survey of Retrieval-Augmented Generation (RAG): Evolution, Current Landscape and Future Directions” (2024)
+Traces RAG’s evolution and provides a detailed breakdown of retrieval and generation integrations 
+researchgate.net
+.
+
+“Towards Trustworthy Retrieval Augmented Generation for Large Language Models: A Survey” (Feb 2025)
+Discusses reliability, privacy, safety, and fairness in RAG—excellent for your discussion on system trustworthiness 
+arxiv.org
++15
+arxiv.org
++15
+promptingguide.ai
++15
+.
+
+“Graph Retrieval-Augmented Generation: A Survey” (Aug 2024)
+Investigates GraphRAG, using graphs to enhance retrieval—useful if you consider extending to knowledge graphs 
+arxiv.org
++1
+paperswithcode.com
++1
+.
+
+“QuIM‑RAG: Advancing Retrieval‑Augmented Generation with …” (Jan 2025)
+Proposes a novel RAG architecture to improve QA—insightful for comparing with your hybrid approach 
+arxiv.org
++15
+arxiv.org
++15
+github.com
++15
+.
+
+“Retrieval Augmented Generation with Groq API” (Groq blog, ~18 months ago)
+Describes RAG implementation using Groq hardware and API integration—very relevant for your Groq component 
+medium.com
++5
+groq.com
++5
+promptingguide.ai
++5
+.
+
+“RAG on Complex PDF using LlamaParse, Langchain and Groq” (Medium, ~1.2 y ago)
+A practical pipeline using LangChain, ChromaDB, and Groq, ideal to reference for methodology 
+medium.com
+medium.com
++3
+arxiv.org
++3
+arxiv.org
++3
+.
+
+“The Budget AI Researcher and the Power of RAG Chains” (June 2025 arXiv)
+Showcases LangChain + ChromaDB + LLMs setup with topic trees—closely aligns with your high-level architecture 
+arxiv.org
+.
+
+“Generalizable Embeddings from Gemini” (Mar 2025)
+Introduces Google Gemini Embedding—great to cite for using Gemini embeddings in ChromaDB 
+arxiv.org
++15
+arxiv.org
++15
+arxiv.org
++15
+.
+
+“Gemini: A Family of Highly Capable Multimodal Models” (Dec 2023)
+Describes Gemini’s architecture (Ultra/Pro/Nano) and multimodal capabilities—supports your use of Gemini 
+arxiv.org
++2
+arxiv.org
++2
+en.wikipedia.org
++2
+.
+
+“Gemini 1.5: Unlocking multimodal understanding across millions of tokens” (Mar 2024)
+Details long-context capabilities—excellent for justifying use of Gemini in QA tasks 
+arxiv.org
++1
+github.com
++1
+.
+
+“Deploying Large Language Models with Retrieval Augmented …” (Nov 2024)
+Real-world pilot integrating LLMs with RAG—useful for discussing integration and field testing 
+medium.com
++5
+arxiv.org
++5
+github.com
++5
+.
+
+“A Survey on RAG Meeting LLMs: Towards Retrieval‑Augmented …” (10 months ago)
+Covers RA-LLMs, including LangChain-style pipelines 
+arxiv.org
++3
+dl.acm.org
++3
+youtube.com
++3
+.
+
+“Optimizing RAG with Multimodal Inputs for Industrial Applications” (Oct 2024)
+Investigates text+image RAG—good reference if you consider future multimodality 
+arxiv.org
+.
+
+**“From Google Gemini to OpenAI Q* (Q‑Star): A Survey of Reshaping…”** (Dec 2023)
+Overviews Gemini and MoE/AGI trends—great for report’s framing and trend discussion 
+arxiv.org
++2
+arxiv.org
++2
+arxiv.org
++2
+.
+
+
+
+How to Use These in Your Report
+Ch.2 Literature Survey: Group them by themes:
+
+Foundational RAG surveys (#1, 2)
+
+Trust & fairness (#3)
+
+GraphRAG (#4)
+
+Modern LLM pipelines & tools (#8, 11, 13)
+
+Groq/LangChain/ChromaDB use (#6, 7)
+
+Gemini architectures & embeddings (#9, 10, 11)
+
+Ch.3 & Ch.4 (Traditional → Advanced):
+
+Use #1 & #2 to introduce baseline RAG.
+
+Use #6, #7, #8 to support your code/design choices.
+
+Use #9–11 when explaining embedding and reader improvements.

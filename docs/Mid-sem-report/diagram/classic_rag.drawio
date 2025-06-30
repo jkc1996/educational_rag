@@ -1,0 +1,31 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="27.1.6">
+  <diagram name="Page-1" id="2HCFxeliqs8ek3CFdivn">
+    <mxGraphModel dx="1042" dy="562" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="zQF6RNm8j_RIngFJRyvP-3" target="zQF6RNm8j_RIngFJRyvP-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-3" value="&lt;b&gt;&lt;font&gt;User Query&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#60a917, #87c846);strokeColor=#2D7600;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="70" y="170" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="zQF6RNm8j_RIngFJRyvP-4" target="zQF6RNm8j_RIngFJRyvP-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-4" value="&lt;b&gt;Semantic Retriever&lt;/b&gt;&lt;div&gt;&lt;b&gt;(Sentence-BERT, FAISS)&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="230" y="170" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="zQF6RNm8j_RIngFJRyvP-6" target="zQF6RNm8j_RIngFJRyvP-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-6" value="&lt;b&gt;Classic Reader/QA&lt;/b&gt;&lt;div&gt;&lt;b&gt;(BERT/SQuAD)&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#60a917, #87c846);strokeColor=#2D7600;fontColor=#ffffff;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="440" y="170" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zQF6RNm8j_RIngFJRyvP-7" value="&lt;b&gt;Classic Reader/QA&lt;/b&gt;&lt;div&gt;&lt;b&gt;(BERT/SQuAD)&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="610" y="170" width="130" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

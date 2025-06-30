@@ -1,0 +1,46 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="27.1.6">
+  <diagram name="Page-1" id="ffeVZr3BaiVf5aSxpytF">
+    <mxGraphModel dx="1042" dy="562" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" parent="1" source="NjYwzQ4kKVVI-QnlndWS-2" target="NjYwzQ4kKVVI-QnlndWS-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-2" value="&lt;b&gt;&lt;font&gt;User Query&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="180" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" parent="1" source="NjYwzQ4kKVVI-QnlndWS-4" target="NjYwzQ4kKVVI-QnlndWS-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-4" value="&lt;b&gt;Semantic Chunking&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="180" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" parent="1" source="NjYwzQ4kKVVI-QnlndWS-6" target="NjYwzQ4kKVVI-QnlndWS-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-6" value="&lt;b&gt;Vector Store&lt;/b&gt;&lt;div&gt;&lt;b&gt;(ChromaDB, embeddings)&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="370" y="180" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" parent="1" source="NjYwzQ4kKVVI-QnlndWS-7" target="NjYwzQ4kKVVI-QnlndWS-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" parent="1" source="NjYwzQ4kKVVI-QnlndWS-7" target="NjYwzQ4kKVVI-QnlndWS-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-7" value="&lt;b&gt;Retriever&lt;/b&gt;&lt;div&gt;&lt;b&gt;(LangChain retriever)&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="580" y="180" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-8" value="&lt;b&gt;&amp;nbsp;Polished Answer&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="284" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" parent="1" source="NjYwzQ4kKVVI-QnlndWS-9" target="NjYwzQ4kKVVI-QnlndWS-8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NjYwzQ4kKVVI-QnlndWS-9" value="&lt;b&gt;LLM-based Reader/Generator&lt;/b&gt;&lt;div&gt;&lt;b&gt;(Gemini, Groq, etc.)&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="565" y="284" width="180" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
