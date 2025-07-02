@@ -1,3 +1,5 @@
+complax pdf parsing(Must check): https://medium.com/the-ai-forum/rag-on-complex-pdf-using-llamaparse-langchain-and-groq-5b132bd1f9f3
+
 Hybrid RAG Dissertation Chapter Structure
 Chapter 1: Introduction and Objectives
 
@@ -239,3 +241,42 @@ Use #1 & #2 to introduce baseline RAG.
 Use #6, #7, #8 to support your code/design choices.
 
 Use #9–11 when explaining embedding and reader improvements.
+
+
+----------------------------------
+future scope: 
+
+explore model Ollama
+generte question from document.
+get more context for the asked question..(ollama + langchain)
+evalutions with ragas
+---------------------------------------------
+add this in prompt template:
+
+Instructions:
+- Be helpful and answer questions concisely. If you don't know the answer, say 'I don't know'
+- Utilize the context provided for accurate and specific information.
+- Incorporate your preexisting knowledge to enhance the depth and relevance of your response.
+- Cite your sources
+
+--------------------------------------------
+Other Search Tools You Can Use with LangChain + Ollama
+1. Google Search (SerpAPI)
+Requires a free (limited) API key from serpapi.com
+
+Much more powerful and up-to-date than DuckDuckGo.
+
+Example LangChain integration: SerpAPIWrapper
+
+2. Tavily
+Tavily offers a developer-friendly, LLM-first web search API (free for light usage).
+
+Also works well with LangChain via TavilySearchResults.
+
+3. Bing Search API
+Requires a Microsoft Azure/Bing API key.
+
+LangChain has support via the Bing search tool.
+
+4. Other Web Scrapers
+If you want, you can even build your own simple search/scraper tool with Python (requests + BeautifulSoup) and pass the results to Ollama.

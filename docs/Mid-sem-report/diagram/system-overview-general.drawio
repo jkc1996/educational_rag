@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="27.2.0">
+  <diagram name="Page-1" id="TsWOmcKKG1u8u8cxsgdS">
+    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" edge="1" parent="1" source="8FmMKmlgIDG3o0Kl3_iB-1" target="8FmMKmlgIDG3o0Kl3_iB-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-1" value="User Query" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="155" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" edge="1" parent="1" source="8FmMKmlgIDG3o0Kl3_iB-2" target="8FmMKmlgIDG3o0Kl3_iB-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-2" value="Semantic Retrieval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="155" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" edge="1" parent="1" source="8FmMKmlgIDG3o0Kl3_iB-3" target="8FmMKmlgIDG3o0Kl3_iB-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-3" value="Relevant Document Chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shadow=1;" edge="1" parent="1" source="8FmMKmlgIDG3o0Kl3_iB-4" target="8FmMKmlgIDG3o0Kl3_iB-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-4" value="Answer Generation &amp;amp; Polishing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="8FmMKmlgIDG3o0Kl3_iB-5" value="Final Answer to User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="155" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
