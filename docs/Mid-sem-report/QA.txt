@@ -1,0 +1,40 @@
+Question: What is a conversational agent? 
+
+
+Answer: Conversational agents, also known as dialogue systems, are programs like HAL that interact with humans using natural language. 
+
+
+Question: What is the primary goal of machine translation? 
+
+
+Answer: The primary goal of machine translation is to automatically translate a document from one language to another. 
+
+
+Question: What are some key types of knowledge necessary for complex language behavior? 
+
+
+
+Answer: Engaging in complex language behavior requires various kinds of knowledge, including phonetics and phonology (linguistic sounds), morphology (meaningful components of words), syntax (structural relationships between words), semantics (meaning), pragmatics (relationship of meaning to speaker's goals), and discourse (linguistic units larger than a single utterance). 
+
+
+
+Question: How does the concept of ambiguity relate to tasks in speech and language processing? 
+
+
+Answer: Most tasks in speech and language processing can be viewed as resolving ambiguity, which occurs when there are multiple alternative linguistic structures that can be built for an input. For example, a word like "duck" can be morphologically or syntactically ambiguous (verb or noun). 
+
+
+
+Question: What are some of the key models and algorithms used to capture knowledge in language processing? 
+
+
+Answer: Key models include state machines, rule systems, logic, probabilistic models, and vector-space models. These models leverage algorithms such as state space search (e.g., dynamic programming) and machine learning algorithms (e.g., classifiers and Expectation-Maximization). 
+
+
+------------------
+display the matching score also
+why i choose ChromaDB ?
+create a checklist for work done -at the end of doc
+in traditional diagram - final o/p show matching score also
+for feeback- thumbs up/down on UI
+mention Indian author first 
