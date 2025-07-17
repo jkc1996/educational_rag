@@ -1,0 +1,17 @@
+1. which is the most widely used linear classification model?
+ans - Logistic Regression is one of the most fundamental and widely used linear classification algorithms in machine learning. (correct)
+
+2. What is the name of the error caused by a model's sensitivity to fluctuations in the training data?
+ans - Variance refers to error introduced by sensitivity to fluctuations in the training dataset. (correct)
+
+3. How does the document differentiate between Probabilistic Generative Classifiers and Probabilistic Discriminative Classifiers?
+
+Expected answer -
+
+The document distinguishes between these two types of classifiers based on their fundamental approach to the classification problem.
+
+Generative Models: These models aim to understand the underlying process that generates the data for each class. They learn the specific characteristics of each class independently and then use this knowledge to determine the probability that a new data point came from a particular class's "recipe". Examples include Naive Bayes and Linear Discriminant Analysis (LDA).
+
+Probabilistic Discriminative Classifiers: In contrast, these models take a more direct route by focusing on modeling the conditional probability P(Class | Features). Their primary goal is not to learn how the data for each class is generated, but rather to directly learn the decision boundary that best separates the classes. They are often more robust if a generative model's assumptions about data distribution are violated. Logistic Regression is cited as the most prominent example.
+---------
+Received answer - 3.3 Probabilistic Discriminative Classifiers In the world of machine learning, classification models can be broadly categorized into two types based on how they approach the problem: generative models and discriminative models. (wrong, model failing)
