@@ -4,7 +4,7 @@ from src.loaders import load_pdf_pages
 from src.chunkers import run_semantic_chunking
 from src.embeddings import get_fastembed_embedding
 from src.vectorstore import create_chroma_vectorstore
-from src.llms import get_gemini_llm
+from src.llms import get_gemini_llm, get_groq_llm
 from src.retriever import get_retriever
 from src.chain import get_semantic_rag_chain
 from src.postprocess import spacy_polish
@@ -17,7 +17,8 @@ def run_rag_pipeline(
     chroma_persist_dir="outputs/chroma_semantic_allpdfs_v2",
     chunk_size=2000,
     chunk_overlap=50,
-    top_k=5
+    top_k=5,
+    llm_backend="groq"
 ):
     # 1. Embedding model
     embed_model = get_fastembed_embedding()
@@ -35,8 +36,13 @@ def run_rag_pipeline(
     # 5. Retriever
     retriever = get_retriever(vectorstore, k=top_k)
 
-    # 6. Gemini LLM
-    chat_model = get_gemini_llm()
+    # 6. LLM selection
+    if llm_backend == "groq":
+        chat_model = get_groq_llm()
+        logger.info("Using Groq LLM for answering.")
+    else:
+        chat_model = get_gemini_llm()
+        logger.info("Using Gemini LLM for answering.")
 
     # 7. Semantic RAG Chain
     semantic_rag_chain = get_semantic_rag_chain(retriever, chat_model)

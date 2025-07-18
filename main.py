@@ -27,7 +27,7 @@ def main():
     ]
 
     logger.info("Starting RAG pipeline setup...")
-    semantic_rag_chain = run_rag_pipeline(pdf_files)
+    semantic_rag_chain = run_rag_pipeline(pdf_files, llm_backend="groq")
 
     # Ask your question here:
     question = "In the context of the Turing test, what was Alan Turing's primary argument for using language as the basis for determining machine intelligence, and what did he aim to avoid?"

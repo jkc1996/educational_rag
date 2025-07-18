@@ -16,7 +16,8 @@
 # src/llms.py
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from src.config import GEMINI_API_KEY
+from langchain_groq import ChatGroq
+from src.config import GEMINI_API_KEY, GROQ_API_KEY
 from src.logger import get_logger
 
 logger = get_logger()
@@ -31,4 +32,16 @@ def get_gemini_llm(model_name="gemini-1.5-flash-latest"):
         google_api_key=GEMINI_API_KEY
     )
     logger.info("Gemini chat model loaded.")
+    return llm
+
+def get_groq_llm(model_name="llama3-8b-8192"):
+    """
+    Returns a Groq chat model for answering queries.
+    """
+    logger.info(f"Loading Groq chat model: {model_name}")
+    llm = ChatGroq(
+        model_name=model_name,
+        api_key=GROQ_API_KEY
+    )
+    logger.info("Groq chat model loaded.")
     return llm
