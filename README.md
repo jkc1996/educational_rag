@@ -107,6 +107,98 @@ python inspect_chroma_db.py
 
 ---
 
+## Using Ollama (Local LLM) for RAG QA
+
+Ollama allows you to run open-source LLMs fully **locally**—no API keys or cloud required!  
+With this setup, you can use models like Llama3, Mistral, and your own custom models for fast, private question-answering.
+
+### 1. Download and Install Ollama
+
+- Go to [https://ollama.com/download](https://ollama.com/download) and download the latest release for your operating system.
+- Install and follow any prompts.  
+  After install, open a terminal and check version:
+  ```
+  ollama --version
+  ```
+
+### 2. Start (or Verify) Ollama Server
+
+Ollama runs as a background service.  
+**You usually don't need to start it manually.**  
+To check if it’s running:
+```
+ollama list
+```
+If you see your models, it’s running!  
+If not, you can (rarely needed) run:
+```
+ollama serve
+```
+> If you get a "bind" error, it's already running—just move on!
+
+### 3. Create or Pull a Model
+
+**A. To pull a ready-made model:**
+```
+ollama pull llama3
+```
+
+**B. To create your own model (example):**
+
+1. Create a file called `Modelfile` in your project directory:
+    ```
+    FROM llama3
+    PARAMETER temperature 0.2
+    SYSTEM "You are EDUsage, a helpful and knowledgeable assistant for educational Q&A."
+    ```
+
+2. Build your custom model:
+    ```
+    ollama create edusage -f Modelfile
+    ```
+
+You should now see `edusage` in the output of `ollama list`.
+
+### 4. Configure Your Project for Ollama
+
+- In your backend `.env` file, add:
+    ```
+    OLLAMA_BASE_URL=http://localhost:11434
+    ```
+- Make sure `langchain_ollama` is installed:
+    ```
+    pip install langchain_ollama
+    ```
+
+- In your `src/config.py`, make sure you load `OLLAMA_BASE_URL`.
+
+### 5. Using Ollama in the Application
+
+- When you use the QA page, select **"Ollama (Local)"** in the LLM dropdown.
+- Ask questions—your backend will route them to the local Ollama model (`edusage` or whatever you built).
+- Check backend logs for confirmation that the Ollama LLM is being loaded.
+
+### 6. Example Commands
+
+| Command                                 | Purpose                                  |
+|------------------------------------------|------------------------------------------|
+| `ollama list`                            | See which models are available           |
+| `ollama pull llama3`                     | Download the Llama3 model                |
+| `ollama create edusage -f Modelfile`     | Create a new custom model                |
+| `ollama serve`                           | Start the Ollama server (usually auto)   |
+| `curl http://localhost:11434/api/tags`   | Check server is running                  |
+
+### 7. Troubleshooting
+
+- If `ollama serve` says the port is in use, it's already running—no problem!
+- If the QA page fails with LLM errors, make sure:
+    - Ollama is running
+    - The model name matches what you created (`edusage` by default)
+    - `langchain_ollama` is installed
+    - Your `.env` and `config.py` are set up as above
+
+---
+
 ## General Notes
 
 - Make sure to upload and ingest PDFs subject-wise from the React UI before asking questions.
