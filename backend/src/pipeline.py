@@ -2,7 +2,7 @@ from src.loaders import load_pdf_pages
 from src.chunkers import run_semantic_chunking
 from src.embeddings import get_fastembed_embedding
 from src.vectorstore import create_chroma_vectorstore, load_chroma_vectorstore
-from src.llms import get_gemini_llm, get_groq_llm
+from src.llms import get_gemini_llm, get_groq_llm, get_ollama_llm
 from src.retriever import get_retriever
 from src.chain import get_semantic_rag_chain
 from src.logger import get_logger
@@ -54,6 +54,11 @@ def get_rag_chain(
     if llm_backend == "groq":
         chat_model = get_groq_llm()
         logger.info("Using Groq LLM for answering.")
+
+    elif llm_backend == "ollama":
+        chat_model = get_ollama_llm()
+        logger.info("Using Ollama LLM for answering.")
+
     else:
         chat_model = get_gemini_llm()
         logger.info("Using Gemini LLM for answering.")

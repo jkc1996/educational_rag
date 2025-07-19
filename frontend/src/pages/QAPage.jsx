@@ -9,6 +9,7 @@ const SUBJECTS = [
 const LLMS = [
   { value: "gemini", label: "Gemini (Google)" },
   { value: "groq", label: "Groq (Llama3)" },
+  { value: "ollama", label: "Ollama (Local)" }
 ];
 
 function QAPage() {
@@ -102,4 +103,3 @@ function QAPage() {
 }
 
 export default QAPage;
-    

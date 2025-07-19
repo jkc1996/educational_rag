@@ -17,8 +17,9 @@
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from src.config import GEMINI_API_KEY, GROQ_API_KEY
+from src.config import GEMINI_API_KEY, GROQ_API_KEY, OLLAMA_BASE_URL
 from src.logger import get_logger
+from langchain_ollama import ChatOllama
 
 logger = get_logger()
 
@@ -44,4 +45,16 @@ def get_groq_llm(model_name="llama3-8b-8192"):
         api_key=GROQ_API_KEY
     )
     logger.info("Groq chat model loaded.")
+    return llm
+
+def get_ollama_llm(model_name="edusage"):
+    """
+    Returns an Ollama chat model for answering queries.
+    """
+    logger.info(f"Loading Ollama chat model: {model_name}")
+    llm = ChatOllama(
+        model=model_name,
+        base_url=OLLAMA_BASE_URL
+    )
+    logger.info("Ollama chat model loaded.")
     return llm
