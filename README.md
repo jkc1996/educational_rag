@@ -97,7 +97,7 @@ python inspect_chroma_db.py
 
 | What           | Command                                                      |
 |----------------|-------------------------------------------------------------|
-| Backend venv   | `python -m venv venv` + `venv\Scripts\activate`             |
+| Backend venv   | `python -m venv myenv` + `myenv\Scripts\activate`             |
 | Install reqs   | `pip install -r requirements.txt`                           |
 | Install spaCy  | `python -m spacy download en_core_web_sm`                   |
 | Start backend  | `cd backend`<br>`uvicorn app:app --reload`                  |

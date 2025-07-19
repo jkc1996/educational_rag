@@ -1,24 +1,39 @@
 # src/loaders.py
 
 import pdfplumber
-from src.logger import get_logger
-
-logger = get_logger()
+import logging
 
 def load_pdf_pages(pdf_path):
     """
     Loads each page of a PDF using pdfplumber.
     Returns a list of dicts: [{'page_num': n, 'text': ...}, ...]
     """
-    logger.info(f"Loading PDF: {pdf_path}")
+    logging.info({
+        "event": "pdf_load_start",
+        "file": pdf_path
+    })
     pages = []
     with pdfplumber.open(pdf_path) as pdf:
         for i, page in enumerate(pdf.pages):
             text = page.extract_text()
             if not text or len(text.strip()) < 10:
-                logger.debug(f"Skipping empty/short page {i+1}")
+                logging.debug({
+                    "event": "pdf_page_skipped",
+                    "file": pdf_path,
+                    "page_num": i + 1,
+                    "reason": "empty_or_short"
+                })
                 continue
             pages.append({'page_num': i + 1, 'text': text})
-            logger.debug(f"Loaded page {i + 1}: {len(text)} chars")
-    logger.info(f"Loaded {len(pages)} pages from {pdf_path}")
+            logging.debug({
+                "event": "pdf_page_loaded",
+                "file": pdf_path,
+                "page_num": i + 1,
+                "char_count": len(text)
+            })
+    logging.info({
+        "event": "pdf_load_done",
+        "file": pdf_path,
+        "pages_loaded": len(pages)
+    })
     return pages

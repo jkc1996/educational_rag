@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import UploadPage from "./pages/UploadPage";
 import QAPage from "./pages/QAPage";
+import LogViewer from "./pages/LogViewer";
 import {
   AppBar, Toolbar, Typography, Tabs, Tab, Box
 } from "@mui/material";
@@ -10,11 +11,15 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 function NavTabs() {
   const location = useLocation();
   const navigate = useNavigate();
-  const tabValue = location.pathname === "/qa" ? 1 : 0;
+  
+  let tabValue = 0;
+  if (location.pathname === "/qa") tabValue = 1;
+  else if (location.pathname === "/logs") tabValue = 2;
 
   const handleTabChange = (_, newValue) => {
     if (newValue === 0) navigate("/");
     if (newValue === 1) navigate("/qa");
+    if (newValue === 2) navigate("/logs");
   };
 
   return (
@@ -42,6 +47,7 @@ function NavTabs() {
     >
       <Tab label="UPLOAD PDF" disableRipple />
       <Tab label="ASK QUESTION" disableRipple />
+      <Tab label="LOGS" disableRipple />
     </Tabs>
   );
 }
@@ -73,6 +79,7 @@ function App() {
         <Routes>
           <Route path="/" element={<UploadPage />} />
           <Route path="/qa" element={<QAPage />} />
+          <Route path="/logs" element={<LogViewer />} />
         </Routes>
       </Box>
     </Router>

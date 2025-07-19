@@ -1,7 +1,5 @@
 from langchain_community.vectorstores import Chroma
-from src.logger import get_logger
-
-logger = get_logger()
+import logging
 
 def create_chroma_vectorstore(
     all_semantic_chunks,
@@ -11,13 +9,21 @@ def create_chroma_vectorstore(
     """
     Stores chunks in ChromaDB vectorstore and persists it to disk.
     """
-    logger.info(f"Indexing {len(all_semantic_chunks)} semantic chunks in Chroma at '{persist_directory}' ...")
+    logging.info({
+        "event": "chroma_index_start",
+        "chunk_count": len(all_semantic_chunks),
+        "chroma_dir": persist_directory
+    })
     vectorstore = Chroma.from_documents(
         all_semantic_chunks,
         embedding=embed_model,
         persist_directory=persist_directory
     )
-    logger.info("Done! All PDFs indexed with semantic chunking.")
+    logging.info({
+        "event": "chroma_index_done",
+        "chroma_dir": persist_directory,
+        "chunk_count": len(all_semantic_chunks)
+    })
     return vectorstore
 
 def load_chroma_vectorstore(
@@ -27,10 +33,16 @@ def load_chroma_vectorstore(
     """
     Loads an existing ChromaDB vectorstore from disk for retrieval.
     """
-    logger.info(f"Loading Chroma vectorstore from '{persist_directory}' ...")
+    logging.info({
+        "event": "chroma_load_start",
+        "chroma_dir": persist_directory
+    })
     vectorstore = Chroma(
         embedding_function=embed_model,
         persist_directory=persist_directory
     )
-    logger.info("Chroma vectorstore loaded.")
+    logging.info({
+        "event": "chroma_load_done",
+        "chroma_dir": persist_directory
+    })
     return vectorstore

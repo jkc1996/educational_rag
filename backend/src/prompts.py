@@ -1,6 +1,5 @@
-# src/prompts.py
-
 from langchain_core.prompts import ChatPromptTemplate
+import logging
 
 def get_rag_prompt():
     rag_template = """\
@@ -15,4 +14,8 @@ Context:
 Instructions:
 - Avoid unnecessary line breaks, slashes, or bullet points unless specifically required.
 """
+    logging.debug({
+        "event": "rag_prompt_created",
+        "template_preview": rag_template[:60]  # Log the first 60 chars
+    })
     return ChatPromptTemplate.from_template(rag_template)

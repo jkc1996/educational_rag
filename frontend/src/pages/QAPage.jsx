@@ -95,18 +95,6 @@ function QAPage() {
               ))}
             </Select>
           </FormControl>
-          <TextField
-            label="Question"
-            value={question}
-            onChange={e => setQuestion(e.target.value)}
-            placeholder="Type your question"
-            required
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            multiline
-            minRows={2}
-          />
           <FormControl fullWidth margin="normal">
             <InputLabel>LLM</InputLabel>
             <Select
@@ -120,6 +108,18 @@ function QAPage() {
               ))}
             </Select>
           </FormControl>
+          <TextField
+            label="Question"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            placeholder="Type your question"
+            required
+            fullWidth
+            margin="normal"
+            disabled={loading}
+            multiline
+            minRows={2}
+          />
           <Button
             type="submit"
             variant="contained"

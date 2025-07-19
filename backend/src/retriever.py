@@ -1,14 +1,20 @@
 # src/retriever.py
 
-from src.logger import get_logger
-
-logger = get_logger()
+import logging
 
 def get_retriever(vectorstore, k=5):
     """
     Returns a retriever object from a vectorstore, for RAG-style context retrieval.
     """
-    logger.info(f"Creating retriever with top {k} results...")
+    logging.info({
+        "event": "retriever_create_start",
+        "top_k": k,
+        "vectorstore_type": str(type(vectorstore))
+    })
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
-    logger.info("Retriever created.")
+    logging.info({
+        "event": "retriever_created",
+        "top_k": k,
+        "retriever_type": str(type(retriever))
+    })
     return retriever

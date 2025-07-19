@@ -1,60 +1,65 @@
-# from langchain_groq import ChatGroq
-# from langchain_google_genai import ChatGoogleGenerativeAI
-# from langchain_ollama import ChatOllama
-# from src.config import GROQ_API_KEY, GEMINI_API_KEY, OLLAMA_BASE_URL
-
-# def get_groq_llm():
-#     return ChatGroq(model_name="llama3-8b-8192", api_key=GROQ_API_KEY)
-
-# def get_gemini_llm():
-#     return ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", google_api_key=GEMINI_API_KEY)
-
-# def get_ollama_llm():
-#     return ChatOllama(model="edusage", base_url=OLLAMA_BASE_URL)
-
-
-# src/llms.py
-
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from src.config import GEMINI_API_KEY, GROQ_API_KEY, OLLAMA_BASE_URL
-from src.logger import get_logger
 from langchain_ollama import ChatOllama
-
-logger = get_logger()
+from src.config import GEMINI_API_KEY, GROQ_API_KEY, OLLAMA_BASE_URL
+import logging
 
 def get_gemini_llm(model_name="gemini-1.5-flash-latest"):
     """
     Returns a Gemini chat model for answering queries.
     """
-    logger.info(f"Loading Gemini chat model: {model_name}")
+    logging.info({
+        "event": "llm_load_start",
+        "llm_type": "gemini",
+        "model_name": model_name
+    })
     llm = ChatGoogleGenerativeAI(
         model=model_name,
         google_api_key=GEMINI_API_KEY
     )
-    logger.info("Gemini chat model loaded.")
+    logging.info({
+        "event": "llm_load_done",
+        "llm_type": "gemini",
+        "model_name": model_name
+    })
     return llm
 
 def get_groq_llm(model_name="llama3-8b-8192"):
     """
     Returns a Groq chat model for answering queries.
     """
-    logger.info(f"Loading Groq chat model: {model_name}")
+    logging.info({
+        "event": "llm_load_start",
+        "llm_type": "groq",
+        "model_name": model_name
+    })
     llm = ChatGroq(
         model_name=model_name,
         api_key=GROQ_API_KEY
     )
-    logger.info("Groq chat model loaded.")
+    logging.info({
+        "event": "llm_load_done",
+        "llm_type": "groq",
+        "model_name": model_name
+    })
     return llm
 
 def get_ollama_llm(model_name="edusage"):
     """
     Returns an Ollama chat model for answering queries.
     """
-    logger.info(f"Loading Ollama chat model: {model_name}")
+    logging.info({
+        "event": "llm_load_start",
+        "llm_type": "ollama",
+        "model_name": model_name
+    })
     llm = ChatOllama(
         model=model_name,
         base_url=OLLAMA_BASE_URL
     )
-    logger.info("Ollama chat model loaded.")
+    logging.info({
+        "event": "llm_load_done",
+        "llm_type": "ollama",
+        "model_name": model_name
+    })
     return llm
