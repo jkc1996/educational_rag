@@ -1,5 +1,3 @@
-# src/vectorstore.py
-
 from langchain_community.vectorstores import Chroma
 from src.logger import get_logger
 
@@ -20,4 +18,19 @@ def create_chroma_vectorstore(
         persist_directory=persist_directory
     )
     logger.info("Done! All PDFs indexed with semantic chunking.")
+    return vectorstore
+
+def load_chroma_vectorstore(
+    embed_model,
+    persist_directory="outputs/chroma_semantic_allpdfs_v2"
+):
+    """
+    Loads an existing ChromaDB vectorstore from disk for retrieval.
+    """
+    logger.info(f"Loading Chroma vectorstore from '{persist_directory}' ...")
+    vectorstore = Chroma(
+        embedding_function=embed_model,
+        persist_directory=persist_directory
+    )
+    logger.info("Chroma vectorstore loaded.")
     return vectorstore

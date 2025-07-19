@@ -16,3 +16,6 @@ ragas
 fastembed
 pypdf
 streamlit
+fastapi
+uvicorn
+python-multipart
