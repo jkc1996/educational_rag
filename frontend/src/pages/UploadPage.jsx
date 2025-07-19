@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import axios from "axios";
+import {
+  Box, Button, Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle, MenuItem, TextField, Typography, LinearProgress, Backdrop, CircularProgress
+} from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { uploadPdf, ingestPdf } from "../services/uploadService";
 
 const SUBJECTS = [
   "Machine Learning",
@@ -10,156 +15,185 @@ function UploadPage() {
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
-  const [message, setMessage] = useState({ type: "", text: "" });
   const [uploadedFilename, setUploadedFilename] = useState(null);
-  const [ingestStatus, setIngestStatus] = useState({ type: "", text: "" });
   const [uploadInProgress, setUploadInProgress] = useState(false);
+  const [ingestInProgress, setIngestInProgress] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, type: "", title: "", message: "" });
+
+  const handleDialogClose = () => setDialog({ ...dialog, open: false });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!subject || !file) {
-      setMessage({ type: "error", text: "Please select subject and file." });
+      setDialog({
+        open: true, type: "error", title: "Missing Information",
+        message: "Please select subject and file."
+      });
       return;
     }
-
     setUploadInProgress(true);
-    setMessage({ type: "", text: "" });
-    setIngestStatus({ type: "", text: "" });
-    // Don't clear uploadedFilename here
-
-    const formData = new FormData();
-    formData.append("subject", subject);
-    formData.append("description", description);
-    formData.append("file", file);
 
     try {
-      const response = await axios.post("http://localhost:8000/upload-pdf/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setMessage({
-        type: "success",
-        text: response.data.message || "File uploaded! Now click 'Process/Ingest' to prepare it for QA."
-      });
+      const response = await uploadPdf({ subject, description, file });
       setUploadedFilename(response.data.filename);
-      // Don't clear the form yet: let user process/ingest!
-      // setSubject("");
-      // setDescription("");
-      // setFile(null);
+      setDialog({
+        open: true, type: "success", title: "Upload Successful",
+        message: response.data.message || "File uploaded! Click 'Process/Ingest' to continue."
+      });
     } catch (err) {
-      setMessage({
-        type: "error",
-        text: err.response?.data?.message || "Error uploading file. Please try again."
+      setDialog({
+        open: true, type: "error", title: "Upload Failed",
+        message: err.response?.data?.message || "Error uploading file. Please try again."
       });
     }
     setUploadInProgress(false);
   };
 
   const handleIngest = async () => {
-    setIngestStatus({ type: "", text: "Processing..." });
+    setIngestInProgress(true);
+    setDialog({ open: false });
     try {
-      const params = new URLSearchParams({
-        subject,
-        filename: uploadedFilename
-      });
-      const res = await axios.post("http://localhost:8000/ingest/", params);
+      const res = await ingestPdf({ subject, filename: uploadedFilename });
       if (res.data.status === "success") {
-        setIngestStatus({ type: "success", text: res.data.message });
-        // Now clear form after ingest
-        setTimeout(() => {
-          setSubject("");
-          setDescription("");
-          setFile(null);
-          setUploadedFilename(null);
-          setMessage({ type: "", text: "" });
-          setIngestStatus({ type: "", text: "" });
-        }, 2000); // Delay so user can see the green message
+        setDialog({
+          open: true, type: "success", title: "Ingestion Successful",
+          message: res.data.message
+        });
+        setSubject("");
+        setDescription("");
+        setFile(null);
+        setUploadedFilename(null);
       } else {
-        setIngestStatus({ type: "error", text: res.data.message || "Ingest failed." });
+        setDialog({
+          open: true, type: "error", title: "Ingestion Failed",
+          message: res.data.message || "Ingest failed."
+        });
       }
     } catch (err) {
-      setIngestStatus({
-        type: "error",
-        text: err.response?.data?.message || "Failed to ingest file."
+      setDialog({
+        open: true, type: "error", title: "Ingestion Failed",
+        message: err.response?.data?.message || "Failed to ingest file."
       });
     }
+    setIngestInProgress(false);
   };
 
   return (
-    <div>
-      <h2>Upload Academic PDF</h2>
-      <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
-        <div>
-          <label>Subject:</label>
-          <select
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="80vh"
+      width="100%"
+      sx={{ bgcolor: "#f7f8fa" }}
+    >
+      <Box
+        width="100%"
+        maxWidth={500}
+        sx={{
+          px: { xs: 2, md: 0 },
+          py: 4,
+        }}
+      >
+        <Typography variant="h4" fontWeight={700} mb={3} color="primary.main">
+          Upload Academic PDF
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            select
+            label="Subject"
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
+            onChange={e => setSubject(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: 8 }}
-            disabled={uploadInProgress || !!uploadedFilename}
+            fullWidth
+            margin="normal"
+            disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
           >
-            <option value="">Select Subject</option>
+            <MenuItem value="">Select Subject</MenuItem>
             {SUBJECTS.map((s) => (
-              <option value={s} key={s}>{s}</option>
+              <MenuItem value={s} key={s}>{s}</MenuItem>
             ))}
-          </select>
-        </div>
-        <div>
-          <label>Description:</label>
-          <input
-            type="text"
+          </TextField>
+          <TextField
+            label="Description"
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="(optional)"
-            style={{ width: "100%", marginBottom: 8 }}
-            disabled={uploadInProgress || !!uploadedFilename}
+            fullWidth
+            margin="normal"
+            disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
           />
-        </div>
-        <div>
-          <label>PDF File:</label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={e => setFile(e.target.files[0])}
-            required
-            style={{ width: "100%", marginBottom: 8 }}
-            disabled={uploadInProgress || !!uploadedFilename}
-          />
-        </div>
-        <button type="submit" disabled={uploadInProgress || !!uploadedFilename}>
-          {uploadInProgress ? "Uploading..." : "Upload"}
-        </button>
-      </form>
-
-      {/* Upload feedback */}
-      {message.text && (
-        <p style={{
-          color: message.type === "success" ? "green" : "red",
-          marginTop: 8
-        }}>
-          {message.text}
-        </p>
-      )}
-
-      {/* Process/Ingest button and feedback */}
-      {uploadedFilename && (
-        <div style={{ marginTop: 16 }}>
-          <button onClick={handleIngest} disabled={ingestStatus.text === "Processing..."}>
-            {ingestStatus.text === "Processing..." ? "Processing..." : "Process/Ingest"}
-          </button>
-          {ingestStatus.text && (
-            <p style={{
-              color: ingestStatus.type === "success" ? "green"
-                : ingestStatus.type === "error" ? "red"
-                : "black",
-              marginTop: 8
-            }}>
-              {ingestStatus.text}
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+          <Button
+            component="label"
+            variant="outlined"
+            fullWidth
+            startIcon={<CloudUploadIcon />}
+            sx={{ my: 2 }}
+            disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
+          >
+            {file ? file.name : "Select PDF File"}
+            <input
+              type="file"
+              hidden
+              accept=".pdf"
+              onChange={e => setFile(e.target.files[0])}
+              disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
+            />
+          </Button>
+          {uploadInProgress && <LinearProgress sx={{ mb: 2 }} />}
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            fullWidth
+            disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
+            sx={{ fontWeight: 700, fontSize: 18, height: 48 }}
+          >
+            {uploadInProgress ? "Uploading..." : "Upload"}
+          </Button>
+        </form>
+        {uploadedFilename && (
+          <Box mt={3}>
+            <Button
+              variant="contained"
+              color="success"
+              fullWidth
+              onClick={handleIngest}
+              disabled={ingestInProgress}
+              sx={{ fontWeight: 700, fontSize: 18, height: 48 }}
+            >
+              {ingestInProgress ? "Processing..." : "Process/Ingest"}
+            </Button>
+          </Box>
+        )}
+      </Box>
+      <Dialog open={dialog.open} onClose={handleDialogClose}>
+        <DialogTitle
+          sx={{ color: dialog.type === "success" ? "green" : dialog.type === "error" ? "red" : "inherit" }}
+        >
+          {dialog.title}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {dialog.message}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} autoFocus>OK</Button>
+        </DialogActions>
+      </Dialog>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={ingestInProgress}
+      >
+        <CircularProgress color="inherit" />
+        <Typography sx={{ ml: 2 }} variant="h6">
+          Processing & indexing your document...<br />
+          This may take a minute. Please do not close the page.
+        </Typography>
+      </Backdrop>
+    </Box>
   );
 }
 
