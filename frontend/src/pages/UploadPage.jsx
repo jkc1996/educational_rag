@@ -18,6 +18,7 @@ function UploadPage() {
   const [uploadedFilename, setUploadedFilename] = useState(null);
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [ingestInProgress, setIngestInProgress] = useState(false);
+  const [useLlamaParse, setUseLlamaParse] = useState(false);
   const [dialog, setDialog] = useState({ open: false, type: "", title: "", message: "" });
 
   const handleDialogClose = () => setDialog({ ...dialog, open: false });
@@ -53,7 +54,7 @@ function UploadPage() {
     setIngestInProgress(true);
     setDialog({ open: false });
     try {
-      const res = await ingestPdf({ subject, filename: uploadedFilename });
+      const res = await ingestPdf({ subject, filename: uploadedFilename, useLlamaParse });
       if (res.data.status === "success") {
         setDialog({
           open: true, type: "success", title: "Ingestion Successful",
@@ -124,6 +125,18 @@ function UploadPage() {
             margin="normal"
             disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
           />
+          <Box my={2}>
+            <label style={{ fontWeight: 500 }}>
+              <input
+                type="checkbox"
+                checked={useLlamaParse}
+                onChange={e => setUseLlamaParse(e.target.checked)}
+                disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
+                style={{ marginRight: 8 }}
+              />
+              Advanced PDF Parsing (LlamaParse)
+            </label>
+          </Box>
           <Button
             component="label"
             variant="outlined"

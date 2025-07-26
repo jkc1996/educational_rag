@@ -199,6 +199,18 @@ You should now see `edusage` in the output of `ollama list`.
 
 ---
 
+### Advanced PDF Parsing (LlamaParse)
+
+To enable advanced, structure-aware parsing for academic PDFs:
+
+Check the box Advanced PDF Parsing (LlamaParse) on the Upload page before clicking Process/Ingest.
+
+When enabled, the backend uses LlamaParse for smarter chunking (recommended for textbooks, papers, or PDFs with tables/equations).
+
+Make sure your .env has your LlamaParse API key:
+LLAMA_PARSE_API_KEY=llx-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+---
 ## General Notes
 
 - Make sure to upload and ingest PDFs subject-wise from the React UI before asking questions.
