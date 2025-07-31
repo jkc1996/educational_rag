@@ -12,7 +12,10 @@ export async function uploadPdf({ subject, description, file }) {
   });
 }
 
-export async function ingestPdf({ subject, filename }) {
-  const params = new URLSearchParams({ subject, filename });
-  return axios.post("http://localhost:8000/ingest/", params);
+export async function ingestPdf({ subject, filename, useLlamaParse }) {
+  return axios.post("http://localhost:8000/ingest/", {
+    subject,
+    filename,
+    use_llamaparse: useLlamaParse, // <-- backend expects this key
+  });
 }

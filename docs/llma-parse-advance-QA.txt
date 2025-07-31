@@ -1,0 +1,20 @@
+given by groq llma3
+
+Question - what is Gross Carrying Value for Developed technology as on March 31, 2022 ?
+answer - As of March 31, 2022, the Gross Carrying Value for Developed technology is $924. - correct answer(search by 924 in doc)
+---------------------------
+Question - Based on the condensed consolidated statements of comprehensive Income(loss) what is the  Comprehensive income (loss) attributable to Uber Technologies, Inc.for the three months ended March 31, 2022
+
+answer - Based on the condensed consolidated statements of comprehensive income (loss), the Comprehensive income (loss) attributable to Uber Technologies, Inc. for the three months ended March 31, 2022 is $ (5,911).
+
+-----------------------
+Based on the CONDENSED CONSOLIDATED STATEMENTS OF REDEEMABLE NON-CONTROLLING INTERESTS AND EQUITY what is the Balance as of March 31, 2021?
+
+Based on the provided text, the Balance as of March 31, 2021 is: - Redeemable Non-Controlling Interests: $473 million - Common Stock: 1,867,369 shares - Additional Paid-In Capital: $36,182 million - Accumulated Other Comprehensive Income: $654 million - Accumulated Deficit: $(23,238) million - Total Equity: $13,598 million
+
+----------------------------
+
+what is the Net cash used in operating activities for Mrach 31,2021?
+
+The Net cash used in operating activities for March 31, 2021 is $(611) million.
+-------------------------------

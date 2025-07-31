@@ -8,6 +8,8 @@ from src.postprocess import spacy_polish
 import logging
 import json
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from fastapi import Body
 from src.question_generation import summarize_selected_pdfs, generate_question_paper
 
 app = FastAPI()
@@ -49,29 +51,36 @@ async def upload_pdf(
         "filename": f"{subject.replace(' ', '_')}_{file.filename}",
     }
 
+class IngestRequest(BaseModel):
+    subject: str
+    filename: str
+    use_llamaparse: bool = False  # default to False if not sent
+
 @app.post("/ingest/")
-async def ingest_pdf(
-    subject: str = Form(...),
-    filename: str = Form(...)
-):
+async def ingest_pdf(req: IngestRequest = Body(...)):
     uploads_dir = "./uploads"
-    pdf_path = os.path.join(uploads_dir, filename)
+    pdf_path = os.path.join(uploads_dir, req.filename)
     if not os.path.exists(pdf_path):
         logging.error({
             "event": "ingest_failed_file_not_found",
-            "filename": filename,
-            "subject": subject
+            "filename": req.filename,
+            "subject": req.subject
         })
         return {"status": "error", "message": "File not found!"}
     try:
-        chroma_dir = f"outputs/chroma_{subject.replace(' ', '_').lower()}"
+        chroma_dir = f"outputs/chroma_{req.subject.replace(' ', '_').lower()}"
         logging.info({
             "event": "ingest_start",
-            "filename": filename,
-            "subject": subject,
-            "chroma_dir": chroma_dir
+            "filename": req.filename,
+            "subject": req.subject,
+            "chroma_dir": chroma_dir,
+            "use_llamaparse": req.use_llamaparse
         })
-        ingest_pdfs_to_chroma([pdf_path], chroma_persist_dir=chroma_dir)
+        ingest_pdfs_to_chroma(
+            [pdf_path],
+            chroma_persist_dir=chroma_dir,
+            use_llamaparse=req.use_llamaparse  # <--- HERE
+        )
 
         # --- Clear cache for this subject (all LLMs) ---
         with cache_lock:
@@ -80,16 +89,16 @@ async def ingest_pdf(
                 del rag_chain_cache[key]
         logging.info({
             "event": "ingest_done",
-            "filename": filename,
-            "subject": subject,
+            "filename": req.filename,
+            "subject": req.subject,
             "chroma_dir": chroma_dir
         })
-        return {"status": "success", "message": f"Ingested {filename} for {subject}!"}
+        return {"status": "success", "message": f"Ingested {req.filename} for {req.subject}!"}
     except Exception as e:
         logging.error({
             "event": "ingest_failed_exception",
-            "filename": filename,
-            "subject": subject,
+            "filename": req.filename,
+            "subject": req.subject,
             "error": str(e)
         })
         return {"status": "error", "message": f"Failed to ingest: {e}"}

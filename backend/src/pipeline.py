@@ -11,7 +11,8 @@ def ingest_pdfs_to_chroma(
     pdf_files,
     chroma_persist_dir,
     chunk_size=2000,
-    chunk_overlap=50,
+    chunk_overlap=100,
+    use_llamaparse=False,
 ):
     """
     Step 1: Chunk, embed, and store PDFs in ChromaDB.
@@ -22,15 +23,39 @@ def ingest_pdfs_to_chroma(
         "pdf_files": pdf_files,
         "chroma_dir": chroma_persist_dir,
         "chunk_size": chunk_size,
-        "chunk_overlap": chunk_overlap
+        "chunk_overlap": chunk_overlap,
+        "use_llamaparse": use_llamaparse
     })
 
     embed_model = get_fastembed_embedding()
 
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
-    pre_chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-
-    all_semantic_chunks = run_semantic_chunking(pdf_files, pre_chunker, embed_model)
+    if use_llamaparse:
+        from src.llamaparse_loader import load_llamaparse_nodes
+        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        from langchain.schema import Document
+        all_semantic_chunks = []
+        splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        for pdf in pdf_files:
+            nodes = load_llamaparse_nodes(pdf)
+            for node in nodes:
+                # Split each LlamaParse node's text into subchunks for efficient retrieval
+                subchunks = splitter.split_text(node.text)
+                for idx, chunk_text in enumerate(subchunks):
+                    doc = Document(
+                        page_content=chunk_text,
+                        metadata={
+                            **getattr(node, "metadata", {}),
+                            "source_pdf": pdf,
+                            "parsed_by": "llamaparse",
+                            "parent_chunk_type": getattr(node, "type", ""),
+                            "parent_chunk_index": idx
+                        }
+                    )
+                    all_semantic_chunks.append(doc)
+    else:
+        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        pre_chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        all_semantic_chunks = run_semantic_chunking(pdf_files, pre_chunker, embed_model)
 
     # Store in Chroma
     vectorstore = create_chroma_vectorstore(
@@ -43,6 +68,7 @@ def ingest_pdfs_to_chroma(
         "total_chunks": len(all_semantic_chunks)
     })
     return True
+
 
 def get_rag_chain(
     chroma_persist_dir,

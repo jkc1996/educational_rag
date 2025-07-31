@@ -19,3 +19,4 @@ streamlit
 fastapi
 uvicorn
 python-multipart
+llama-parse>=0.4.6
