@@ -1,5 +1,5 @@
 import logging_setup
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from threading import Lock
@@ -8,6 +8,7 @@ from src.postprocess import spacy_polish
 import logging
 import json
 from fastapi.responses import JSONResponse
+from src.question_generation import summarize_selected_pdfs, generate_question_paper
 
 app = FastAPI()
 
@@ -145,6 +146,40 @@ async def ask_question(
         })
         answer = f"Error while processing question: {e}"
     return {"answer": answer}
+
+@app.post("/generate-question-paper/")
+async def generate_question_paper_api(request: Request):
+    data = await request.json()
+    subject = data.get('subject')
+    filenames = data.get('filenames', [])
+    llm_choice = data.get('llm_choice', 'groq')
+    question_config = data.get('question_config', None)
+    extra_context = data.get('extra_context', "").strip()  # <--- NEW LINE
+
+    logging.info({
+        "event": "generate_question_paper_called",
+        "subject": subject,
+        "filenames": filenames,
+        "llm_choice": llm_choice,
+        "question_config": question_config,
+        "extra_context": extra_context
+    })
+
+    if not subject or not filenames or not question_config:
+        return {"error": "Missing required fields."}
+
+    summary = summarize_selected_pdfs(subject, filenames, llm_choice=llm_choice)
+    if not summary or not summary.strip():
+        return {
+            "summary": summary,
+            "questions": "ERROR: No summary was generated from the selected PDFs. Please check your selection and try again."
+        }
+    questions = generate_question_paper(summary, question_config, llm_choice=llm_choice, extra_context=extra_context)  # <--- pass extra_context
+
+    return {
+        "summary": summary,
+        "questions": questions
+    }
 
 @app.get("/logs")
 def get_logs(limit: int = 500):

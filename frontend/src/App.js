@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from
 import UploadPage from "./pages/UploadPage";
 import QAPage from "./pages/QAPage";
 import LogViewer from "./pages/LogViewer";
+import QuestionPaperPage from "./pages/QuestionPaperPage";
 import {
   AppBar, Toolbar, Typography, Tabs, Tab, Box
 } from "@mui/material";
@@ -14,12 +15,14 @@ function NavTabs() {
   
   let tabValue = 0;
   if (location.pathname === "/qa") tabValue = 1;
-  else if (location.pathname === "/logs") tabValue = 2;
+  else if (location.pathname === "/question-paper") tabValue = 2;
+  else if (location.pathname === "/logs") tabValue = 3;
 
   const handleTabChange = (_, newValue) => {
     if (newValue === 0) navigate("/");
     if (newValue === 1) navigate("/qa");
-    if (newValue === 2) navigate("/logs");
+    if (newValue === 2) navigate("/question-paper");
+    if (newValue === 3) navigate("/logs");
   };
 
   return (
@@ -47,6 +50,7 @@ function NavTabs() {
     >
       <Tab label="UPLOAD PDF" disableRipple />
       <Tab label="ASK QUESTION" disableRipple />
+      <Tab label="Question Paper" disableRipple />
       <Tab label="LOGS" disableRipple />
     </Tabs>
   );
@@ -80,6 +84,7 @@ function App() {
           <Route path="/" element={<UploadPage />} />
           <Route path="/qa" element={<QAPage />} />
           <Route path="/logs" element={<LogViewer />} />
+          <Route path="/question-paper" element={<QuestionPaperPage />} />
         </Routes>
       </Box>
     </Router>
