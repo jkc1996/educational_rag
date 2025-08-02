@@ -5,6 +5,8 @@ from src.vectorstore import load_chroma_vectorstore
 from src.embeddings import get_fastembed_embedding
 from src.llms import get_groq_llm, get_gemini_llm, get_ollama_llm
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import re
+import json
 
 # ---- Simple File Cache for Summaries (cache/summary_*.pkl) ----
 CACHE_DIR = "cache"
@@ -203,4 +205,41 @@ Output as a JSON list of questions.
         llm = get_groq_llm()
 
     response = llm.invoke(prompt)
-    return response.content if hasattr(response, "content") else str(response)
+    raw_response_content = response.content if hasattr(response, "content") else str(response)
+    # --- NEW: Robust, multi-step extraction and cleaning process ---
+    cleaned_json_string = ""
+    try:
+        # Step 1: Try to find the JSON within a markdown code block.
+        match = re.search(r'```(?:json)?\s*(\[[\s\S]*?\])\s*```', raw_response_content)
+        if match:
+            cleaned_json_string = match.group(1)
+        else:
+            # Step 2: Fallback to finding the first '[' and last ']'
+            start_index = raw_response_content.find('[')
+            end_index = raw_response_content.rfind(']')
+            if start_index != -1 and end_index != -1 and end_index > start_index:
+                cleaned_json_string = raw_response_content[start_index:end_index + 1]
+    
+        if not cleaned_json_string:
+            print("Warning: Could not find a JSON array in the response.")
+            return raw_response_content # Return original if no JSON was found
+
+        # Step 3 (NEW!): Remove C-style comments (//) from the extracted JSON string.
+        # This regex removes everything from // to the end of the line, non-greedily.
+        # It's important to do this AFTER extracting the array, so we don't accidentally remove
+        # parts of the JSON itself.
+        cleaned_json_string = re.sub(r'//.*$', '', cleaned_json_string, flags=re.MULTILINE).strip()
+
+        # Step 4: Validate the final cleaned string by trying to load it.
+        # This will ensure we are only returning a valid JSON to the frontend.
+        json.loads(cleaned_json_string) # This will throw an error if the JSON is malformed
+        return cleaned_json_string # If successful, return the clean string
+
+    except json.JSONDecodeError as e:
+        print(f"Error: Final JSON string is not valid after cleaning. Error: {e}")
+        # Return the original response so the frontend can display the raw text for debugging.
+        return raw_response_content
+    except Exception as e:
+        print(f"An unexpected error occurred during JSON extraction/cleaning: {e}")
+        return raw_response_content
+

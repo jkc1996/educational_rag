@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Button, Typography, MenuItem, Select, InputLabel, FormControl,
-  TextField, CircularProgress, Snackbar, Alert, Paper, Grid, Checkbox, ListItemText, OutlinedInput, FormControlLabel
+  TextField, CircularProgress, Snackbar, Alert, Paper, Grid, Checkbox, ListItemText, OutlinedInput, FormControlLabel,
+  Accordion, AccordionSummary, AccordionDetails
 } from "@mui/material";
 import DescriptionIcon from "@mui/icons-material/Description";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import jsPDF from "jspdf";
 import axios from "axios";
 
-// Dummy data for subjects and PDFs (replace with real backend calls for production)
+// Dummy data (replace with real backend data if needed)
 const SUBJECTS = [
   "Machine Learning",
   "Natural Language Processing"
@@ -35,6 +38,49 @@ const ALL_QUESTION_TYPES = [
   { key: "descriptive", label: "Descriptive" }
 ];
 
+function safeParseQuestions(raw) {
+  if (!raw) return [];
+  try {
+    if (Array.isArray(raw)) return raw;
+
+    let jsonString = raw;
+    if (typeof raw === "string") {
+      // Use regex to find and extract content within the ```json ... ``` block
+      const match = raw.match(/```json\s*(\[[\s\S]*?\])\s*```/);
+      if (match && match[1]) {
+        jsonString = match[1];
+      } else {
+        // Fallback for cases without the markdown block
+        jsonString = raw.trim();
+      }
+    }
+
+    const arr = JSON.parse(jsonString);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    console.error("Failed to parse JSON:", e);
+    return [];
+  }
+} 
+
+function formatQuestion(q, idx) {
+  return (
+    <Box key={idx} mb={2}>
+      <Typography fontWeight={600} sx={{ mb: 0.3 }}>
+        {`Q${idx + 1}. (${q.type?.replace("_", " ").toUpperCase() || ""})`}
+      </Typography>
+      <Typography sx={{ whiteSpace: "pre-line" }}>{q.question}</Typography>
+      {q.options && Array.isArray(q.options) && q.options.length > 0 && (
+        <Box pl={2} mt={0.7}>
+          {q.options.map((opt, i) => (
+            <Typography key={i} variant="body2">{String.fromCharCode(97 + i) + ". " + opt}</Typography>
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+}
+
 function QuestionPaperPage() {
   const [subject, setSubject] = useState("");
   const [pdfs, setPdfs] = useState([]);
@@ -47,7 +93,8 @@ function QuestionPaperPage() {
   const [extraContext, setExtraContext] = useState("");
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
-  const [questions, setQuestions] = useState("");
+  const [questions, setQuestions] = useState([]); // parsed array
+  const [questionsRaw, setQuestionsRaw] = useState(""); // string/raw fallback
   const [snackbar, setSnackbar] = useState({ open: false, type: "info", message: "" });
 
   useEffect(() => {
@@ -80,7 +127,7 @@ function QuestionPaperPage() {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    setQuestions(""); setSummary("");
+    setQuestions([]); setQuestionsRaw(""); setSummary("");
     setSnackbar({ open: false });
 
     if (!subject || selectedPdfs.length === 0) {
@@ -111,13 +158,118 @@ function QuestionPaperPage() {
     try {
       const res = await axios.post("http://localhost:8000/generate-question-paper/", payload);
       setSummary(res.data.summary);
-      setQuestions(res.data.questions);
+      setQuestionsRaw(res.data.questions);
+      const arr = safeParseQuestions(res.data.questions);
+      setQuestions(arr);
       setSnackbar({ open: true, type: "success", message: "Question paper generated!" });
     } catch {
       setSnackbar({ open: true, type: "error", message: "Error generating question paper." });
     }
     setLoading(false);
   };
+
+// PDF download handler (nicely formatted, multipage)
+ const handleDownloadPDF = () => {
+    // Pass the original raw string directly to the robust parsing function.
+    // The `safeParseQuestions` function should handle all formatting issues.
+    const arr = safeParseQuestions(questionsRaw);
+
+    // Abort if parsing failed and we have no questions.
+    if (arr.length === 0) {
+      setSnackbar({ open: true, type: "error", message: "Could not parse questions to generate PDF." });
+      return;
+    }
+
+    const doc = new jsPDF();
+    let y = 20;
+    const pageMargin = 14;
+    const contentWidth = doc.internal.pageSize.getWidth() - pageMargin * 2;
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // --- Page Header ---
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("Question Paper", doc.internal.pageSize.getWidth() / 2, y, { align: "center" });
+    y += 12;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Subject: ${subject}`, pageMargin, y);
+    y += 15;
+
+    // --- Questions Section ---
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Questions", pageMargin, y);
+    y += 10;
+    doc.setFontSize(12);
+
+    let qNo = 1;
+    let answerArr = [];
+
+    // Helper to check for page breaks
+    const checkPageBreak = (requiredHeight) => {
+      if (y + requiredHeight > pageHeight - pageMargin) {
+        doc.addPage();
+        y = 20; // Reset Y position for new page
+      }
+    };
+
+    arr.forEach(q => {
+      // Store answer for the answer key later
+      answerArr.push({ num: qNo, answer: q.answer });
+
+      doc.setFont("helvetica", "bold");
+
+      // Prepare question text
+      const questionText = `Q${qNo}. ${q.question}`;
+      const questionLines = doc.splitTextToSize(questionText, contentWidth);
+
+      checkPageBreak(questionLines.length * 7); // Check space for question
+      doc.text(questionLines, pageMargin, y);
+      y += questionLines.length * 6 + 4; // Move y down
+
+      doc.setFont("helvetica", "normal");
+
+      // Handle options for Multiple Choice questions
+      if (q.type === "multiple_choice" && Array.isArray(q.options)) {
+        checkPageBreak(q.options.length * 6 + 4); // Check space for options
+        q.options.forEach((opt, i) => {
+          const optionText = `  ${String.fromCharCode(97 + i)}) ${opt}`;
+          const optionLines = doc.splitTextToSize(optionText, contentWidth - 5);
+          checkPageBreak(optionLines.length * 6);
+          doc.text(optionLines, pageMargin + 2, y);
+          y += optionLines.length * 6;
+        });
+      }
+
+      y += 8; // Extra space between questions
+      qNo++;
+    });
+
+
+    // --- Answer Key Section (on a new page) ---
+    doc.addPage();
+    y = 20; // Reset Y position
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Answer Key", pageMargin, y);
+    y += 12;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+
+    answerArr.forEach(ans => {
+      let ansText = `Q${ans.num}: ${ans.answer ? String(ans.answer).replace(/\n\n/g, '\n') : "N/A"}`;
+      const ansLines = doc.splitTextToSize(ansText, contentWidth);
+
+      checkPageBreak(ansLines.length * 6 + 6); // Check space for the answer
+
+      doc.text(ansLines, pageMargin, y);
+      y += ansLines.length * 6 + 6; // Add padding for next answer
+    });
+
+    doc.save(`Question_Paper_${subject.replace(/\s+/g, "_")}.pdf`);
+  };
+
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" minHeight="80vh" width="100%">
@@ -129,13 +281,12 @@ function QuestionPaperPage() {
           </Typography>
         </Box>
         <form onSubmit={handleGenerate} autoComplete="off">
-
-          {/* SECTION 1: Data Source */}
+          {/* SECTION 1 */}
           <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
             <Typography variant="h6" fontWeight={700} gutterBottom>1. Data Source</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{ minWidth: 200 }}>
                   <InputLabel>Subject</InputLabel>
                   <Select value={subject} onChange={e => setSubject(e.target.value)} label="Subject" disabled={loading} required>
                     <MenuItem value="">Select Subject</MenuItem>
@@ -144,7 +295,7 @@ function QuestionPaperPage() {
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{ minWidth: 200 }}>
                   <InputLabel>PDF(s)</InputLabel>
                   <Select
                     multiple
@@ -173,8 +324,7 @@ function QuestionPaperPage() {
               </Grid>
             </Grid>
           </Paper>
-
-          {/* SECTION 2: Question Setup */}
+          {/* SECTION 2 */}
           <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
             <Typography variant="h6" fontWeight={700} gutterBottom>2. Question Setup</Typography>
             <Grid container spacing={2} alignItems="center">
@@ -232,7 +382,6 @@ function QuestionPaperPage() {
               </Grid>
             </Grid>
           </Paper>
-
           {/* SECTION 3: Extra Context */}
           <Paper sx={{ p: 3, mb: 2, borderRadius: 3 }}>
             <Typography variant="h6" fontWeight={700} gutterBottom>3. Additional Context or Instructions</Typography>
@@ -248,7 +397,6 @@ function QuestionPaperPage() {
               disabled={loading}
             />
           </Paper>
-
           {/* BUTTON */}
           <Box display="flex" justifyContent="center" mt={2}>
             <Button
@@ -264,26 +412,45 @@ function QuestionPaperPage() {
             </Button>
           </Box>
         </form>
-
         {/* Results below */}
         {summary && (
-          <Paper elevation={0} sx={{ mt: 4, p: 3, bgcolor: "#e7f6ef", borderRadius: 2 }}>
-            <Typography variant="subtitle1" fontWeight={700} color="primary" mb={1}>
-              Deep Summary:
-            </Typography>
-            <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
-              {summary}
-            </Typography>
-          </Paper>
+          <Accordion sx={{ mt: 4, mb: 1, borderRadius: 2, bgcolor: "#e7f6ef" }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1" fontWeight={700} color="primary">
+                Deep Summary
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+                {summary}
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
         )}
-        {questions && (
-          <Paper elevation={0} sx={{ mt: 4, p: 3, bgcolor: "#f8fafc", borderRadius: 2 }}>
+        {(questions.length > 0 || questionsRaw) && (
+          <Paper elevation={0} sx={{ mt: 3, p: 3, bgcolor: "#f8fafc", borderRadius: 2 }}>
             <Typography variant="subtitle1" fontWeight={700} color="primary" mb={1}>
               Generated Questions:
             </Typography>
-            <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
-              {typeof questions === "string" ? questions : JSON.stringify(questions, null, 2)}
-            </Typography>
+            {/* Preview, not raw JSON */}
+            {questions.length > 0 ? (
+              questions.map((q, idx) => formatQuestion(q, idx))
+            ) : (
+              <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+                {typeof questionsRaw === "string" ? questionsRaw : JSON.stringify(questionsRaw, null, 2)}
+              </Typography>
+            )}
+            {/* Download PDF Button */}
+            <Box display="flex" justifyContent="flex-end" mt={2}>
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{ fontWeight: 700 }}
+                onClick={handleDownloadPDF}
+              >
+                Download as PDF
+              </Button>
+            </Box>
           </Paper>
         )}
       </Box>

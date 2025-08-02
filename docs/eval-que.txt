@@ -1,0 +1,42 @@
+ {
+    "question": "What is the objective of the ML course described in the document?",
+    "ground_truth": "The objective is to help students develop theoretical and practical understanding of key ML principles, with hands-on experience on real-world datasets, including model building, evaluation, and deployment.",
+    "contexts": [],
+    "answer": ""
+  },
+  {
+    "question": "What is overfitting in machine learning?",
+    "ground_truth": "Overfitting occurs when a model learns the noise in the training data rather than the true underlying pattern, resulting in poor performance on new data.",
+    "contexts": [],
+    "answer": ""
+  },
+  {
+    "question": "What is the direct or analytical solution for linear regression?",
+    "ground_truth": "The direct solution uses the method of least squares and yields the normal equation: w* = (X^T X)^{-1} X^T y, where w* is the vector of optimal weights.",
+    "contexts": [],
+    "answer": ""
+  },
+  {
+    "question": "Why is gradient descent preferred over the direct method for large datasets?",
+    "ground_truth": "Gradient descent is more practical for large datasets because the direct method's matrix inversion becomes computationally expensive and memory-intensive as the number of features increases.",
+    "contexts": [],
+    "answer": ""
+  },
+  {
+    "question": "What is bias-variance decomposition?",
+    "ground_truth": "Bias-variance decomposition explains the sources of error in model predictions, with bias referring to error from simplistic models (underfitting) and variance referring to error from models too sensitive to training data (overfitting).",
+    "contexts": [],
+    "answer": ""
+  },
+  {
+    "question": "How does a decision tree algorithm select the best attribute for splitting a node?",
+    "ground_truth": "It selects the attribute with the highest information gain, which most effectively reduces impurity (entropy) in the data.",
+    "contexts": [],
+    "answer": ""
+  },
+  {
+    "question": "What is the Minimum Description Length (MDL) principle in decision trees?",
+    "ground_truth": "MDL states that the best model is the one that minimizes the total description length of both the tree (model) and the data given the tree, balancing complexity and fit.",
+    "contexts": [],
+    "answer": ""
+  }
