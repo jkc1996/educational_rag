@@ -26,8 +26,7 @@ const PDFS = {
 };
 const LLMS = [
   { value: "gemini", label: "Gemini (Google)" },
-  { value: "groq", label: "Groq (Llama3)" },
-  { value: "ollama", label: "Ollama (Local)" }
+  { value: "groq", label: "Groq (Llama3)" }
 ];
 const DIFFICULTIES = ["easy", "medium", "hard"];
 const ALL_QUESTION_TYPES = [
@@ -38,36 +37,28 @@ const ALL_QUESTION_TYPES = [
   { key: "descriptive", label: "Descriptive" }
 ];
 
+// SAFELY parse the new {questions: [...]}
 function safeParseQuestions(raw) {
   if (!raw) return [];
   try {
     if (Array.isArray(raw)) return raw;
-
-    let jsonString = raw;
-    if (typeof raw === "string") {
-      // Use regex to find and extract content within the ```json ... ``` block
-      const match = raw.match(/```json\s*(\[[\s\S]*?\])\s*```/);
-      if (match && match[1]) {
-        jsonString = match[1];
-      } else {
-        // Fallback for cases without the markdown block
-        jsonString = raw.trim();
-      }
-    }
-
-    const arr = JSON.parse(jsonString);
-    return Array.isArray(arr) ? arr : [];
+    if (typeof raw === "object" && Array.isArray(raw.questions)) return raw.questions;
+    let data = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (data && Array.isArray(data.questions)) return data.questions;
+    if (Array.isArray(data)) return data;
+    return [];
   } catch (e) {
-    console.error("Failed to parse JSON:", e);
+    console.error("Failed to parse questions JSON:", e);
     return [];
   }
-} 
+}
 
+// For preview
 function formatQuestion(q, idx) {
   return (
     <Box key={idx} mb={2}>
       <Typography fontWeight={600} sx={{ mb: 0.3 }}>
-        {`Q${idx + 1}. (${q.type?.replace("_", " ").toUpperCase() || ""})`}
+        {`Q${idx + 1}.`}
       </Typography>
       <Typography sx={{ whiteSpace: "pre-line" }}>{q.question}</Typography>
       {q.options && Array.isArray(q.options) && q.options.length > 0 && (
@@ -87,15 +78,16 @@ function QuestionPaperPage() {
   const [selectedPdfs, setSelectedPdfs] = useState([]);
   const [llmChoice, setLlmChoice] = useState("groq");
   const [difficulty, setDifficulty] = useState("medium");
-  const [totalQuestions, setTotalQuestions] = useState(5);
   const [questionTypes, setQuestionTypes] = useState([]);
   const [distribution, setDistribution] = useState({});
   const [extraContext, setExtraContext] = useState("");
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
-  const [questions, setQuestions] = useState([]); // parsed array
-  const [questionsRaw, setQuestionsRaw] = useState(""); // string/raw fallback
+  const [questions, setQuestions] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, type: "info", message: "" });
+
+  // Calculate total questions on the fly
+  const totalQuestions = Object.values(distribution).reduce((a, b) => a + (parseInt(b) || 0), 0);
 
   useEffect(() => {
     if (subject) {
@@ -127,7 +119,7 @@ function QuestionPaperPage() {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    setQuestions([]); setQuestionsRaw(""); setSummary("");
+    setQuestions([]); setSummary("");
     setSnackbar({ open: false });
 
     if (!subject || selectedPdfs.length === 0) {
@@ -136,9 +128,8 @@ function QuestionPaperPage() {
     if (questionTypes.length === 0) {
       setSnackbar({ open: true, type: "error", message: "Select at least one question type." }); return;
     }
-    const sum = Object.values(distribution).reduce((a, b) => a + b, 0);
-    if (sum !== parseInt(totalQuestions)) {
-      setSnackbar({ open: true, type: "error", message: "Sum of question types must equal total questions." }); return;
+    if (totalQuestions === 0) {
+      setSnackbar({ open: true, type: "error", message: "Total questions must be > 0." }); return;
     }
 
     setLoading(true);
@@ -148,7 +139,7 @@ function QuestionPaperPage() {
       filenames: selectedPdfs,
       llm_choice: llmChoice,
       question_config: {
-        total_questions: parseInt(totalQuestions),
+        total_questions: totalQuestions, // Dynamic!
         difficulty,
         distribution
       },
@@ -158,7 +149,6 @@ function QuestionPaperPage() {
     try {
       const res = await axios.post("http://localhost:8000/generate-question-paper/", payload);
       setSummary(res.data.summary);
-      setQuestionsRaw(res.data.questions);
       const arr = safeParseQuestions(res.data.questions);
       setQuestions(arr);
       setSnackbar({ open: true, type: "success", message: "Question paper generated!" });
@@ -168,13 +158,9 @@ function QuestionPaperPage() {
     setLoading(false);
   };
 
-// PDF download handler (nicely formatted, multipage)
- const handleDownloadPDF = () => {
-    // Pass the original raw string directly to the robust parsing function.
-    // The `safeParseQuestions` function should handle all formatting issues.
-    const arr = safeParseQuestions(questionsRaw);
-
-    // Abort if parsing failed and we have no questions.
+  // PDF download handler (nicely formatted, multipage)
+  const handleDownloadPDF = () => {
+    const arr = questions;
     if (arr.length === 0) {
       setSnackbar({ open: true, type: "error", message: "Could not parse questions to generate PDF." });
       return;
@@ -206,50 +192,43 @@ function QuestionPaperPage() {
     let qNo = 1;
     let answerArr = [];
 
-    // Helper to check for page breaks
     const checkPageBreak = (requiredHeight) => {
       if (y + requiredHeight > pageHeight - pageMargin) {
         doc.addPage();
-        y = 20; // Reset Y position for new page
+        y = 20;
       }
     };
 
     arr.forEach(q => {
-      // Store answer for the answer key later
       answerArr.push({ num: qNo, answer: q.answer });
 
       doc.setFont("helvetica", "bold");
-
-      // Prepare question text
       const questionText = `Q${qNo}. ${q.question}`;
       const questionLines = doc.splitTextToSize(questionText, contentWidth);
 
-      checkPageBreak(questionLines.length * 7); // Check space for question
+      checkPageBreak(questionLines.length * 7);
       doc.text(questionLines, pageMargin, y);
-      y += questionLines.length * 6 + 4; // Move y down
+      y += questionLines.length * 6 + 4;
 
       doc.setFont("helvetica", "normal");
 
-      // Handle options for Multiple Choice questions
       if (q.type === "multiple_choice" && Array.isArray(q.options)) {
-        checkPageBreak(q.options.length * 6 + 4); // Check space for options
+        checkPageBreak(q.options.length * 6 + 4);
         q.options.forEach((opt, i) => {
-          const optionText = `  ${String.fromCharCode(97 + i)}) ${opt}`;
+          const optionText = `  ${String.fromCharCode(97 + i)}) ${opt}`;
           const optionLines = doc.splitTextToSize(optionText, contentWidth - 5);
           checkPageBreak(optionLines.length * 6);
           doc.text(optionLines, pageMargin + 2, y);
           y += optionLines.length * 6;
         });
       }
-
-      y += 8; // Extra space between questions
+      y += 8;
       qNo++;
     });
 
-
-    // --- Answer Key Section (on a new page) ---
+    // --- Answer Key Section (new page) ---
     doc.addPage();
-    y = 20; // Reset Y position
+    y = 20;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("Answer Key", pageMargin, y);
@@ -260,16 +239,13 @@ function QuestionPaperPage() {
     answerArr.forEach(ans => {
       let ansText = `Q${ans.num}: ${ans.answer ? String(ans.answer).replace(/\n\n/g, '\n') : "N/A"}`;
       const ansLines = doc.splitTextToSize(ansText, contentWidth);
-
-      checkPageBreak(ansLines.length * 6 + 6); // Check space for the answer
-
+      checkPageBreak(ansLines.length * 6 + 6);
       doc.text(ansLines, pageMargin, y);
-      y += ansLines.length * 6 + 6; // Add padding for next answer
+      y += ansLines.length * 6 + 6;
     });
 
     doc.save(`Question_Paper_${subject.replace(/\s+/g, "_")}.pdf`);
   };
-
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" minHeight="80vh" width="100%">
@@ -326,19 +302,14 @@ function QuestionPaperPage() {
           </Paper>
           {/* SECTION 2 */}
           <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
-            <Typography variant="h6" fontWeight={700} gutterBottom>2. Question Setup</Typography>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6" fontWeight={700} gutterBottom>2. Question Setup</Typography>
+              {/* Show running total */}
+              <Typography sx={{ fontWeight: 600, color: "primary.main" }}>
+                Total Questions: {totalQuestions}
+              </Typography>
+            </Box>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={4}>
-                <TextField
-                  label="Total Questions"
-                  type="number"
-                  value={totalQuestions}
-                  onChange={e => setTotalQuestions(e.target.value)}
-                  fullWidth
-                  inputProps={{ min: 1, step: 1 }}
-                  disabled={loading}
-                />
-              </Grid>
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth>
                   <InputLabel>Difficulty</InputLabel>
@@ -427,19 +398,13 @@ function QuestionPaperPage() {
             </AccordionDetails>
           </Accordion>
         )}
-        {(questions.length > 0 || questionsRaw) && (
+        {(questions.length > 0) && (
           <Paper elevation={0} sx={{ mt: 3, p: 3, bgcolor: "#f8fafc", borderRadius: 2 }}>
             <Typography variant="subtitle1" fontWeight={700} color="primary" mb={1}>
               Generated Questions:
             </Typography>
-            {/* Preview, not raw JSON */}
-            {questions.length > 0 ? (
-              questions.map((q, idx) => formatQuestion(q, idx))
-            ) : (
-              <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
-                {typeof questionsRaw === "string" ? questionsRaw : JSON.stringify(questionsRaw, null, 2)}
-              </Typography>
-            )}
+            {/* Preview */}
+            {questions.map((q, idx) => formatQuestion(q, idx))}
             {/* Download PDF Button */}
             <Box display="flex" justifyContent="flex-end" mt={2}>
               <Button

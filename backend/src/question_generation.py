@@ -7,6 +7,9 @@ from src.llms import get_groq_llm, get_gemini_llm, get_ollama_llm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import re
 import json
+from langchain_core.prompts import ChatPromptTemplate
+from .question_schema import QuestionPaper
+from google import genai
 
 # ---- Simple File Cache for Summaries (cache/summary_*.pkl) ----
 CACHE_DIR = "cache"
@@ -161,85 +164,78 @@ def summarize_selected_pdfs(subject, selected_filenames, llm_choice="groq", extr
 
 # --------------------- Question Generation Step -------------------
 
-def generate_question_paper(summary, config, llm_choice="groq", extra_context=""):
-    prompt = f"""
-You are an expert academic exam generator.
+from langchain_core.prompts import ChatPromptTemplate
+from src.question_schema import QuestionPaper  # your Pydantic schema
+import json
 
-Based only on the following summary, generate {config['total_questions']} exam questions.
-Difficulty: {config.get('difficulty', 'medium')}
-Distribute the questions as:
+def generate_question_paper(summary, config, llm_choice="groq", extra_context=""):
+    system_message = """
+You are an expert academic exam generator.
+Your task is to generate a set of exam questions and answers based only on the following summary. 
+Return ONLY a JSON object that strictly matches the provided schema. Do not add any extra text or explanation.
+
+Schema:
+{{
+  "questions": [
+    {{
+      "type": "one_liner" | "true_false" | "fill_blank" | "multiple_choice" | "descriptive",
+      "question": string,
+      "options": string[] | null,
+      "answer": string
+    }}
+  ]
+}}
+"""
+    user_prompt = f"""Generate {config['total_questions']} questions. Difficulty: {config.get('difficulty', 'medium')}
+Distribute as:
 - One-liner: {config.get('distribution', {}).get('one_liner',0)}
 - True/False: {config.get('distribution', {}).get('true_false',0)}
 - Fill-in-the-blank: {config.get('distribution', {}).get('fill_blank',0)}
 - Multiple choice: {config.get('distribution', {}).get('multiple_choice',0)}
 - Descriptive: {config.get('distribution', {}).get('descriptive',0)}
 
-{f'Additional instructions for the question generator: {extra_context}' if extra_context else ''}
-
-ONLY use facts and details from the summary. DO NOT create questions about the instructions or context below.
-
-For each question, specify:
-- "type" (one_liner, true_false, fill_blank, multiple_choice, descriptive)
-- "question"
-- "options" (if applicable)
-- "answer"
-
-For all "descriptive" type questions, write answers that are comprehensive, multi-paragraph, and detailed—at least 150 words, using examples, explanations, and sub-points as appropriate.
-
-Output as a JSON list of questions.
+{"Additional instructions: " + extra_context if extra_context else ""}
 
 [SUMMARY]
 {summary}
 """
-
-    if extra_context:
-        prompt += f"\n\nAdditional Instructions: {extra_context}\n"
-
     if llm_choice == "groq":
         llm = get_groq_llm()
+        # Strict structured output via LangChain and Pydantic
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_message),
+            ("human", "{input}")
+        ])
+        structured_llm = llm.with_structured_output(QuestionPaper, method="json_mode")
+        full_chain = prompt | structured_llm
+
+        try:
+            result = full_chain.invoke({"input": user_prompt})
+            print("Strict validated JSON (Groq):", result.model_dump_json(indent=2))
+            return result.model_dump_json(indent=2)
+        except Exception as e:
+            print(f"Groq LLM failed to produce valid JSON: {e}")
+            return json.dumps({"error": "Groq LLM did not produce valid structured output. " + str(e)})
+
     elif llm_choice == "gemini":
-        llm = get_gemini_llm()
-    elif llm_choice == "ollama":
-        llm = get_ollama_llm()
+        # Use Google Gemini native SDK for strict schema-based output
+        client = genai.Client()  # Ensure you have already authenticated
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",  # or "gemini-1.5-pro"
+                contents=user_prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "response_schema": QuestionPaper,
+                }
+            )
+            # Print JSON string and also return it (for frontend)
+            print("Strict validated JSON (Gemini):", response.text)
+            return response.text
+        except Exception as e:
+            print(f"Gemini LLM failed to produce valid JSON: {e}")
+            return json.dumps({"error": "Gemini LLM did not produce valid structured output. " + str(e)})
+
     else:
-        llm = get_groq_llm()
-
-    response = llm.invoke(prompt)
-    raw_response_content = response.content if hasattr(response, "content") else str(response)
-    # --- NEW: Robust, multi-step extraction and cleaning process ---
-    cleaned_json_string = ""
-    try:
-        # Step 1: Try to find the JSON within a markdown code block.
-        match = re.search(r'```(?:json)?\s*(\[[\s\S]*?\])\s*```', raw_response_content)
-        if match:
-            cleaned_json_string = match.group(1)
-        else:
-            # Step 2: Fallback to finding the first '[' and last ']'
-            start_index = raw_response_content.find('[')
-            end_index = raw_response_content.rfind(']')
-            if start_index != -1 and end_index != -1 and end_index > start_index:
-                cleaned_json_string = raw_response_content[start_index:end_index + 1]
-    
-        if not cleaned_json_string:
-            print("Warning: Could not find a JSON array in the response.")
-            return raw_response_content # Return original if no JSON was found
-
-        # Step 3 (NEW!): Remove C-style comments (//) from the extracted JSON string.
-        # This regex removes everything from // to the end of the line, non-greedily.
-        # It's important to do this AFTER extracting the array, so we don't accidentally remove
-        # parts of the JSON itself.
-        cleaned_json_string = re.sub(r'//.*$', '', cleaned_json_string, flags=re.MULTILINE).strip()
-
-        # Step 4: Validate the final cleaned string by trying to load it.
-        # This will ensure we are only returning a valid JSON to the frontend.
-        json.loads(cleaned_json_string) # This will throw an error if the JSON is malformed
-        return cleaned_json_string # If successful, return the clean string
-
-    except json.JSONDecodeError as e:
-        print(f"Error: Final JSON string is not valid after cleaning. Error: {e}")
-        # Return the original response so the frontend can display the raw text for debugging.
-        return raw_response_content
-    except Exception as e:
-        print(f"An unexpected error occurred during JSON extraction/cleaning: {e}")
-        return raw_response_content
+        raise ValueError("Invalid LLM choice: must be 'groq' or 'gemini'.")
 
