@@ -10,7 +10,7 @@ import json
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi import Body
-from src.ragas_evaluation import evaluate_ragas, nan_to_none
+from src.run_ragas_eval import run_ragas_evaluation
 from src.question_generation import summarize_selected_pdfs, generate_question_paper
 
 app = FastAPI()
@@ -159,21 +159,19 @@ async def ask_question(
 
 @app.post("/evaluate-ragas/")
 async def evaluate_ragas_api(
-    subject: str = Body(...),
-    model_name: str = Body(...),
-    eval_json: str = Body("eval_questions.json")
+    model_name: str = Body(..., embed=True),
+    eval_json: str = Body("eval_questions.json", embed=True)
 ):
     """
-    Run RAGAS evaluation for the given subject and model.
+    Run RAGAS evaluation for Machine Learning subject and selected LLM backend.
     Example POST body:
       {
-        "subject": "Machine Learning",
         "model_name": "groq"
       }
     """
     try:
-        metrics = evaluate_ragas(subject, model_name, eval_json)
-        return {"status": "success", "metrics": metrics}
+        results = run_ragas_evaluation(model_name, eval_json=eval_json)
+        return {"status": "success", "results": results}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

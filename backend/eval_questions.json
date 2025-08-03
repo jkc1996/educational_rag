@@ -1,62 +1,50 @@
 [
   {
-    "question": "What is Machine Learning (ML)?",
-    "ground_truth": "Machine Learning is a subfield of artificial intelligence focused on designing algorithms capable of learning from data and improving over time without explicit programming for every task.",
-    "contexts": [],
-    "answer": ""
+    "question": "What is the primary goal of the machine learning course described in the document?",
+    "answer": "",
+    "ground_truth": "The primary goal of the course is to help students develop a theoretical and practical understanding of machine learning principles, enabling them to implement, train, tune, and validate various ML models and apply them to real-world problems in science, engineering, and business.",
+    "contexts": [
+      "The machine learning course aims to equip students with both theoretical and practical skills in the field of machine learning. It focuses on enabling students to work with real-world datasets, covering essential steps such as data preprocessing, model building, evaluation, and deployment. The curriculum emphasizes critical thinking about trade-offs, including model complexity versus interpretability, the importance of data quality, and ethical considerations in automated decision-making. By the end, students are expected to be proficient in implementing a range of models, including regression, classification, and clustering, using Python-based libraries like scikit-learn and TensorFlow, which are standard in both academia and industry."
+    ]
   },
   {
-    "question": "Name three applications of Machine Learning.",
-    "ground_truth": "Applications include self-driving cars, language translation, and fraud detection.",
-    "contexts": [],
-    "answer": ""
+    "question": "What are the main types of machine learning described in the document?",
+    "answer": "",
+    "ground_truth": "The main types of machine learning are supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.",
+    "contexts": [
+      "Machine learning is categorized into four primary types based on the nature of the data and the learning process. Supervised learning involves learning from labeled datasets where each input is paired with a corresponding output, used in tasks like spam detection or house price prediction. Unsupervised learning focuses on finding patterns in unlabeled data, applicable to tasks like customer segmentation or topic modeling. Semi-supervised learning combines both labeled and unlabeled data, useful when labeled data is scarce. Reinforcement learning involves learning optimal actions through trial and error with feedback from rewards, commonly used in robotics or game playing."
+    ]
   },
   {
-    "question": "What are the four main categories of Machine Learning?",
-    "ground_truth": "The four categories are supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.",
-    "contexts": [],
-    "answer": ""
-  },
-   {
-    "question": "What is the objective of the ML course described in the document?",
-    "ground_truth": "The objective is to help students develop theoretical and practical understanding of key ML principles, with hands-on experience on real-world datasets, including model building, evaluation, and deployment.",
-    "contexts": [],
-    "answer": ""
+    "question": "What is the role of feature selection and engineering in a machine learning system?",
+    "answer": "",
+    "ground_truth": "Feature selection identifies the most predictive features, while feature engineering creates new features from existing ones to improve model performance, often requiring domain expertise.",
+    "contexts": [
+      "In a machine learning system, feature selection and engineering are critical steps that enhance model performance by focusing on the most relevant data attributes. Feature selection involves choosing the most predictive features using methods like filter, wrapper, or embedded approaches, reducing noise and computational complexity. Feature engineering, on the other hand, involves creating new features, such as polynomial features or interaction terms, based on domain knowledge to better capture underlying patterns in the data. These processes ensure that the model focuses on meaningful information, improving its predictive power and efficiency."
+    ]
   },
   {
-    "question": "What is overfitting in machine learning?",
-    "ground_truth": "Overfitting occurs when a model learns the noise in the training data rather than the true underlying pattern, resulting in poor performance on new data.",
-    "contexts": [],
-    "answer": ""
+    "question": "What is instance-based learning in machine learning?",
+    "answer": "",
+    "ground_truth": "Instance-based learning, also known as memory-based or lazy learning, is a machine learning approach where the algorithm stores the training data and makes predictions for new inputs by comparing them to stored examples, typically using similarity measures, without building an explicit model during training.",
+    "contexts": [
+      "Instance-based learning, often called memory-based or lazy learning, contrasts with model-based approaches by not learning a global function or parameters during training. Instead, it stores the raw training examples and uses them directly at prediction time to estimate outputs for new queries based on their similarity to stored instances. This method assumes that similar inputs have similar outputs, making it highly flexible but sensitive to noise and outliers. It is computationally efficient during training but can be slow during prediction, especially for large datasets."
+    ]
   },
   {
-    "question": "What is the direct or analytical solution for linear regression?",
-    "ground_truth": "The direct solution uses the method of least squares and yields the normal equation: w* = (X^T X)^{-1} X^T y, where w* is the vector of optimal weights.",
-    "contexts": [],
-    "answer": ""
+    "question": "How does the k-Nearest Neighbor (k-NN) algorithm work for classification?",
+    "answer": "",
+    "ground_truth": "The k-Nearest Neighbor (k-NN) algorithm for classification predicts the class of a new input by finding the k closest training examples based on a distance metric, typically Euclidean distance, and assigning the class that is most common among these neighbors.",
+    "contexts": [
+      "The k-NN algorithm is a simple yet effective instance-based learning method used for classification and regression. For classification, it identifies the k nearest training points to a new input using a distance metric, such as Euclidean distance, and assigns the class that appears most frequently among these neighbors. The choice of k and the distance metric significantly impacts performance, with small k values being sensitive to noise and large k values potentially overlooking local patterns. Feature scaling and selection are crucial to ensure fair distance calculations."
+    ]
   },
   {
-    "question": "Why is gradient descent preferred over the direct method for large datasets?",
-    "ground_truth": "Gradient descent is more practical for large datasets because the direct method's matrix inversion becomes computationally expensive and memory-intensive as the number of features increases.",
-    "contexts": [],
-    "answer": ""
-  },
-  {
-    "question": "What is bias-variance decomposition?",
-    "ground_truth": "Bias-variance decomposition explains the sources of error in model predictions, with bias referring to error from simplistic models (underfitting) and variance referring to error from models too sensitive to training data (overfitting).",
-    "contexts": [],
-    "answer": ""
-  },
-  {
-    "question": "How does a decision tree algorithm select the best attribute for splitting a node?",
-    "ground_truth": "It selects the attribute with the highest information gain, which most effectively reduces impurity (entropy) in the data.",
-    "contexts": [],
-    "answer": ""
-  },
-  {
-    "question": "What is the Minimum Description Length (MDL) principle in decision trees?",
-    "ground_truth": "MDL states that the best model is the one that minimizes the total description length of both the tree (model) and the data given the tree, balancing complexity and fit.",
-    "contexts": [],
-    "answer": ""
+    "question": "What is the main idea behind Locally Weighted Regression (LWR)?",
+    "answer": "",
+    "ground_truth": "Locally Weighted Regression (LWR) fits a unique, local regression model for each query point by assigning weights to training examples based on their proximity to the query, typically using a kernel function, allowing it to capture complex, nonlinear trends in the data.",
+    "contexts": [
+      "Locally Weighted Regression (LWR) is an instance-based method that excels at modeling nonlinear relationships in regression tasks. For each new input, LWR assigns weights to training points based on their distance from the query, often using a Gaussian kernel, and fits a weighted least squares model. The kernel bandwidth controls the locality of the fit, with smaller bandwidths focusing on local patterns and larger ones behaving more like global regression. This approach is computationally intensive but highly interpretable and flexible for capturing local trends."
+    ]
   }
 ]

@@ -22,3 +22,9 @@ llama-parse>=0.4.6
 ragas
 datasets
 evaluate
+deepeval>=3.3.2
+xai-sdk         # For GroqModel support
+inspect-ai[all]
+pandas
+sacrebleu
+rouge_score
