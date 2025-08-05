@@ -84,7 +84,11 @@ function App() {
         </Toolbar>
       </AppBar>
       {/* Main Content (spaced down for AppBar) */}
-      <Box sx={{ mt: 11, bgcolor: "#f7f8fa", minHeight: "100vh", px: { xs: 1, md: 5 } }}>
+      <Box sx={{ mt: 8,
+            bgcolor: "#f7f8fa",
+            minHeight: "100vh", 
+            px: { xs: 1, md: 3 }
+            }}>
         <Routes>
           <Route path="/" element={<UploadPage />} />
           <Route path="/qa" element={<QAPage />} />

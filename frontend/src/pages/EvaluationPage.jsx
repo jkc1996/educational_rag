@@ -17,7 +17,6 @@ const MODELS = [
   { value: "ollama", label: "Ollama" },
 ];
 
-// Default 2 metrics per category
 const DEFAULT_METRICS = {
   retrieval: ["context_precision", "context_recall"],
   nvidia: ["nv_accuracy", "nv_context_relevance"],
@@ -30,7 +29,6 @@ function EvaluationPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState("");
-  // Use category key (not tab idx) for UI
   const [categoryKey, setCategoryKey] = useState(METRIC_CATEGORIES[0].key);
   const [chartOpen, setChartOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState({});
@@ -39,15 +37,13 @@ function EvaluationPage() {
     nvidia: DEFAULT_METRICS.nvidia,
     nlp: DEFAULT_METRICS.nlp,
   });
-  const [anchorEl, setAnchorEl] = useState(null); // For column selector
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  // Derived
   const category = METRIC_CATEGORIES.find(cat => cat.key === categoryKey);
   const categoryMetrics = category.metrics;
   const metricsToShow = shownMetrics[categoryKey] || [];
   const averages = results ? getMetricAverages(results, metricsToShow) : {};
 
-  // Evaluate button
   const handleEvaluate = async () => {
     setLoading(true);
     setResults(null);
@@ -70,26 +66,21 @@ function EvaluationPage() {
     setLoading(false);
   };
 
-  // Change category (dropdown)
   const handleCategoryChange = (e) => {
     const newCat = e.target.value;
     setCategoryKey(newCat);
-    // Ensure at least some metrics selected
     setShownMetrics(prev => ({
       ...prev,
       [newCat]: prev[newCat]?.length ? prev[newCat] : DEFAULT_METRICS[newCat]
     }));
   };
 
-  // Show/Hide column selector menu
   const handleColMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleColMenuClose = () => setAnchorEl(null);
 
-  // Metric column toggle
   const handleMetricToggle = (metric) => {
     setShownMetrics(prev => {
       let old = prev[categoryKey] || [];
-      // Always at least 1 metric shown!
       if (old.includes(metric)) {
         if (old.length === 1) return prev;
         return { ...prev, [categoryKey]: old.filter(m => m !== metric) };
@@ -99,7 +90,6 @@ function EvaluationPage() {
     });
   };
 
-  // Context expand/collapse
   const handleExpandRow = (id) => {
     setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
   };
@@ -111,80 +101,86 @@ function EvaluationPage() {
       background: "#f7fafc",
       p: 0,
       m: 0,
-      overflow: "hidden"
+      overflow: "auto"
     }}>
-      {/* Top Card */}
-      <Paper
-        elevation={2}
-        sx={{
-          background: "#fff",
-          borderRadius: 3,
-          boxShadow: 1,
-          display: "flex",
-          alignItems: "center",
-          gap: 2,
-          px: 4,
-          pt: 4,
-          pb: 2,
-          mt: 2,
-          mx: "auto",
-          maxWidth: "98vw",
-          minWidth: 320,
-          zIndex: 3
-        }}
-      >
-        <Typography variant="h4" fontWeight={700} color="primary" sx={{ mr: 3 }}>
-          RAGAS Evaluation
-        </Typography>
-        <ToggleButtonGroup
-          value={evalMode}
-          exclusive
-          onChange={(_, val) => val && setEvalMode(val)}
-          sx={{ mr: 3 }}
-        >
-          <ToggleButton value="single" sx={{ px: 2 }}>Single LLM</ToggleButton>
-          <ToggleButton value="compare" sx={{ px: 2 }} disabled>
-            Compare LLMs (Coming Soon)
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <Select
-          value={model}
-          onChange={e => setModel(e.target.value)}
-          sx={{ minWidth: 200, background: "#f3f6fc", fontWeight: 600 }}
-          size="medium"
-          disabled={evalMode === "compare"}
-        >
-          {MODELS.map(m => (
-            <MenuItem value={m.value} key={m.value}>{m.label}</MenuItem>
-          ))}
-        </Select>
-        <Button
-          variant="contained"
-          onClick={handleEvaluate}
-          disabled={loading || evalMode === "compare"}
-          sx={{ minWidth: 160, ml: 2 }}
-          size="medium"
-        >
-          {loading ? "Evaluating..." : "Run Evaluation"}
-        </Button>
-        <Button
-          variant="outlined"
-          size="medium"
-          onClick={() => setChartOpen(true)}
-          sx={{ ml: 2 }}
-          disabled={!results}
-        >
-          Show Chart
-        </Button>
-      </Paper>
-
-      {/* Main Content */}
+      {/* --- Top Card --- */}
       <Box sx={{
-        px: 2,
-        pt: 3,
         width: "100%",
-        maxWidth: "100vw",
-        overflow: "visible" // allow scroll only inside the rounded box
+        maxWidth: 1680,
+        mx: "auto",
+        mt: 3,
+        mb: 1,
+        px: { xs: 1, sm: 2, md: 3 },
+      }}>
+        <Paper
+          elevation={2}
+          sx={{
+            background: "#fff",
+            borderRadius: 3,
+            boxShadow: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            px: { xs: 1, sm: 2, md: 3 },
+            pt: 3,
+            pb: 2,
+            minWidth: 320,
+            zIndex: 3
+          }}
+        >
+          <Typography variant="h4" fontWeight={700} color="primary" sx={{ mr: 3 }}>
+            RAGAS Evaluation
+          </Typography>
+          <ToggleButtonGroup
+            value={evalMode}
+            exclusive
+            onChange={(_, val) => val && setEvalMode(val)}
+            sx={{ mr: 3 }}
+          >
+            <ToggleButton value="single" sx={{ px: 2 }}>Single LLM</ToggleButton>
+            <ToggleButton value="compare" sx={{ px: 2 }} disabled>
+              Compare LLMs (Coming Soon)
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <Select
+            value={model}
+            onChange={e => setModel(e.target.value)}
+            sx={{ minWidth: 200, background: "#f3f6fc", fontWeight: 600 }}
+            size="medium"
+            disabled={evalMode === "compare"}
+          >
+            {MODELS.map(m => (
+              <MenuItem value={m.value} key={m.value}>{m.label}</MenuItem>
+            ))}
+          </Select>
+          <Button
+            variant="contained"
+            onClick={handleEvaluate}
+            disabled={loading || evalMode === "compare"}
+            sx={{ minWidth: 160, ml: 2 }}
+            size="medium"
+          >
+            {loading ? "Evaluating..." : "Run Evaluation"}
+          </Button>
+          <Button
+            variant="outlined"
+            size="medium"
+            onClick={() => setChartOpen(true)}
+            sx={{ ml: 2 }}
+            disabled={!results}
+          >
+            Show Chart
+          </Button>
+        </Paper>
+      </Box>
+
+      {/* --- Main Content --- */}
+      <Box sx={{
+        width: "100%",
+        maxWidth: 1680,
+        mx: "auto",
+        px: { xs: 1, sm: 2, sm: 3 },
+        pt: 2,
       }}>
         {error && (
           <Typography color="error" mt={2}>{error}</Typography>
@@ -198,13 +194,15 @@ function EvaluationPage() {
         )}
         {results && (
           <>
-            {/* Dropdowns above table */}
+            {/* --- Controls Above Table --- */}
             <Box sx={{
               display: "flex", alignItems: "center", gap: 2, mb: 2,
               justifyContent: { xs: "flex-start", sm: "space-between" }
             }}>
-              <FormControl sx={{ minWidth: 210 }}>
-                <InputLabel id="cat-dd-label"><CategoryIcon sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }} />Category</InputLabel>
+              <FormControl sx={{ minWidth: 180 }}>
+                <InputLabel id="cat-dd-label">
+                  <CategoryIcon sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }} />Category
+                </InputLabel>
                 <Select
                   labelId="cat-dd-label"
                   value={categoryKey}
@@ -230,7 +228,7 @@ function EvaluationPage() {
                     background: "#fff",
                     fontWeight: 600,
                     borderRadius: 2,
-                    minWidth: 170
+                    minWidth: 140
                   }}
                 >
                   Show Columns
@@ -242,7 +240,6 @@ function EvaluationPage() {
                 onClose={handleColMenuClose}
                 keepMounted
               >
-                {/* Qid/question/answer/ground_truth/contexts always checked/disabled */}
                 {STATIC_COLS.map(col => (
                   <MenuItem key={col.key} dense disabled>
                     <Checkbox checked disabled />
@@ -267,126 +264,134 @@ function EvaluationPage() {
               averages={averages}
               metrics={metricsToShow}
             />
-            {/* Table inside a perfectly rounded box */}
+
+            {/* --- Table in a perfectly rounded box, horizontally scrollable --- */}
             <Paper elevation={2}
               sx={{
                 width: "100%",
-                maxWidth: "100%",
-                overflow: "auto",
-                borderRadius: "10px",
+                overflow: "hidden",
+                borderRadius: "20px",
                 background: "#fff",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.07)",
                 my: 1,
-                px: 0,
                 pb: 2,
-                border: "1.5px solid #e0e0e0",
-                minHeight: 350
+                border: "1.5px solid #e0e0e0"
               }}
             >
-              <Table size="small" stickyHeader >
-                <TableHead>
-                  <TableRow>
-                    {STATIC_COLS.map(col => (
-                      <TableCell key={col.key} sx={{
-                        fontWeight: 700,
-                        background: "#f3f4f6",
-                        minWidth:
-                          col.key === "question" ? 400 :
-                          col.key === "answer" ? 400 :
-                          col.key === "ground_truth" ? 400 :
-                          col.key === "contexts" ? 320 :
-                          80,
-                        fontSize: 15
-                      }}>
-                        {col.label}
-                      </TableCell>
-                    ))}
-                    {metricsToShow.map(metric => (
-                      <TableCell key={metric} sx={{
-                        fontWeight: 700,
-                        background: "#f3f4f6",
-                        minWidth: 135,
-                        fontSize: 15
-                      }}>
-                        {METRIC_LABELS[metric] || metric}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {results.map((row, idx) => (
-                    <TableRow key={row.id || idx}>
+              <Box sx={{
+                width: "100%",
+                overflowX: "auto",
+                borderRadius: "inherit"
+              }}>
+                <Table size="small" stickyHeader sx={{
+                  minWidth: 1200 + metricsToShow.length * 135,
+                  background: "#fff",
+                  borderRadius: "inherit"
+                }}>
+                  <TableHead>
+                    <TableRow>
                       {STATIC_COLS.map(col => (
-                        <TableCell
-                          key={col.key}
-                          sx={{
-                            minWidth:
-                              col.key === "question" ? 400 :
-                              col.key === "answer" ? 400 :
-                              col.key === "ground_truth" ? 400 :
-                              col.key === "contexts" ? 320 :
-                              80,
-                            whiteSpace: "normal",
-                            wordBreak: "break-word",
-                            fontSize: 14,
-                          }}
-                        >
-                          {col.key === "contexts" ? (
-                            <Box>
-                              <Tooltip title="Expand/Collapse">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleExpandRow(row.id || idx)}
-                                >
-                                  <ExpandMoreIcon
-                                    sx={{
-                                      transform: expandedRows[row.id || idx] ? "rotate(180deg)" : "rotate(0deg)",
-                                      transition: "0.2s"
-                                    }}
-                                  />
-                                </IconButton>
-                              </Tooltip>
-                              <Box
-                                sx={{
-                                  maxHeight: expandedRows[row.id || idx] ? "none" : 48,
-                                  overflow: "hidden",
-                                  transition: "max-height 0.2s"
-                                }}
-                              >
-                                {Array.isArray(row[col.key])
-                                  ? row[col.key].join(" || ")
-                                  : row[col.key]}
-                              </Box>
-                            </Box>
-                          ) : (
-                            Array.isArray(row[col.key])
-                              ? row[col.key].join(" || ")
-                              : row[col.key]
-                          )}
+                        <TableCell key={col.key} sx={{
+                          fontWeight: 700,
+                          background: "#f3f4f6",
+                          minWidth:
+                            col.key === "question" ? 400 :
+                            col.key === "answer" ? 400 :
+                            col.key === "ground_truth" ? 400 :
+                            col.key === "contexts" ? 320 :
+                            80,
+                          fontSize: 15
+                        }}>
+                          {col.label}
                         </TableCell>
                       ))}
-                      {metricsToShow.map(metric => {
-                        let val = row[metric];
-                        if (typeof val === "object" && val !== null && typeof val.score === "number") {
-                          val = val.score;
-                        }
-                        return (
+                      {metricsToShow.map(metric => (
+                        <TableCell key={metric} sx={{
+                          fontWeight: 700,
+                          background: "#f3f4f6",
+                          minWidth: 135,
+                          fontSize: 15
+                        }}>
+                          {METRIC_LABELS[metric] || metric}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {results.map((row, idx) => (
+                      <TableRow key={row.id || idx}>
+                        {STATIC_COLS.map(col => (
                           <TableCell
-                            key={metric}
+                            key={col.key}
                             sx={{
-                              background: getMetricColor(val),
-                              fontWeight: 600,
-                              textAlign: "center"
+                              minWidth:
+                                col.key === "question" ? 400 :
+                                col.key === "answer" ? 400 :
+                                col.key === "ground_truth" ? 400 :
+                                col.key === "contexts" ? 320 :
+                                80,
+                              whiteSpace: "normal",
+                              wordBreak: "break-word",
+                              fontSize: 14,
                             }}
                           >
-                            {typeof val === "number" ? val.toFixed(3) : "-"}
+                            {col.key === "contexts" ? (
+                              <Box>
+                                <Tooltip title="Expand/Collapse">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleExpandRow(row.id || idx)}
+                                  >
+                                    <ExpandMoreIcon
+                                      sx={{
+                                        transform: expandedRows[row.id || idx] ? "rotate(180deg)" : "rotate(0deg)",
+                                        transition: "0.2s"
+                                      }}
+                                    />
+                                  </IconButton>
+                                </Tooltip>
+                                <Box
+                                  sx={{
+                                    maxHeight: expandedRows[row.id || idx] ? "none" : 48,
+                                    overflow: "hidden",
+                                    transition: "max-height 0.2s"
+                                  }}
+                                >
+                                  {Array.isArray(row[col.key])
+                                    ? row[col.key].join(" || ")
+                                    : row[col.key]}
+                                </Box>
+                              </Box>
+                            ) : (
+                              Array.isArray(row[col.key])
+                                ? row[col.key].join(" || ")
+                                : row[col.key]
+                            )}
                           </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        ))}
+                        {metricsToShow.map(metric => {
+                          let val = row[metric];
+                          if (typeof val === "object" && val !== null && typeof val.score === "number") {
+                            val = val.score;
+                          }
+                          return (
+                            <TableCell
+                              key={metric}
+                              sx={{
+                                background: getMetricColor(val),
+                                fontWeight: 600,
+                                textAlign: "center"
+                              }}
+                            >
+                              {typeof val === "number" ? val.toFixed(3) : "-"}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
             </Paper>
           </>
         )}
