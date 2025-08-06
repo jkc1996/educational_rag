@@ -181,7 +181,7 @@ function EvaluationPage() {
       {/* --- Top Card --- */}
       <Box sx={{
         width: "100%",
-        maxWidth: 1680,
+        maxWidth: 1380,
         mx: "auto",
         mt: 3,
         mb: 1,
@@ -203,7 +203,7 @@ function EvaluationPage() {
             zIndex: 3
           }}
         >
-          <Typography variant="h4" fontWeight={700} color="primary" sx={{ mr: 3 }}>
+          <Typography variant="h5" fontWeight={700} color="primary" sx={{ mr: 2 }}>
             RAGAS Evaluation
           </Typography>
           <ToggleButtonGroup
@@ -252,7 +252,7 @@ function EvaluationPage() {
       {/* --- Main Content --- */}
       <Box sx={{
         width: "100%",
-        maxWidth: 1680,
+        maxWidth: 1380,
         mx: "auto",
         px: { xs: 1, sm: 2, md: 3 },
         pt: 2,
