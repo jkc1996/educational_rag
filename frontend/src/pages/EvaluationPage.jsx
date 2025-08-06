@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
+
 import {
   Box, Button, Typography, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody,
   IconButton, Tooltip, ToggleButtonGroup, ToggleButton, Paper, Menu, Checkbox, ListItemText, FormControl, InputLabel
@@ -10,6 +11,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import CategoryIcon from "@mui/icons-material/Category";
+import Chip from "@mui/material/Chip";
 
 const MODELS = [
   { value: "groq", label: "Groq" },
@@ -23,6 +25,83 @@ const DEFAULT_METRICS = {
   nlp: ["factual_correctness(mode=f1)", "semantic_similarity"],
 };
 
+function TruncatedCell({ value, isExpanded, onToggle, maxLines = 3 }) {
+  const boxRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    if (boxRef.current && !isExpanded) {
+      // Only check for overflow when NOT expanded
+      setIsOverflowing(boxRef.current.scrollHeight > boxRef.current.clientHeight + 2);
+    }
+    // When expanded, force overflow "true" so the icon always shows
+  }, [value, isExpanded, maxLines]);
+
+  const shouldShowExpand =
+    (isOverflowing && !isExpanded) || isExpanded;
+
+  return (
+    <Box
+      ref={boxRef}
+      sx={{
+        position: "relative",
+        overflow: isExpanded ? "visible" : "hidden",
+        display: "-webkit-box",
+        WebkitLineClamp: isExpanded ? "unset" : maxLines,
+        WebkitBoxOrient: "vertical",
+        whiteSpace: isExpanded ? "pre-line" : "normal",
+        textOverflow: "ellipsis",
+        cursor: shouldShowExpand ? "pointer" : "default",
+        pr: shouldShowExpand ? 3 : 0,
+        background: isExpanded ? "#f9fafb" : "inherit",
+        transition: "all 0.2s",
+        minHeight: "1em",
+      }}
+      onClick={shouldShowExpand ? onToggle : undefined}
+    >
+      {value}
+      {/* Always show expand/collapse icon if possible */}
+      {shouldShowExpand && (
+        <IconButton
+          size="small"
+          onClick={e => { e.stopPropagation(); onToggle(); }}
+          sx={{
+            position: "absolute",
+            right: 0,
+            top: 2,
+            bgcolor: "#fff",
+            p: "2px",
+            zIndex: 2,
+          }}
+          aria-label={isExpanded ? "Collapse" : "Expand"}
+        >
+          <ExpandMoreIcon
+            sx={{
+              fontSize: 18,
+              transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "0.2s"
+            }}
+          />
+        </IconButton>
+      )}
+      {/* Only show shadow if truncated and not expanded */}
+      {isOverflowing && !isExpanded && (
+        <Box
+          sx={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: "1em",
+            background: "linear-gradient(180deg,transparent, #fff 100%)",
+            pointerEvents: "none"
+          }}
+        />
+      )}
+    </Box>
+  );
+}
+
 function EvaluationPage() {
   const [evalMode, setEvalMode] = useState("single");
   const [model, setModel] = useState("groq");
@@ -31,14 +110,14 @@ function EvaluationPage() {
   const [error, setError] = useState("");
   const [categoryKey, setCategoryKey] = useState(METRIC_CATEGORIES[0].key);
   const [chartOpen, setChartOpen] = useState(false);
-  const [expandedRows, setExpandedRows] = useState({});
+  const [expandedCell, setExpandedCell] = useState(null); // { rowId, colKey }
   const [shownMetrics, setShownMetrics] = useState({
     retrieval: DEFAULT_METRICS.retrieval,
     nvidia: DEFAULT_METRICS.nvidia,
     nlp: DEFAULT_METRICS.nlp,
   });
   const [anchorEl, setAnchorEl] = useState(null);
-
+  const [showContexts, setShowContexts] = useState(false);
   const category = METRIC_CATEGORIES.find(cat => cat.key === categoryKey);
   const categoryMetrics = category.metrics;
   const metricsToShow = shownMetrics[categoryKey] || [];
@@ -88,10 +167,6 @@ function EvaluationPage() {
         return { ...prev, [categoryKey]: [...old, metric] };
       }
     });
-  };
-
-  const handleExpandRow = (id) => {
-    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
@@ -246,6 +321,14 @@ function EvaluationPage() {
                     <ListItemText primary={col.label} />
                   </MenuItem>
                 ))}
+                <MenuItem
+                  dense
+                  onClick={() => setShowContexts(val => !val)}
+                  sx={{ ml: 0 }}
+                >
+                  <Checkbox checked={showContexts} />
+                  <ListItemText primary="Contexts" />
+                </MenuItem>
                 <Box sx={{ borderTop: "1px solid #eee", mt: 0.5, mb: 0.5 }} />
                 {categoryMetrics.map(metric => (
                   <MenuItem key={metric} dense
@@ -270,7 +353,7 @@ function EvaluationPage() {
               sx={{
                 width: "100%",
                 overflow: "hidden",
-                borderRadius: "20px",
+                borderRadius: "10px",
                 background: "#fff",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.07)",
                 my: 1,
@@ -295,21 +378,51 @@ function EvaluationPage() {
                           fontWeight: 700,
                           background: "#f3f4f6",
                           minWidth:
-                            col.key === "question" ? 400 :
-                            col.key === "answer" ? 400 :
-                            col.key === "ground_truth" ? 400 :
-                            col.key === "contexts" ? 320 :
-                            80,
-                          fontSize: 15
+                            col.key === "id" ? 15 :
+                            col.key === "question" ? 160 :
+                            col.key === "answer" ? 180 :
+                            col.key === "ground_truth" ? 180 :
+                            col.key === "contexts" ? 180 :
+                            60,
+                          maxWidth:
+                            col.key === "id" ? 25 :
+                            col.key === "question" ? 180 :
+                            col.key === "answer" ? 200 :
+                            col.key === "ground_truth" ? 200 :
+                            col.key === "contexts" ? 200 :
+                            undefined,
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                          fontSize: 14,
+                          verticalAlign: "top",
+                          position: "relative"
                         }}>
                           {col.label}
                         </TableCell>
                       ))}
+                      {showContexts && (
+                        <TableCell key="contexts"
+                          sx={{
+                            fontWeight: 700,
+                            background: "#f3f4f6",
+                            minWidth: 180,
+                            maxWidth: 200,
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            fontSize: 14,
+                            verticalAlign: "top",
+                            position: "relative"
+                          }}
+                        >
+                          Contexts
+                        </TableCell>
+                      )}
                       {metricsToShow.map(metric => (
                         <TableCell key={metric} sx={{
+                          textAlign: "center",
                           fontWeight: 700,
                           background: "#f3f4f6",
-                          minWidth: 135,
+                          minWidth: 80,
                           fontSize: 15
                         }}>
                           {METRIC_LABELS[metric] || metric}
@@ -320,55 +433,80 @@ function EvaluationPage() {
                   <TableBody>
                     {results.map((row, idx) => (
                       <TableRow key={row.id || idx}>
-                        {STATIC_COLS.map(col => (
+                        {STATIC_COLS.map(col => {
+                          // Only truncate these columns
+                          const shouldTruncate = ["question", "answer", "ground_truth", "contexts"].includes(col.key);
+                          const val = Array.isArray(row[col.key])
+                            ? row[col.key].join(" || ")
+                            : row[col.key];
+
+                          // Identify this cell uniquely
+                          const cellId = `${row.id || idx}-${col.key}`;
+                          const isExpanded = expandedCell && expandedCell.cellId === cellId;
+
+                          return (
+                            <TableCell
+                              key={col.key}
+                              sx={{
+                                minWidth:
+                                col.key === "id" ? 15 :
+                                col.key === "question" ? 160 :
+                                col.key === "answer" ? 180 :
+                                col.key === "ground_truth" ? 180 :
+                                col.key === "contexts" ? 180 :
+                                60,
+                              maxWidth:
+                                col.key === "id" ? 25 :
+                                col.key === "question" ? 180 :
+                                col.key === "answer" ? 200 :
+                                col.key === "ground_truth" ? 200 :
+                                col.key === "contexts" ? 200 :
+                                undefined,
+                                whiteSpace: "normal",
+                                wordBreak: "break-word",
+                                fontSize: 14,
+                                verticalAlign: "top",
+                                position: "relative"
+                              }}
+                            >
+                              {shouldTruncate ? (
+                                <TruncatedCell
+                                  value={val}
+                                  isExpanded={isExpanded}
+                                  onToggle={() => setExpandedCell(isExpanded ? null : { cellId })}
+                                  maxLines={3}
+                                />
+                              ) : val}
+                            </TableCell>
+                          );
+                        })}
+                        {showContexts && (
                           <TableCell
-                            key={col.key}
+                            key="contexts"
                             sx={{
-                              minWidth:
-                                col.key === "question" ? 400 :
-                                col.key === "answer" ? 400 :
-                                col.key === "ground_truth" ? 400 :
-                                col.key === "contexts" ? 320 :
-                                80,
+                              minWidth: 180,
+                              maxWidth: 200,
                               whiteSpace: "normal",
                               wordBreak: "break-word",
                               fontSize: 14,
+                              verticalAlign: "top",
+                              position: "relative"
                             }}
                           >
-                            {col.key === "contexts" ? (
-                              <Box>
-                                <Tooltip title="Expand/Collapse">
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => handleExpandRow(row.id || idx)}
-                                  >
-                                    <ExpandMoreIcon
-                                      sx={{
-                                        transform: expandedRows[row.id || idx] ? "rotate(180deg)" : "rotate(0deg)",
-                                        transition: "0.2s"
-                                      }}
-                                    />
-                                  </IconButton>
-                                </Tooltip>
-                                <Box
-                                  sx={{
-                                    maxHeight: expandedRows[row.id || idx] ? "none" : 48,
-                                    overflow: "hidden",
-                                    transition: "max-height 0.2s"
-                                  }}
-                                >
-                                  {Array.isArray(row[col.key])
-                                    ? row[col.key].join(" || ")
-                                    : row[col.key]}
-                                </Box>
-                              </Box>
-                            ) : (
-                              Array.isArray(row[col.key])
-                                ? row[col.key].join(" || ")
-                                : row[col.key]
-                            )}
+                            <TruncatedCell
+                              value={Array.isArray(row["contexts"]) ? row["contexts"].join(" || ") : row["contexts"]}
+                              isExpanded={expandedCell && expandedCell.cellId === `${row.id || idx}-contexts`}
+                              onToggle={() =>
+                                setExpandedCell(
+                                  expandedCell && expandedCell.cellId === `${row.id || idx}-contexts`
+                                    ? null
+                                    : { cellId: `${row.id || idx}-contexts` }
+                                )
+                              }
+                              maxLines={3}
+                            />
                           </TableCell>
-                        ))}
+                        )}
                         {metricsToShow.map(metric => {
                           let val = row[metric];
                           if (typeof val === "object" && val !== null && typeof val.score === "number") {
@@ -378,12 +516,25 @@ function EvaluationPage() {
                             <TableCell
                               key={metric}
                               sx={{
-                                background: getMetricColor(val),
                                 fontWeight: 600,
                                 textAlign: "center"
                               }}
                             >
-                              {typeof val === "number" ? val.toFixed(3) : "-"}
+                              <Chip
+                                label={typeof val === "number" ? val.toFixed(3) : "-"}
+                                size="small"
+                                sx={{
+                                  bgcolor: getMetricColor(val),
+                                  color: "#111",
+                                  fontWeight: 600,
+                                  fontSize: 14,
+                                  px: 1,
+                                  minWidth: 40,
+                                  borderRadius: 1.3,
+                                  boxShadow: "0 1px 2px rgba(0,0,0,0.07)",
+                                  border: "1px solid #e0e0e0",
+                                }}
+                                />
                             </TableCell>
                           );
                         })}

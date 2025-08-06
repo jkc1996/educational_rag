@@ -56,7 +56,7 @@ export const STATIC_COLS = [
   { key: "question", label: "Question" },
   { key: "answer", label: "Answer" },
   { key: "ground_truth", label: "Ground Truth" },
-  { key: "contexts", label: "Contexts" },
+  // { key: "contexts", label: "Contexts" },
 ];
 
 // Color by value (0-1)
