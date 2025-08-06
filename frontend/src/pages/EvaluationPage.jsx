@@ -179,7 +179,7 @@ function EvaluationPage() {
         width: "100%",
         maxWidth: 1680,
         mx: "auto",
-        px: { xs: 1, sm: 2, sm: 3 },
+        px: { xs: 1, sm: 2, md: 3 },
         pt: 2,
       }}>
         {error && (
