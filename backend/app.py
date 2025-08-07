@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from fastapi import Body
 from src.run_ragas_eval import run_ragas_evaluation
 from src.question_generation import summarize_selected_pdfs, generate_question_paper
+from typing import List, Optional
 
 app = FastAPI()
 
@@ -159,19 +160,31 @@ async def ask_question(
 
 @app.post("/evaluate-ragas/")
 async def evaluate_ragas_api(
-    model_name: str = Body(..., embed=True),
+    model_name: Optional[str] = Body(None, embed=True),
+    model_names: Optional[List[str]] = Body(None, embed=True),
     eval_json: str = Body("eval_questions.json", embed=True)
 ):
     """
-    Run RAGAS evaluation for Machine Learning subject and selected LLM backend.
-    Example POST body:
-      {
-        "model_name": "groq"
-      }
+    Supports both single and multi-model RAGAS evaluation.
+    POST body can be:
+      { "model_name": "groq" }
+    or
+      { "model_names": ["groq", "gemini", "ollama"] }
     """
     try:
-        results = run_ragas_evaluation(model_name, eval_json=eval_json)
-        return {"status": "success", "results": results}
+        # Compare mode: multiple models
+        if model_names:
+            all_results = {}
+            for m in model_names:
+                results = run_ragas_evaluation(m, eval_json=eval_json)
+                all_results[m] = results
+            return {"status": "success", "results": all_results}
+        # Single model mode
+        elif model_name:
+            results = run_ragas_evaluation(model_name, eval_json=eval_json)
+            return {"status": "success", "results": results}
+        else:
+            return {"status": "error", "message": "Missing model_name or model_names"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
