@@ -74,7 +74,7 @@ export default function MatrixInfoDialog({ open, onClose }) {
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth="md"
+      maxWidth="lg"
       PaperProps={{
         sx: { borderRadius: 3, minHeight: 440 }
       }}
@@ -96,7 +96,7 @@ export default function MatrixInfoDialog({ open, onClose }) {
             {cat.metrics.map(m => (
               <Box key={m.name} mb={1} pl={2}>
                 <Typography sx={{ display: "inline-block", fontFamily: "monospace", fontWeight: 600, color: "#273985", mr: 1 }}>
-                  {m.name}
+                  {m.name}:
                 </Typography>
                 <Typography sx={{ display: "inline", color: "#333" }}>
                   {m.desc}
