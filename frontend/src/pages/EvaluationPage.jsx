@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   Box, Paper, Typography, Button, Tooltip, ToggleButtonGroup, ToggleButton,
-  Menu, FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText
+  Menu, FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText, IconButton
 } from "@mui/material";
 import { METRIC_CATEGORIES, STATIC_COLS, getMetricAverages, METRIC_LABELS } from "../utils/metricUtils";
 import MetricTable from "./MetricTable";
@@ -16,6 +16,8 @@ import { DEFAULT_METRICS } from "../constants/defaults";
 import { MODELS } from "../constants/models";
 import { evaluateModels } from "../utils/api";
 import { alignCompareResults } from "../utils/compareUtils";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import MatrixInfoDialog from "./MatrixInfoDialog"; 
 
 export default function EvaluationPage() {
   // Top-level state
@@ -48,6 +50,7 @@ export default function EvaluationPage() {
   const metricsToShow = shownMetrics[categoryKey] || [];
   const averages = results ? getMetricAverages(results, metricsToShow) : {};
   const alignedRows = compareResults ? alignCompareResults(compareResults) : [];
+  const [infoOpen, setInfoOpen] = useState(false);
 
   // ---- Single LLM handlers ----
   const handleEvaluate = async () => {
@@ -191,6 +194,14 @@ export default function EvaluationPage() {
               </Button>
             </>
           )}
+          <IconButton
+            aria-label="Matrix Info"
+            size="small"
+            sx={{ ml: 1, color: "#274689" }}
+            onClick={() => setInfoOpen(true)}
+          >
+            <InfoOutlinedIcon sx={{ fontSize: 28 }} />
+          </IconButton>
         </Paper>
       </Box>
 
@@ -307,9 +318,11 @@ export default function EvaluationPage() {
           // --- MULTI LLM MODE ---
           !compareResults ? (
             // Empty state
-            <Typography sx={{ mt: 10, textAlign: "center" }}>
-              Select 2 or more models and click <b>Run Comparison</b>
-            </Typography>
+            <Box mt={8} display="flex" flexDirection="column" alignItems="center">
+              <Typography variant="h5" color="text.secondary">
+                Select 2 or more models and click<b> Run Comparison!</b>
+              </Typography>
+            </Box>
           ) : (
             <>
               {/* --- Table Mode Toggle (radio) --- */}
@@ -412,6 +425,7 @@ export default function EvaluationPage() {
           )
         )}
       </Box>
+      <MatrixInfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
     </Box>
-  );
+  ); 
 }
