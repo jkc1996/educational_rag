@@ -1,6 +1,13 @@
 import React from "react";
 import { Table, TableHead, TableRow, TableCell, TableBody, Box, Chip, Typography } from "@mui/material";
 
+/**
+ * @param {Object} props
+ * @param {Object} props.compareResults  // { model: [{ metric: value, ...}, ...] }
+ * @param {string[]} props.selectedModels
+ * @param {Object[]} props.metricCategories // [{key, label, metrics:[metric1,...]}, ...]
+ * @param {Object} props.metricLabels // { metric: label, ... }
+ */
 export default function AggregatedCompareTable({
   compareResults,
   selectedModels,
@@ -27,26 +34,62 @@ export default function AggregatedCompareTable({
     });
   });
 
-  // --- Table Render ---
+  // Common cell border style for vertical lines
+  const borderStyle = "1.5px solid #e0e6f3";
+
   return (
     <Box sx={{
       width: "100%",
       overflowX: "auto",
-      border: "2px solid #e0e6f3",    // <---- OUTSIDE BORDER!
-      borderRadius: "10px",           // Optional, for a nice look
-      background: "#fff"
+      border: borderStyle,
+      borderRadius: "9px",
+      background: "#fff",
+      boxShadow: "0 2px 6px rgba(110,125,170,0.04)"
     }}>
-      <Table size="small">
+      <Table
+        size="small"
+        sx={{
+          minWidth: 900,
+          borderCollapse: "separate",
+          borderSpacing: 0
+        }}
+      >
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: 700, minWidth: 160, borderBottom: "2px solid #e0e6f3" }}>
+            <TableCell
+              sx={{
+                fontWeight: 700,
+                minWidth: 170,
+                borderRight: borderStyle,
+                borderBottom: borderStyle,
+                background: "#fafbfc"
+              }}
+            >
               Metric Category
             </TableCell>
-            <TableCell sx={{ fontWeight: 700, minWidth: 180, borderBottom: "2px solid #e0e6f3" }}>
+            <TableCell
+              sx={{
+                fontWeight: 700,
+                minWidth: 210,
+                borderRight: borderStyle,
+                borderBottom: borderStyle,
+                background: "#fafbfc"
+              }}
+            >
               Metric Name
             </TableCell>
-            {selectedModels.map(model => (
-              <TableCell key={model} align="center" sx={{ fontWeight: 700, minWidth: 90, borderBottom: "2px solid #e0e6f3" }}>
+            {selectedModels.map((model, i) => (
+              <TableCell
+                key={model}
+                align="center"
+                sx={{
+                  fontWeight: 700,
+                  minWidth: 110,
+                  borderRight: i === selectedModels.length - 1 ? "none" : borderStyle,
+                  borderBottom: borderStyle,
+                  background: "#fafbfc"
+                }}
+              >
                 {model.toUpperCase()}
                 <Typography variant="caption" component="div">
                   (Average Score)
@@ -56,12 +99,13 @@ export default function AggregatedCompareTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {metricCategories.map(category => (
+          {metricCategories.map(category =>
             category.metrics.map((metric, mIdx) => {
               const isFirst = mIdx === 0;
               const isLast = mIdx === category.metrics.length - 1;
               return (
                 <TableRow key={category.key + "_" + metric}>
+                  {/* Only show the category cell for the first metric in each category (with rowspan) */}
                   {isFirst && (
                     <TableCell
                       rowSpan={category.metrics.length}
@@ -69,24 +113,28 @@ export default function AggregatedCompareTable({
                         fontWeight: 900,
                         fontSize: 17,
                         color: "#23396f",
-                        borderRight: "2px solid #e0e6f3",
+                        borderRight: borderStyle,
+                        borderBottom: isLast ? borderStyle : 0,
+                        borderTop: borderStyle,
                         bgcolor: "#f9fafd",
                         verticalAlign: "middle",
                         textAlign: "left",
                         minWidth: 140,
-                        borderTop: "2px solid #e0e6f3",
-                        borderBottom: isLast ? "2px solid #e0e6f3" : "none"
+                        borderLeft: borderStyle
                       }}
                     >
                       {category.label}
                     </TableCell>
                   )}
-                  {!isFirst && <></>}
+                  {/* Hidden empty cell when not first metric in category, to keep columns aligned */}
+                  {!isFirst && null}
                   <TableCell
                     sx={{
-                      bgcolor: "#fff",
-                      borderTop: isFirst ? "2px solid #e0e6f3" : "none",
-                      borderBottom: isLast ? "2px solid #e0e6f3" : "1px solid #f0f0f0",
+                      borderRight: borderStyle,
+                      borderBottom: isLast ? borderStyle : "1px solid #f0f0f0",
+                      borderTop: isFirst ? borderStyle : 0,
+                      minWidth: 200,
+                      bgcolor: "#fff"
                     }}
                   >
                     <Chip
@@ -105,13 +153,16 @@ export default function AggregatedCompareTable({
                       </Typography>
                     )}
                   </TableCell>
-                  {selectedModels.map(model => (
+                  {selectedModels.map((model, i) => (
                     <TableCell
                       key={model + "_" + metric}
                       align="center"
                       sx={{
-                        borderTop: isFirst ? "2px solid #e0e6f3" : "none",
-                        borderBottom: isLast ? "2px solid #e0e6f3" : "1px solid #f0f0f0",
+                        borderRight: i === selectedModels.length - 1 ? "none" : borderStyle,
+                        borderBottom: isLast ? borderStyle : "1px solid #f0f0f0",
+                        borderTop: isFirst ? borderStyle : 0,
+                        minWidth: 90,
+                        bgcolor: "#fff"
                       }}
                     >
                       <Chip
@@ -137,7 +188,7 @@ export default function AggregatedCompareTable({
                 </TableRow>
               );
             })
-          ))}
+          )}
         </TableBody>
       </Table>
     </Box>
