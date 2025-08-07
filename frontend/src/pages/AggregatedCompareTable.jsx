@@ -58,11 +58,12 @@ export default function AggregatedCompareTable({
           <TableRow>
             <TableCell
               sx={{
+                textAlign: "center",
                 fontWeight: 700,
                 minWidth: 170,
                 borderRight: borderStyle,
                 borderBottom: borderStyle,
-                background: "#fafbfc"
+                background: "#e2edf9ff"
               }}
             >
               Metric Category
@@ -73,7 +74,7 @@ export default function AggregatedCompareTable({
                 minWidth: 210,
                 borderRight: borderStyle,
                 borderBottom: borderStyle,
-                background: "#fafbfc"
+                background: "#e2edf9ff"
               }}
             >
               Metric Name
@@ -87,7 +88,7 @@ export default function AggregatedCompareTable({
                   minWidth: 110,
                   borderRight: i === selectedModels.length - 1 ? "none" : borderStyle,
                   borderBottom: borderStyle,
-                  background: "#fafbfc"
+                  background: "#e2edf9ff"
                 }}
               >
                 {model.toUpperCase()}
@@ -116,9 +117,9 @@ export default function AggregatedCompareTable({
                         borderRight: borderStyle,
                         borderBottom: isLast ? borderStyle : 0,
                         borderTop: borderStyle,
-                        bgcolor: "#f9fafd",
+                        bgcolor: "#ffffff",
                         verticalAlign: "middle",
-                        textAlign: "left",
+                        textAlign: "center",
                         minWidth: 140,
                         borderLeft: borderStyle
                       }}
