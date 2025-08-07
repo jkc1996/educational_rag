@@ -9,7 +9,7 @@ export default function AggregatedCompareTable({
 }) {
   if (!compareResults || selectedModels.length < 2) return null;
 
-  // Build a { [model]: { [metric]: avg } } map for all metrics
+  // Calculate averages by model+metric
   const averagesByModel = {};
   selectedModels.forEach(model => {
     averagesByModel[model] = {};
@@ -27,15 +27,26 @@ export default function AggregatedCompareTable({
     });
   });
 
+  // --- Table Render ---
   return (
-    <Box sx={{ width: "100%", overflowX: "auto" }}>
+    <Box sx={{
+      width: "100%",
+      overflowX: "auto",
+      border: "2px solid #e0e6f3",    // <---- OUTSIDE BORDER!
+      borderRadius: "10px",           // Optional, for a nice look
+      background: "#fff"
+    }}>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: 700, minWidth: 150 }}>Metric Category</TableCell>
-            <TableCell sx={{ fontWeight: 700, minWidth: 180 }}>Metric Name</TableCell>
+            <TableCell sx={{ fontWeight: 700, minWidth: 160, borderBottom: "2px solid #e0e6f3" }}>
+              Metric Category
+            </TableCell>
+            <TableCell sx={{ fontWeight: 700, minWidth: 180, borderBottom: "2px solid #e0e6f3" }}>
+              Metric Name
+            </TableCell>
             {selectedModels.map(model => (
-              <TableCell key={model} align="center" sx={{ fontWeight: 700, minWidth: 90 }}>
+              <TableCell key={model} align="center" sx={{ fontWeight: 700, minWidth: 90, borderBottom: "2px solid #e0e6f3" }}>
                 {model.toUpperCase()}
                 <Typography variant="caption" component="div">
                   (Average Score)
@@ -46,17 +57,38 @@ export default function AggregatedCompareTable({
         </TableHead>
         <TableBody>
           {metricCategories.map(category => (
-            <React.Fragment key={category.key}>
-              <TableRow>
-                <TableCell colSpan={2 + selectedModels.length}
-                  sx={{ fontWeight: 900, fontSize: 16, bgcolor: "#fafbfc" }}>
-                  {category.label}
-                </TableCell>
-              </TableRow>
-              {category.metrics.map(metric => (
-                <TableRow key={metric}>
-                  <TableCell sx={{ border: 0 }} />
-                  <TableCell>
+            category.metrics.map((metric, mIdx) => {
+              const isFirst = mIdx === 0;
+              const isLast = mIdx === category.metrics.length - 1;
+              return (
+                <TableRow key={category.key + "_" + metric}>
+                  {isFirst && (
+                    <TableCell
+                      rowSpan={category.metrics.length}
+                      sx={{
+                        fontWeight: 900,
+                        fontSize: 17,
+                        color: "#23396f",
+                        borderRight: "2px solid #e0e6f3",
+                        bgcolor: "#f9fafd",
+                        verticalAlign: "middle",
+                        textAlign: "left",
+                        minWidth: 140,
+                        borderTop: "2px solid #e0e6f3",
+                        borderBottom: isLast ? "2px solid #e0e6f3" : "none"
+                      }}
+                    >
+                      {category.label}
+                    </TableCell>
+                  )}
+                  {!isFirst && <></>}
+                  <TableCell
+                    sx={{
+                      bgcolor: "#fff",
+                      borderTop: isFirst ? "2px solid #e0e6f3" : "none",
+                      borderBottom: isLast ? "2px solid #e0e6f3" : "1px solid #f0f0f0",
+                    }}
+                  >
                     <Chip
                       size="small"
                       label={metric}
@@ -74,7 +106,14 @@ export default function AggregatedCompareTable({
                     )}
                   </TableCell>
                   {selectedModels.map(model => (
-                    <TableCell key={model + "_" + metric} align="center">
+                    <TableCell
+                      key={model + "_" + metric}
+                      align="center"
+                      sx={{
+                        borderTop: isFirst ? "2px solid #e0e6f3" : "none",
+                        borderBottom: isLast ? "2px solid #e0e6f3" : "1px solid #f0f0f0",
+                      }}
+                    >
                       <Chip
                         label={
                           typeof averagesByModel[model][metric] === "number"
@@ -96,10 +135,8 @@ export default function AggregatedCompareTable({
                     </TableCell>
                   ))}
                 </TableRow>
-              ))}
-              {/* Spacing Row */}
-              <TableRow><TableCell colSpan={2 + selectedModels.length} sx={{ py: 0.4, border: 0 }}/></TableRow>
-            </React.Fragment>
+              );
+            })
           ))}
         </TableBody>
       </Table>

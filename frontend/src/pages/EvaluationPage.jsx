@@ -324,12 +324,12 @@ export default function EvaluationPage() {
                   >
                     <ToggleButton value="per-question" sx={{ px: 3 }}>
                       <span style={{ color: compareTableMode === "per-question" ? "#d32f2f" : undefined, fontWeight: 600 }}>
-                        ● PER QUESTION COMPARE
+                        PER QUESTION COMPARE
                       </span>
                     </ToggleButton>
                     <ToggleButton value="aggregated" sx={{ px: 3 }}>
                       <span style={{ color: compareTableMode === "aggregated" ? "#d32f2f" : undefined, fontWeight: 600 }}>
-                        ● AGGREGATE COMPARISION
+                        AGGREGATE COMPARISION
                       </span>
                     </ToggleButton>
                   </ToggleButtonGroup>
