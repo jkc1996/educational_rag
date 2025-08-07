@@ -163,7 +163,7 @@ export default function CompareTable({
                           color: "#111",
                           fontWeight: 600,
                           fontSize: 14,
-                          px: 1,
+                          px: 0.8,
                           minWidth: 40,
                           borderRadius: 1.3,
                           border: "1px solid #e0e0e0",

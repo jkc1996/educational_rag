@@ -160,7 +160,7 @@ export default function MetricTable({
                       color: "#111",
                       fontWeight: 600,
                       fontSize: 14,
-                      px: 1,
+                      px: 0.8,
                       minWidth: 40,
                       borderRadius: 1.3,
                       boxShadow: "0 1px 2px rgba(0,0,0,0.07)",

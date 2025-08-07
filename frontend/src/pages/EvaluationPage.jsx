@@ -6,6 +6,7 @@ import {
 import { METRIC_CATEGORIES, STATIC_COLS, getMetricAverages, METRIC_LABELS } from "../utils/metricUtils";
 import MetricTable from "./MetricTable";
 import CompareTable from "./CompareTable";
+import AggregatedCompareTable from "./AggregatedCompareTable";
 import ModelSelector from "./ModelSelector";
 import ModelMultiSelector from "./ModelMultiSelector";
 import MetricChart from "./MetricChart";
@@ -14,7 +15,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import { DEFAULT_METRICS } from "../constants/defaults";
 import { MODELS } from "../constants/models";
 import { evaluateModels } from "../utils/api";
-import { alignCompareResults, getCompareMetricAverages } from "../utils/compareUtils";
+import { alignCompareResults } from "../utils/compareUtils";
 
 export default function EvaluationPage() {
   // Top-level state
@@ -29,6 +30,9 @@ export default function EvaluationPage() {
   const [chartOpen, setChartOpen] = useState(false);
   const [expandedCell, setExpandedCell] = useState(null);
 
+  // For multi LLM mode: "per-question" vs "aggregate"
+  const [compareTableMode, setCompareTableMode] = useState("per-question");
+
   // Show columns logic
   const [shownMetrics, setShownMetrics] = useState({
     retrieval: [...DEFAULT_METRICS.retrieval],
@@ -38,11 +42,12 @@ export default function EvaluationPage() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [showContexts, setShowContexts] = useState(false);
 
-  // Category
+  // Derived variables
   const category = METRIC_CATEGORIES.find(cat => cat.key === categoryKey);
   const categoryMetrics = category.metrics;
   const metricsToShow = shownMetrics[categoryKey] || [];
   const averages = results ? getMetricAverages(results, metricsToShow) : {};
+  const alignedRows = compareResults ? alignCompareResults(compareResults) : [];
 
   // ---- Single LLM handlers ----
   const handleEvaluate = async () => {
@@ -89,9 +94,9 @@ export default function EvaluationPage() {
     });
   };
 
-  // --- Top Card (Single + Compare) ---
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", background: "#f7fafc", p: 0, m: 0, overflow: "auto" }}>
+      {/* --- TOP BAR (always) --- */}
       <Box sx={{
         width: "100%", maxWidth: 1380, mx: "auto", mt: 3, mb: 1, px: { xs: 1, sm: 2, md: 3 },
       }}>
@@ -117,13 +122,20 @@ export default function EvaluationPage() {
           <ToggleButtonGroup
             value={evalMode}
             exclusive
-            onChange={(_, val) => val && setEvalMode(val)}
+            onChange={(_, val) => {
+              setEvalMode(val);
+              setCompareTableMode("per-question");
+              setResults(null);
+              setCompareResults(null);
+              setError("");
+            }}
             sx={{ mr: 3 }}
             size="small"
           >
             <ToggleButton value="single" sx={{ px: 2 }}>Single LLM</ToggleButton>
-            <ToggleButton value="compare" sx={{ px: 2 }}>Compare LLMs</ToggleButton>
+            <ToggleButton value="compare" sx={{ px: 2 }}>Multi LLM</ToggleButton>
           </ToggleButtonGroup>
+          {/* --- SINGLE LLM CONTROLS --- */}
           {evalMode === "single" ? (
             <>
               <ModelSelector
@@ -152,6 +164,7 @@ export default function EvaluationPage() {
               </Button>
             </>
           ) : (
+            /* --- MULTI LLM CONTROLS --- */
             <>
               <ModelMultiSelector
                 selected={multiModels}
@@ -167,105 +180,29 @@ export default function EvaluationPage() {
               >
                 {loading ? "Comparing..." : "Run Comparison"}
               </Button>
+              <Button
+                variant="outlined"
+                size="medium"
+                onClick={() => setChartOpen(true)}
+                sx={{ ml: 2 }}
+                disabled={!compareResults}
+              >
+                Show Chart
+              </Button>
             </>
           )}
         </Paper>
       </Box>
 
-      {/* --- Main Content --- */}
-      <Box sx={{
-        width: "100%",
-        maxWidth: 1380,
-        mx: "auto",
-        px: { xs: 1, sm: 2, md: 3 },
-        pt: 2,
-      }}>
-        {/* Show error */}
+      {/* --- MAIN CONTENT --- */}
+      <Box sx={{ width: "100%", maxWidth: 1380, mx: "auto", px: { xs: 1, sm: 2, md: 3 }, pt: 2 }}>
+        {/* --- ERROR --- */}
         {error && <Typography color="error" mt={2}>{error}</Typography>}
-        
-        {/* --- Category and Show Columns (shared logic) --- */}
-        <Box sx={{
-          display: "flex", alignItems: "center", gap: 2, mb: 2,
-          justifyContent: { xs: "flex-start", sm: "space-between" }
-        }}>
-          <FormControl sx={{ minWidth: 180 }}>
-            <InputLabel id="cat-dd-label">
-              <CategoryIcon sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }} />Category
-            </InputLabel>
-            <Select
-              labelId="cat-dd-label"
-              value={categoryKey}
-              label="Category"
-              onChange={handleCategoryChange}
-              size="small"
-              sx={{ fontWeight: 600, background: "#fff" }}
-            >
-              {METRIC_CATEGORIES.map(cat => (
-                <MenuItem key={cat.key} value={cat.key}>
-                  {cat.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Box sx={{ flex: 1 }} />
-          <Tooltip title="Choose metrics to show">
-            <Button
-              variant="outlined"
-              startIcon={<ViewColumnIcon />}
-              onClick={handleColMenuOpen}
-              sx={{
-                background: "#fff",
-                fontWeight: 600,
-                borderRadius: 2,
-                minWidth: 140
-              }}
-            >
-              Show Columns
-            </Button>
-          </Tooltip>
-          <Menu
-            anchorEl={anchorEl}
-            open={!!anchorEl}
-            onClose={handleColMenuClose}
-            keepMounted
-          >
-            {/* Always-on base columns for both modes */}
-            <MenuItem dense disabled>
-              <Checkbox checked disabled />
-              <ListItemText primary="Q#" />
-            </MenuItem>
-            <MenuItem dense disabled>
-              <Checkbox checked disabled />
-              <ListItemText primary="Question" />
-            </MenuItem>
-            <MenuItem dense disabled>
-              <Checkbox checked disabled />
-              <ListItemText primary="Ground Truth" />
-            </MenuItem>
-            <MenuItem
-              dense
-              onClick={() => setShowContexts(val => !val)}
-              sx={{ ml: 0 }}
-            >
-              <Checkbox checked={showContexts} />
-              <ListItemText primary="Contexts" />
-            </MenuItem>
-            <Box sx={{ borderTop: "1px solid #eee", mt: 0.5, mb: 0.5 }} />
-            {categoryMetrics.map(metric => (
-              <MenuItem key={metric} dense
-                onClick={() => handleMetricToggle(metric)}
-                disabled={metricsToShow.length === 1 && metricsToShow.includes(metric)}
-              >
-                <Checkbox checked={metricsToShow.includes(metric)} />
-                <ListItemText primary={METRIC_LABELS[metric] || metric} />
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
 
-        {/* --- Table/Chart section --- */}
+        {/* --- SINGLE LLM MODE --- */}
         {evalMode === "single" ? (
           !results ? (
+            // Empty state (before Run Evaluation)
             <Box mt={8} display="flex" flexDirection="column" alignItems="center">
               <Typography variant="h5" color="text.secondary">
                 Click <b>Run Evaluation</b> to see your RAGAS results!
@@ -273,6 +210,65 @@ export default function EvaluationPage() {
             </Box>
           ) : (
             <>
+              {/* --- Category & Show Columns --- */}
+              <Box sx={{
+                display: "flex", alignItems: "center", gap: 2, mb: 2,
+                justifyContent: { xs: "flex-start", sm: "space-between" }
+              }}>
+                <FormControl sx={{ minWidth: 180 }}>
+                  <InputLabel id="cat-dd-label">
+                    <CategoryIcon sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }} />Category
+                  </InputLabel>
+                  <Select
+                    labelId="cat-dd-label"
+                    value={categoryKey}
+                    label="Category"
+                    onChange={handleCategoryChange}
+                    size="small"
+                    sx={{ fontWeight: 600, background: "#fff" }}
+                  >
+                    {METRIC_CATEGORIES.map(cat => (
+                      <MenuItem key={cat.key} value={cat.key}>{cat.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Box sx={{ flex: 1 }} />
+                <Tooltip title="Choose metrics to show">
+                  <Button
+                    variant="outlined"
+                    startIcon={<ViewColumnIcon />}
+                    onClick={handleColMenuOpen}
+                    sx={{ background: "#fff", fontWeight: 600, borderRadius: 2, minWidth: 140 }}
+                  >
+                    Show Columns
+                  </Button>
+                </Tooltip>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={!!anchorEl}
+                  onClose={handleColMenuClose}
+                  keepMounted
+                >
+                  {/* Always-on base columns */}
+                  <MenuItem dense disabled><Checkbox checked disabled /><ListItemText primary="Q#" /></MenuItem>
+                  <MenuItem dense disabled><Checkbox checked disabled /><ListItemText primary="Question" /></MenuItem>
+                  <MenuItem dense disabled><Checkbox checked disabled /><ListItemText primary="Ground Truth" /></MenuItem>
+                  <MenuItem dense onClick={() => setShowContexts(val => !val)} sx={{ ml: 0 }}>
+                    <Checkbox checked={showContexts} /><ListItemText primary="Contexts" />
+                  </MenuItem>
+                  <Box sx={{ borderTop: "1px solid #eee", mt: 0.5, mb: 0.5 }} />
+                  {categoryMetrics.map(metric => (
+                    <MenuItem key={metric} dense
+                      onClick={() => handleMetricToggle(metric)}
+                      disabled={metricsToShow.length === 1 && metricsToShow.includes(metric)}
+                    >
+                      <Checkbox checked={metricsToShow.includes(metric)} />
+                      <ListItemText primary={METRIC_LABELS[metric] || metric} />
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+              {/* --- Table/Chart --- */}
               <MetricChart
                 open={chartOpen}
                 onClose={() => setChartOpen(false)}
@@ -308,18 +304,111 @@ export default function EvaluationPage() {
             </>
           )
         ) : (
+          // --- MULTI LLM MODE ---
           !compareResults ? (
+            // Empty state
             <Typography sx={{ mt: 10, textAlign: "center" }}>
               Select 2 or more models and click <b>Run Comparison</b>
             </Typography>
           ) : (
-            <CompareTable
-              alignedRows={alignCompareResults(compareResults)}
-              selectedModels={multiModels}
-              metricsToShow={metricsToShow}
-              showContexts={showContexts}
-              metricLabels={METRIC_LABELS}
-            />
+            <>
+              {/* --- Table Mode Toggle (radio) --- */}
+              <Box sx={{ width: "100%", mb: 2 }}>
+                {/* Radio buttons as a row */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <ToggleButtonGroup
+                    exclusive
+                    value={compareTableMode}
+                    onChange={(_, val) => val && setCompareTableMode(val)}
+                    size="small"
+                  >
+                    <ToggleButton value="per-question" sx={{ px: 3 }}>
+                      <span style={{ color: compareTableMode === "per-question" ? "#d32f2f" : undefined, fontWeight: 600 }}>
+                        ● PER QUESTION COMPARE
+                      </span>
+                    </ToggleButton>
+                    <ToggleButton value="aggregated" sx={{ px: 3 }}>
+                      <span style={{ color: compareTableMode === "aggregated" ? "#d32f2f" : undefined, fontWeight: 600 }}>
+                        ● AGGREGATE COMPARISION
+                      </span>
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+                {/* Category and Show Columns row (only if per-question) */}
+                {compareTableMode === "per-question" && (
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <FormControl sx={{ minWidth: 180 }}>
+                      <InputLabel id="multi-cat-dd">
+                        <CategoryIcon sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }} />Category
+                      </InputLabel>
+                      <Select
+                        labelId="multi-cat-dd"
+                        value={categoryKey}
+                        label="Category"
+                        onChange={handleCategoryChange}
+                        size="small"
+                        sx={{ fontWeight: 600, background: "#fff" }}
+                      >
+                        {METRIC_CATEGORIES.map(cat => (
+                          <MenuItem key={cat.key} value={cat.key}>{cat.label}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <Box sx={{ flex: 1 }} />
+                    <Tooltip title="Choose metrics to show">
+                      <Button
+                        variant="outlined"
+                        startIcon={<ViewColumnIcon />}
+                        onClick={handleColMenuOpen}
+                        sx={{ background: "#fff", fontWeight: 600, borderRadius: 2, minWidth: 140 }}
+                      >
+                        Show Columns
+                      </Button>
+                    </Tooltip>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={!!anchorEl}
+                      onClose={handleColMenuClose}
+                      keepMounted
+                    >
+                      <MenuItem dense onClick={() => setShowContexts(v => !v)}>
+                        <Checkbox checked={showContexts} />
+                        <ListItemText primary="Contexts" />
+                      </MenuItem>
+                      <Box sx={{ borderTop: "1px solid #eee", my: 0.5 }} />
+                      {(METRIC_CATEGORIES.find(cat => cat.key === categoryKey)?.metrics || []).map(metric => (
+                        <MenuItem
+                          key={metric}
+                          dense
+                          onClick={() => handleMetricToggle(metric)}
+                          disabled={metricsToShow.length === 1 && metricsToShow.includes(metric)}
+                        >
+                          <Checkbox checked={metricsToShow.includes(metric)} />
+                          <ListItemText primary={METRIC_LABELS[metric] || metric} />
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </Box>
+                )}
+              </Box>
+              {/* --- Table --- */}
+              {compareTableMode === "per-question" ? (
+                <CompareTable
+                  alignedRows={alignedRows}
+                  selectedModels={multiModels}
+                  metricsToShow={metricsToShow}
+                  showContexts={showContexts}
+                  metricLabels={METRIC_LABELS}
+                />
+              ) : (
+                <AggregatedCompareTable
+                  compareResults={compareResults}
+                  selectedModels={multiModels}
+                  metricCategories={METRIC_CATEGORIES}
+                  metricLabels={METRIC_LABELS}
+                />
+              )}
+            </>
           )
         )}
       </Box>
