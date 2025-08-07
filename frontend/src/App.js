@@ -87,7 +87,7 @@ function App() {
       <Box sx={{ mt: 8,
             bgcolor: "#f7f8fa",
             minHeight: "100vh", 
-            px: { xs: 1, md: 3 }
+            px: { xs: 1, md: 2 }
             }}>
         <Routes>
           <Route path="/" element={<UploadPage />} />
