@@ -1,0 +1,19 @@
+Question 1
+What is the difference between stemming and lemmatization, and why are these processes important in NLP?
+
+Answer: Stemming and lemmatization are both techniques used to reduce words to their base form. Stemming is a faster, heuristic process that simply chops off the end of a word, sometimes resulting in a root that isn't a real word. In contrast, lemmatization is a more accurate, vocabulary-based process that returns the canonical dictionary form of a word, known as the lemma. These processes are crucial because they help standardize text, allowing an NLP system to treat different forms of a word (like "consulting," "consulted," and "consultant") as the same core concept.
+
+Question 2
+How did the Transformer architecture solve the limitations of earlier deep learning models like RNNs?
+
+Answer: Recurrent Neural Networks (RNNs) struggled to process very long sentences because they had difficulty retaining information over long sequences. The Transformer architecture solved this with a mechanism called self-attention, which allows the model to weigh the importance of all other words in a sentence when processing a single word, regardless of their position. This made it much more efficient and effective at capturing long-range dependencies in language.
+
+Question 3
+What are the two major sub-fields of NLP, and what is the primary goal of each?
+
+Answer: The two major sub-fields are Natural Language Understanding (NLU) and Natural Language Generation (NLG). The primary goal of NLU is to enable machines to comprehend and interpret human language, extracting meaning and intent from text. The goal of NLG is the reverse: to create systems that can generate coherent, human-like text from structured data or a specific input.
+
+Question 4
+What is Reinforcement Learning from Human Feedback (RLHF) and why is it important for modern language models?
+
+Answer: Reinforcement Learning from Human Feedback (RLHF) is a key technique for training language models. It involves using a "reward model," which is trained on human-ranked responses, to provide feedback to the main language model. This process is critical for aligning the model's output with human values, instructions, and preferences, helping to correct for biases and ensure that the generated responses are helpful and harmless.

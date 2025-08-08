@@ -171,7 +171,7 @@ function UploadPage() {
           >
             <CloudUploadIcon sx={{ fontSize: 40, color: "#1A2A53", mb: 1 }} />
             <Typography fontWeight={600} mb={1}>
-              {file ? file.name : "Select PDF file to Upload"}
+              {file ? file.name : "Select PDF or DOCX file to Upload"}
             </Typography>
             <Button
               component="label"
@@ -183,7 +183,7 @@ function UploadPage() {
               <input
                 type="file"
                 hidden
-                accept=".pdf"
+                accept=".pdf,.docx"
                 onChange={e => setFile(e.target.files[0])}
                 disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
               />

@@ -14,6 +14,7 @@ langchain-ollama
 python-dotenv
 fastembed
 pypdf
+docx2txt
 streamlit
 fastapi
 uvicorn
