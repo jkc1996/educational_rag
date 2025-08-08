@@ -2,12 +2,17 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Button, Typography, MenuItem, Select, InputLabel, FormControl,
   TextField, CircularProgress, Snackbar, Alert, Paper, Grid, Checkbox, ListItemText, OutlinedInput, FormControlLabel,
-  Accordion, AccordionSummary, AccordionDetails
+  Accordion, AccordionSummary, AccordionDetails, Chip, Stack
 } from "@mui/material";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import jsPDF from "jspdf";
 import axios from "axios";
+import ShortTextIcon from "@mui/icons-material/ShortText";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import SubjectIcon from "@mui/icons-material/Subject";
 
 // Dummy data (replace with real backend data if needed)
 const SUBJECTS = [
@@ -37,6 +42,14 @@ const ALL_QUESTION_TYPES = [
   { key: "descriptive", label: "Descriptive" }
 ];
 
+const QUESTION_TYPE_ICONS = {
+  one_liner: <ShortTextIcon fontSize="large" sx={{ color: "#466bdb" }} />,
+  true_false: <CheckCircleIcon fontSize="large" sx={{ color: "#1baf5c" }} />,
+  fill_blank: <EditNoteIcon fontSize="large" sx={{ color: "#e79c26" }} />,
+  multiple_choice: <ListAltIcon fontSize="large" sx={{ color: "#aa49ee" }} />,
+  descriptive: <SubjectIcon fontSize="large" sx={{ color: "#db5050" }} />
+};
+
 // SAFELY parse the new {questions: [...]}
 function safeParseQuestions(raw) {
   if (!raw) return [];
@@ -56,7 +69,7 @@ function safeParseQuestions(raw) {
 // For preview
 function formatQuestion(q, idx) {
   return (
-    <Box key={idx} mb={2}>
+    <Box key={idx} mb={2} pb={2} borderBottom={idx === 6 ? 0 : "1px solid #eef2f6"}>
       <Typography fontWeight={600} sx={{ mb: 0.3 }}>
         {`Q${idx + 1}.`}
       </Typography>
@@ -248,18 +261,20 @@ function QuestionPaperPage() {
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" minHeight="80vh" width="100%">
-      <Box width="100%" maxWidth={900} sx={{ px: { xs: 2, md: 0 }, py: 4 }}>
-        <Box display="flex" alignItems="center" mb={3}>
-          <DescriptionIcon sx={{ fontSize: 38, color: "primary.main", mr: 1 }} />
-          <Typography variant="h4" fontWeight={700}>
+    <Box display="flex" flexDirection="column" alignItems="center" minHeight="80vh" width="100%" sx={{ bgcolor: "#f6f8fb" }}>
+      <Box width="100%" maxWidth={950} sx={{ px: { xs: 2, md: 0 }, py: 5 }}>
+        <Box display="flex" alignItems="center" mb={4}>
+          <DescriptionIcon sx={{ fontSize: 38, color: "#1A2A53", mr: 1 }} />
+          <Typography variant="h4" fontWeight={800}>
             Generate Question Paper
           </Typography>
         </Box>
         <form onSubmit={handleGenerate} autoComplete="off">
           {/* SECTION 1 */}
-          <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
-            <Typography variant="h6" fontWeight={700} gutterBottom>1. Data Source</Typography>
+          <Paper sx={{ p: 3, mb: 3, borderRadius: 3, boxShadow: 2, background: "#fafdff" }}>
+            <Typography variant="h6" fontWeight={800} color="primary" gutterBottom>
+              1. Data Source
+            </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth sx={{ minWidth: 200 }}>
@@ -301,61 +316,103 @@ function QuestionPaperPage() {
             </Grid>
           </Paper>
           {/* SECTION 2 */}
-          <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Typography variant="h6" fontWeight={700} gutterBottom>2. Question Setup</Typography>
-              {/* Show running total */}
-              <Typography sx={{ fontWeight: 600, color: "primary.main" }}>
-                Total Questions: {totalQuestions}
-              </Typography>
-            </Box>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
-                  <InputLabel>Difficulty</InputLabel>
-                  <Select
-                    value={difficulty}
-                    onChange={e => setDifficulty(e.target.value)}
-                    label="Difficulty"
-                    disabled={loading}
-                  >
-                    {DIFFICULTIES.map(d => <MenuItem key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</MenuItem>)}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Box display="flex" flexWrap="wrap" alignItems="center" gap={2} mt={2}>
-                  {ALL_QUESTION_TYPES.map(type =>
-                    <Box key={type.key} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={questionTypes.includes(type.key)}
-                            onChange={() => handleTypeChange(type.key)}
-                            disabled={loading}
-                          />
-                        }
-                        label={type.label}
-                      />
-                      <TextField
-                        type="number"
-                        size="small"
-                        disabled={!questionTypes.includes(type.key) || loading}
-                        sx={{ width: 60, ml: 1 }}
-                        value={distribution[type.key] || ""}
-                        onChange={e => handleDistributionChange(type.key, e.target.value)}
-                        inputProps={{ min: 0, step: 1 }}
-                        placeholder="#"
-                      />
-                    </Box>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
-          </Paper>
+         <Paper sx={{ p: 3, mb: 3, borderRadius: 3, boxShadow: 2, background: "#fcfdff" }}>
+  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+    <Typography variant="h6" fontWeight={800} color="primary">
+      2. Question Setup
+    </Typography>
+    <Box
+      sx={{
+        bgcolor: "#1A2A53",
+        color: "#ffffff",
+        borderRadius: "22px",
+        px: 1.5,
+        py: 1,
+        fontWeight: 700,
+        fontSize: 17,
+        minWidth: 165,
+        textAlign: "center",
+        letterSpacing: 0.2,
+        boxShadow: "0 1px 5px #bdd2f980"
+      }}
+    >
+      Total Questions: {totalQuestions}
+    </Box>
+  </Box>
+  <Box maxWidth={260} mb={3}>
+    <FormControl fullWidth>
+      <InputLabel>Difficulty</InputLabel>
+      <Select
+        value={difficulty}
+        onChange={e => setDifficulty(e.target.value)}
+        label="Difficulty"
+        disabled={loading}
+      >
+        {DIFFICULTIES.map(d => (
+          <MenuItem key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  </Box>
+  <Box>
+    {ALL_QUESTION_TYPES.map((type, idx) => (
+      <React.Fragment key={type.key}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            py: 2,
+            px: 1,
+          }}
+        >
+          <Box display="flex" alignItems="center">
+            {QUESTION_TYPE_ICONS[type.key]}
+            <Typography fontWeight={600} fontSize={16} ml={1.5}>
+              {type.label}
+            </Typography>
+          </Box>
+          <Box display="flex" alignItems="center">
+            <Checkbox
+              checked={questionTypes.includes(type.key)}
+              onChange={() => handleTypeChange(type.key)}
+              disabled={loading}
+              sx={{
+                mx: 1.2
+              }}
+            />
+            <TextField
+              type="number"
+              size="small"
+              disabled={!questionTypes.includes(type.key) || loading}
+              sx={{
+                width: 56,
+                "& .MuiInputBase-input": { textAlign: "center", fontWeight: 700 }
+              }}
+              value={distribution[type.key] || ""}
+              onChange={e => handleDistributionChange(type.key, e.target.value)}
+              inputProps={{ min: 0, step: 1 }}
+              placeholder="#"
+            />
+          </Box>
+        </Box>
+        {idx !== ALL_QUESTION_TYPES.length - 1 && (
+          <Box sx={{ height: 1, bgcolor: "#e3e6ed", width: "100%" }} />
+        )}
+      </React.Fragment>
+    ))}
+  </Box>
+</Paper>
+
+
+
+
+
           {/* SECTION 3: Extra Context */}
-          <Paper sx={{ p: 3, mb: 2, borderRadius: 3 }}>
-            <Typography variant="h6" fontWeight={700} gutterBottom>3. Additional Context or Instructions</Typography>
+          <Paper sx={{ p: 3, mb: 2, borderRadius: 3, boxShadow: 1, background: "#f8fbfc" }}>
+            <Typography variant="h6" fontWeight={800} color="primary" gutterBottom>
+              3. Additional Context or Instructions
+            </Typography>
             <TextField
               label="Extra Context / Instructions (Optional)"
               value={extraContext}
@@ -375,7 +432,16 @@ function QuestionPaperPage() {
               variant="contained"
               color="primary"
               size="large"
-              sx={{ fontWeight: 700, fontSize: 18, minWidth: 340, height: 48 }}
+              sx={{
+                fontWeight: 800,
+                fontSize: 18,
+                minWidth: 340,
+                height: 52,
+                width: "100%",
+                borderRadius: 2,
+                boxShadow: "0 4px 16px #183e8140",
+                textTransform: "uppercase"
+              }}
               disabled={loading}
               startIcon={loading ? <CircularProgress color="inherit" size={22} /> : null}
             >
@@ -385,7 +451,12 @@ function QuestionPaperPage() {
         </form>
         {/* Results below */}
         {summary && (
-          <Accordion sx={{ mt: 4, mb: 1, borderRadius: 2, bgcolor: "#e7f6ef" }}>
+          <Accordion sx={{
+            mt: 4, mb: 1, borderRadius: 2,
+            bgcolor: "#e7f6ef",
+            '& .MuiAccordionSummary-root': { minHeight: 54 },
+            '& .MuiAccordionDetails-root': { bgcolor: "#eafaf6" }
+          }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="subtitle1" fontWeight={700} color="primary">
                 Deep Summary
@@ -399,18 +470,29 @@ function QuestionPaperPage() {
           </Accordion>
         )}
         {(questions.length > 0) && (
-          <Paper elevation={0} sx={{ mt: 3, p: 3, bgcolor: "#f8fafc", borderRadius: 2 }}>
-            <Typography variant="subtitle1" fontWeight={700} color="primary" mb={1}>
+          <Paper elevation={0} sx={{
+            mt: 3, p: 3, bgcolor: "#fff", borderRadius: 2, boxShadow: 2,
+            border: "1.5px solid #dde6ee"
+          }}>
+            <Typography variant="subtitle1" fontWeight={800} color="primary" mb={1} sx={{ fontSize: 21 }}>
               Generated Questions:
             </Typography>
             {/* Preview */}
-            {questions.map((q, idx) => formatQuestion(q, idx))}
+            <Box>
+              {questions.map((q, idx) => formatQuestion(q, idx))}
+            </Box>
             {/* Download PDF Button */}
             <Box display="flex" justifyContent="flex-end" mt={2}>
               <Button
-                variant="outlined"
-                color="primary"
-                sx={{ fontWeight: 700 }}
+                variant="contained"
+                color="success"
+                sx={{
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  fontSize: 16,
+                  px: 3,
+                  boxShadow: "0 2px 10px #26b75e20"
+                }}
                 onClick={handleDownloadPDF}
               >
                 Download as PDF

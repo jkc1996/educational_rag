@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, MenuItem, TextField, Typography, LinearProgress, Backdrop, CircularProgress
+  DialogTitle, MenuItem, TextField, Typography, LinearProgress, Backdrop, CircularProgress, Paper,
+  FormControlLabel, Switch, Stack
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import { uploadPdf, ingestPdf } from "../services/uploadService";
 
 const SUBJECTS = [
@@ -87,20 +89,27 @@ function UploadPage() {
       justifyContent="center"
       minHeight="80vh"
       width="100%"
-      sx={{ bgcolor: "#f7f8fa" }}
+      sx={{ bgcolor: "#f6f8fb" }}
     >
-      <Box
-        width="100%"
-        maxWidth={500}
+      <Paper
+        elevation={3}
         sx={{
-          px: { xs: 2, md: 0 },
-          py: 4,
+          width: "100%",
+          maxWidth: 540,
+          px: { xs: 2, md: 5 },
+          py: 5,
+          borderRadius: 4,
+          boxShadow: "0 4px 32px #a9b4cc1a",
+          mt: { xs: 1, sm: 3, md: 5 }  // <-- ADD THIS LINE
         }}
       >
-        <Typography variant="h4" fontWeight={700} mb={3} color="primary.main">
-          Upload Academic PDF
-        </Typography>
-        <form onSubmit={handleSubmit}>
+        <Box display="flex" alignItems="center" mb={3} gap={1}>
+          <FileUploadOutlinedIcon sx={{ fontSize: 38, color: "#2e3c5d" }} />
+          <Typography variant="h4" fontWeight={800} color="#2e3c5d">
+            Upload Academic PDF
+          </Typography>
+        </Box>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <TextField
             select
             label="Subject"
@@ -125,43 +134,69 @@ function UploadPage() {
             margin="normal"
             disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
           />
-          <Box my={2}>
-            <label style={{ fontWeight: 500 }}>
-              <input
-                type="checkbox"
+
+          <FormControlLabel
+            control={
+              <Switch
                 checked={useLlamaParse}
                 onChange={e => setUseLlamaParse(e.target.checked)}
                 disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
-                style={{ marginRight: 8 }}
+                color="primary"
               />
-              Advanced PDF Parsing (LlamaParse)
-            </label>
-          </Box>
-          <Button
-            component="label"
+            }
+            label="Advanced PDF Parsing (LlamaParse)"
+            sx={{
+              mt: 1.5,
+              mb: 1.5,
+              fontWeight: 600
+            }}
+          />
+
+          {/* File upload block */}
+          <Paper
             variant="outlined"
-            fullWidth
-            startIcon={<CloudUploadIcon />}
-            sx={{ my: 2 }}
-            disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
+            sx={{
+              borderStyle: "dashed",
+              bgcolor: "#fafdff",
+              py: 3,
+              mb: 2,
+              borderRadius: 3,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              transition: "border-color 0.3s"
+            }}
           >
-            {file ? file.name : "Select PDF File"}
-            <input
-              type="file"
-              hidden
-              accept=".pdf"
-              onChange={e => setFile(e.target.files[0])}
+            <CloudUploadIcon sx={{ fontSize: 40, color: "#1A2A53", mb: 1 }} />
+            <Typography fontWeight={600} mb={1}>
+              {file ? file.name : "Select PDF file to Upload"}
+            </Typography>
+            <Button
+              component="label"
+              variant="outlined"
+              sx={{ fontWeight: 700 }}
               disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
-            />
-          </Button>
-          {uploadInProgress && <LinearProgress sx={{ mb: 2 }} />}
+            >
+              Choose File
+              <input
+                type="file"
+                hidden
+                accept=".pdf"
+                onChange={e => setFile(e.target.files[0])}
+                disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
+              />
+            </Button>
+          </Paper>
+          {uploadInProgress && <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />}
           <Button
             variant="contained"
             color="primary"
             type="submit"
             fullWidth
             disabled={uploadInProgress || !!uploadedFilename || ingestInProgress}
-            sx={{ fontWeight: 700, fontSize: 18, height: 48 }}
+            sx={{ fontWeight: 800, fontSize: 18, height: 48, borderRadius: 2, my: 1.5 }}
           >
             {uploadInProgress ? "Uploading..." : "Upload"}
           </Button>
@@ -174,13 +209,13 @@ function UploadPage() {
               fullWidth
               onClick={handleIngest}
               disabled={ingestInProgress}
-              sx={{ fontWeight: 700, fontSize: 18, height: 48 }}
+              sx={{ fontWeight: 800, fontSize: 18, height: 48, borderRadius: 2 }}
             >
               {ingestInProgress ? "Processing..." : "Process/Ingest"}
             </Button>
           </Box>
         )}
-      </Box>
+      </Paper>
       <Dialog open={dialog.open} onClose={handleDialogClose}>
         <DialogTitle
           sx={{ color: dialog.type === "success" ? "green" : dialog.type === "error" ? "red" : "inherit" }}
