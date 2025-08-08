@@ -48,11 +48,11 @@ function NavTabs() {
         },
         "& .Mui-selected": {
           color: "#fff",
-          borderBottom: "3px solid #ffbe0b"
+          borderBottom: "2px solid #ffffff"
         }
       }}
     >
-      <Tab label="UPLOAD PDF" disableRipple />
+      <Tab label="UPLOAD DOCUMENT" disableRipple />
       <Tab label="ASK QUESTION" disableRipple />
       <Tab label="Question Paper" disableRipple />
       <Tab label="Evaluation" disableRipple />

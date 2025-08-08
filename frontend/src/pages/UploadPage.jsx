@@ -106,7 +106,7 @@ function UploadPage() {
         <Box display="flex" alignItems="center" mb={3} gap={1}>
           <FileUploadOutlinedIcon sx={{ fontSize: 38, color: "#2e3c5d" }} />
           <Typography variant="h4" fontWeight={800} color="#2e3c5d">
-            Upload Academic PDF
+            Upload Academic Document
           </Typography>
         </Box>
         <form onSubmit={handleSubmit} autoComplete="off">

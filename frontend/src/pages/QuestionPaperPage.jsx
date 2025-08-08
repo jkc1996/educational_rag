@@ -317,99 +317,94 @@ function QuestionPaperPage() {
           </Paper>
           {/* SECTION 2 */}
          <Paper sx={{ p: 3, mb: 3, borderRadius: 3, boxShadow: 2, background: "#fcfdff" }}>
-  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-    <Typography variant="h6" fontWeight={800} color="primary">
-      2. Question Setup
-    </Typography>
-    <Box
-      sx={{
-        bgcolor: "#1A2A53",
-        color: "#ffffff",
-        borderRadius: "22px",
-        px: 1.5,
-        py: 1,
-        fontWeight: 700,
-        fontSize: 17,
-        minWidth: 165,
-        textAlign: "center",
-        letterSpacing: 0.2,
-        boxShadow: "0 1px 5px #bdd2f980"
-      }}
-    >
-      Total Questions: {totalQuestions}
-    </Box>
-  </Box>
-  <Box maxWidth={260} mb={3}>
-    <FormControl fullWidth>
-      <InputLabel>Difficulty</InputLabel>
-      <Select
-        value={difficulty}
-        onChange={e => setDifficulty(e.target.value)}
-        label="Difficulty"
-        disabled={loading}
-      >
-        {DIFFICULTIES.map(d => (
-          <MenuItem key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  </Box>
-  <Box>
-    {ALL_QUESTION_TYPES.map((type, idx) => (
-      <React.Fragment key={type.key}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            py: 2,
-            px: 1,
-          }}
-        >
-          <Box display="flex" alignItems="center">
-            {QUESTION_TYPE_ICONS[type.key]}
-            <Typography fontWeight={600} fontSize={16} ml={1.5}>
-              {type.label}
+          <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+            <Typography variant="h6" fontWeight={800} color="primary">
+              2. Question Setup
             </Typography>
-          </Box>
-          <Box display="flex" alignItems="center">
-            <Checkbox
-              checked={questionTypes.includes(type.key)}
-              onChange={() => handleTypeChange(type.key)}
-              disabled={loading}
+            <Box
               sx={{
-                mx: 1.2
+                bgcolor: "#1A2A53",
+                color: "#ffffff",
+                borderRadius: "22px",
+                px: 1.5,
+                py: 1,
+                fontWeight: 700,
+                fontSize: 17,
+                minWidth: 165,
+                textAlign: "center",
+                letterSpacing: 0.2,
+                boxShadow: "0 1px 5px #bdd2f980"
               }}
-            />
-            <TextField
-              type="number"
-              size="small"
-              disabled={!questionTypes.includes(type.key) || loading}
-              sx={{
-                width: 56,
-                "& .MuiInputBase-input": { textAlign: "center", fontWeight: 700 }
-              }}
-              value={distribution[type.key] || ""}
-              onChange={e => handleDistributionChange(type.key, e.target.value)}
-              inputProps={{ min: 0, step: 1 }}
-              placeholder="#"
-            />
+            >
+              Total Questions: {totalQuestions}
+            </Box>
           </Box>
-        </Box>
-        {idx !== ALL_QUESTION_TYPES.length - 1 && (
-          <Box sx={{ height: 1, bgcolor: "#e3e6ed", width: "100%" }} />
-        )}
-      </React.Fragment>
-    ))}
-  </Box>
-</Paper>
-
-
-
-
-
+          <Box maxWidth={260} mb={3}>
+            <FormControl fullWidth>
+              <InputLabel>Difficulty</InputLabel>
+              <Select
+                value={difficulty}
+                onChange={e => setDifficulty(e.target.value)}
+                label="Difficulty"
+                disabled={loading}
+              >
+                {DIFFICULTIES.map(d => (
+                  <MenuItem key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            {ALL_QUESTION_TYPES.map((type, idx) => (
+              <React.Fragment key={type.key}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    py: 2,
+                    px: 1,
+                  }}
+                >
+                  <Box display="flex" alignItems="center">
+                    {QUESTION_TYPE_ICONS[type.key]}
+                    <Typography fontWeight={600} fontSize={16} ml={1.5}>
+                      {type.label}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" alignItems="center">
+                    <Checkbox
+                      checked={questionTypes.includes(type.key)}
+                      onChange={() => handleTypeChange(type.key)}
+                      disabled={loading}
+                      sx={{
+                        mx: 1.2
+                      }}
+                    />
+                    <TextField
+                      type="number"
+                      size="small"
+                      disabled={!questionTypes.includes(type.key) || loading}
+                      sx={{
+                        width: 56,
+                        "& .MuiInputBase-input": { textAlign: "center", fontWeight: 700 }
+                      }}
+                      value={distribution[type.key] || ""}
+                      onChange={e => handleDistributionChange(type.key, e.target.value)}
+                      inputProps={{ min: 0, step: 1 }}
+                      placeholder="#"
+                    />
+                  </Box>
+                </Box>
+                {idx !== ALL_QUESTION_TYPES.length - 1 && (
+                  <Box sx={{ height: 1, bgcolor: "#e3e6ed", width: "100%" }} />
+                )}
+              </React.Fragment>
+            ))}
+          </Box>
+        </Paper>
           {/* SECTION 3: Extra Context */}
-          <Paper sx={{ p: 3, mb: 2, borderRadius: 3, boxShadow: 1, background: "#f8fbfc" }}>
+          <Paper sx={{ p: 3, mb: 2, borderRadius: 3, boxShadow: 2, background: "#fcfdff" }}>
             <Typography variant="h6" fontWeight={800} color="primary" gutterBottom>
               3. Additional Context or Instructions
             </Typography>
