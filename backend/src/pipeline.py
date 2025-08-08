@@ -70,50 +70,22 @@ def ingest_pdfs_to_chroma(
     return True
 
 
-def get_rag_chain(
-    chroma_persist_dir,
-    top_k=5,
-    llm_backend="groq"
-):
-    """
-    Step 2: For a given subject, load embeddings from Chroma,
-    create retriever and LLM chain, return ready to answer.
-    """
-    logging.info({
-        "event": "rag_chain_init_start",
-        "chroma_dir": chroma_persist_dir,
-        "llm_backend": llm_backend,
-        "top_k": top_k
-    })
-
+def get_rag_chain(chroma_persist_dir, top_k=5, llm_backend="groq"):
+    logging.info({...})
     embed_model = get_fastembed_embedding()
     vectorstore = load_chroma_vectorstore(embed_model, persist_directory=chroma_persist_dir)
     retriever = get_retriever(vectorstore, k=top_k)
 
     if llm_backend == "groq":
         chat_model = get_groq_llm()
-        logging.info({
-            "event": "llm_selected",
-            "llm_type": "groq"
-        })
+        logging.info({"event": "llm_selected", "llm_type": "groq"})
     elif llm_backend == "ollama":
         chat_model = get_ollama_llm()
-        logging.info({
-            "event": "llm_selected",
-            "llm_type": "ollama"
-        })
+        logging.info({"event": "llm_selected", "llm_type": "ollama"})
     else:
         chat_model = get_gemini_llm()
-        logging.info({
-            "event": "llm_selected",
-            "llm_type": "gemini"
-        })
+        logging.info({"event": "llm_selected", "llm_type": "gemini"})
 
     semantic_rag_chain = get_semantic_rag_chain(retriever, chat_model)
-    logging.info({
-        "event": "rag_chain_ready",
-        "chroma_dir": chroma_persist_dir,
-        "llm_backend": llm_backend
-    })
-
+    logging.info({"event": "rag_chain_ready", "chroma_dir": chroma_persist_dir, "llm_backend": llm_backend})
     return semantic_rag_chain

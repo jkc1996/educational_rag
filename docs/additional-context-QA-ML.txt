@@ -1,0 +1,12 @@
+What is the main objective of the course described in the provided text?
+
+The main objective of the course is to help students develop a theoretical and practical understanding of key machine learning principles and apply a range of ML models to challenging problems.
+
+
+What is the primary purpose of the sigmoid function in Logistic Regression?
+
+The primary purpose of the sigmoid function in Logistic Regression is to "squash" a linear score into a value between 0 and 1, which can be interpreted as the probability of an input belonging to the positive class.
+
+What is the core principle of the Minimum Description Length (MDL) principle as it applies to Decision Trees?
+
+The core principle of the Minimum Description Length (MDL) is that the best model for a given dataset is the one that allows the most compressed encoding of both the model itself and the data given the model.

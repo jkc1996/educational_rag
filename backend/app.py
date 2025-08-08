@@ -109,44 +109,51 @@ async def ingest_pdf(req: IngestRequest = Body(...)):
 async def ask_question(
     subject: str = Form(...),
     question: str = Form(...),
-    llm_choice: str = Form(...)
+    llm_choice: str = Form(...),
+    add_context: bool = Form(False)  # <- NEW
 ):
     chroma_dir = f"outputs/chroma_{subject.replace(' ', '_').lower()}"
     cache_key = (chroma_dir, llm_choice)
 
-    logging.info({
-        "event": "question_asked",
-        "subject": subject,
-        "question": question,
-        "llm_choice": llm_choice
-    })
+    logging.info({"event": "question_asked", "subject": subject, "question": question, "llm_choice": llm_choice})
 
     try:
         with cache_lock:
             if cache_key in rag_chain_cache:
-                logging.info({
-                    "event": "rag_cache_hit",
-                    "cache_key": str(cache_key)
-                })
+                logging.info({"event": "rag_cache_hit", "cache_key": str(cache_key)})
                 rag_chain = rag_chain_cache[cache_key]
             else:
-                logging.info({
-                    "event": "rag_cache_miss",
-                    "cache_key": str(cache_key)
-                })
+                logging.info({"event": "rag_cache_miss", "cache_key": str(cache_key)})
                 rag_chain = get_rag_chain(chroma_dir, llm_backend=llm_choice)
                 rag_chain_cache[cache_key] = rag_chain
 
-        raw_answer = rag_chain.invoke(question)
+        result = rag_chain.invoke(question)   # now returns {"answer": str, "sources": list[Document]}
+        raw_answer = result["answer"]
         answer = spacy_polish(raw_answer)
+
+        response = {"answer": answer}
+
+        if add_context:
+            sources = result.get("sources", [])[:5]
+            context_bits = []
+            for d in sources:
+                md = getattr(d, "metadata", {}) or {}
+                context_bits.append({
+                    "source_pdf": md.get("source_pdf") or md.get("source"),
+                    "page": md.get("page"),
+                    "preview": (d.page_content[:300] + "…") if d.page_content and len(d.page_content) > 300 else d.page_content
+                })
+            response["context"] = context_bits
 
         logging.info({
             "event": "answer_generated",
             "subject": subject,
             "question": question,
             "llm_choice": llm_choice,
-            "answer_length": len(answer)
+            "answer_length": len(answer),
+            "context_returned": add_context
         })
+
     except Exception as e:
         logging.error({
             "event": "answer_failed",
@@ -155,8 +162,9 @@ async def ask_question(
             "llm_choice": llm_choice,
             "error": str(e)
         })
-        answer = f"Error while processing question: {e}"
-    return {"answer": answer}
+        return {"answer": f"Error while processing question: {e}"}
+
+    return response
 
 @app.post("/evaluate-ragas/")
 async def evaluate_ragas_api(
