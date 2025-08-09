@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import {
   Box, Button, Typography, TextField,
-  MenuItem, Select, InputLabel, FormControl, CircularProgress, Snackbar, Alert, Paper, Chip, Divider, Grid
+  MenuItem, Select, InputLabel, FormControl, CircularProgress, Snackbar, Alert, Paper, Chip, Divider, Grid,
+  Tooltip, IconButton
 } from "@mui/material";
 import PsychologyAltIcon from "@mui/icons-material/PsychologyAlt";
 import ArticleIcon from "@mui/icons-material/Article";
 import PageviewIcon from "@mui/icons-material/Pageview";
+import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
+import ThumbDownAltOutlinedIcon from "@mui/icons-material/ThumbDownAltOutlined";
+import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 
-const SUBJECTS = [
-  "Machine Learning",
-  "Natural Language Processing"
-];
+const SUBJECTS = ["Machine Learning", "Natural Language Processing"];
 
 const LLMS = [
   { value: "gemini", label: "Gemini (Google)" },
@@ -19,23 +20,33 @@ const LLMS = [
   { value: "ollama", label: "Ollama (Local)" }
 ];
 
-
 function QAPage() {
   const [subject, setSubject] = useState("");
   const [question, setQuestion] = useState("");
   const [llmChoice, setLlmChoice] = useState("gemini");
-  const [addContext, setAddContext] = useState(false); // <-- NEW
+  const [addContext, setAddContext] = useState(false);
+
   const [answer, setAnswer] = useState("");
-  const [contexts, setContexts] = useState([]); // <-- NEW
+  const [contexts, setContexts] = useState([]);
+
+  const [qaSessionId, setQaSessionId] = useState(null);            // <-- NEW
+  const [feedbackChoice, setFeedbackChoice] = useState(null);      // 'up' | 'down' | null
+  const [feedbackComment, setFeedbackComment] = useState("");      // for 👎
+  const [feedbackLoading, setFeedbackLoading] = useState(false);   // spinner for feedback post
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false });
-
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAnswer("");
     setContexts([]);
+    setQaSessionId(null);
+    setFeedbackChoice(null);
+    setFeedbackComment("");
+    setFeedbackSubmitted(false);
     setSnackbar({ open: false });
 
     if (!subject || !question) {
@@ -49,13 +60,12 @@ function QAPage() {
     formData.append("subject", subject);
     formData.append("question", question);
     formData.append("llm_choice", llmChoice);
-    // Only pass add_context if checked; FastAPI bool via Form likes "true"/"false"
     formData.append("add_context", addContext ? "true" : "false");
 
     try {
       const res = await axios.post("http://localhost:8000/ask-question/", formData);
       setAnswer(res.data?.answer ?? "");
-      // pick top 3 if present
+      setQaSessionId(res.data?.qa_session_id ?? null);                 // <-- NEW
       const ctx = Array.isArray(res.data?.context) ? res.data.context.slice(0, 3) : [];
       setContexts(ctx);
       setSnackbar({ open: true, type: "success", message: "Answer retrieved successfully!" });
@@ -63,6 +73,28 @@ function QAPage() {
       setSnackbar({ open: true, type: "error", message: "Error getting answer from server." });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const submitFeedback = async (helpful) => {
+    if (!qaSessionId) {
+      setSnackbar({ open: true, type: "error", message: "Unable to send feedback (missing session id)." });
+      return;
+    }
+    setFeedbackLoading(true);
+    try {
+      await axios.post("http://localhost:8000/api/feedback", {
+        qa_session_id: qaSessionId,
+        helpful,
+        comment: helpful ? null : (feedbackComment?.trim() || null),
+        llm_backend: llmChoice
+      });
+      setFeedbackSubmitted(true);
+      setSnackbar({ open: true, type: "success", message: "Thanks for the feedback!" });
+    } catch (e) {
+      setSnackbar({ open: true, type: "error", message: "Couldn't send feedback. Please try again." });
+    } finally {
+      setFeedbackLoading(false);
     }
   };
 
@@ -129,7 +161,6 @@ function QAPage() {
             minRows={2}
           />
 
-          {/* Checkbox: Ask for additional context */}
           <Box my={2}>
             <label style={{ fontWeight: 500, display: "inline-flex", alignItems: "center", cursor: "pointer" }}>
               <input
@@ -166,6 +197,73 @@ function QAPage() {
             <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
               {answer}
             </Typography>
+
+            {/* --- Feedback row (binary) --- */}
+            <Box mt={2} display="flex" alignItems="center" gap={1} flexWrap="wrap">
+              <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                Was this helpful?
+              </Typography>
+
+              <Tooltip title="Yes">
+                <span>
+                  <IconButton
+                    size="small"
+                    color={feedbackChoice === "up" ? "success" : "default"}
+                    onClick={() => {
+                      if (feedbackSubmitted) return;
+                      setFeedbackChoice("up");
+                      submitFeedback(true);
+                    }}
+                    disabled={!qaSessionId || feedbackSubmitted || feedbackLoading}
+                  >
+                    <ThumbUpAltOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+
+              <Tooltip title="No">
+                <span>
+                  <IconButton
+                    size="small"
+                    color={feedbackChoice === "down" ? "error" : "default"}
+                    onClick={() => {
+                      if (feedbackSubmitted) return;
+                      setFeedbackChoice("down");
+                    }}
+                    disabled={!qaSessionId || feedbackSubmitted || feedbackLoading}
+                  >
+                    <ThumbDownAltOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+
+              {feedbackSubmitted && (
+                <Chip size="small" label="Thanks for the feedback!" color="success" sx={{ ml: 1 }} />
+              )}
+            </Box>
+
+            {/* Comment box visible only when 👎 selected and not yet submitted */}
+            {feedbackChoice === "down" && !feedbackSubmitted && (
+              <Box mt={1} display="flex" gap={1} alignItems="flex-start">
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="What could be improved? (optional)"
+                  value={feedbackComment}
+                  onChange={e => setFeedbackComment(e.target.value)}
+                  disabled={feedbackLoading}
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  endIcon={feedbackLoading ? <CircularProgress size={16} /> : <SendIcon />}
+                  onClick={() => submitFeedback(false)}
+                  disabled={feedbackLoading}
+                >
+                  Submit
+                </Button>
+              </Box>
+            )}
           </Paper>
         )}
 

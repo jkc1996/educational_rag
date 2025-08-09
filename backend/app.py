@@ -13,6 +13,45 @@ from fastapi import Body
 from src.run_ragas_eval import run_ragas_evaluation
 from src.question_generation import summarize_selected_pdfs, generate_question_paper
 from typing import List, Optional
+from datetime import datetime
+import uuid
+from collections import defaultdict  # <-- NEW
+
+# --- Feedback/session caches ---
+QA_CACHE = {}  # qa_session_id -> {query, retrieval_snapshot, answer_excerpt}
+FEEDBACK_LOG = os.path.join(os.getcwd(), "feedback.jsonl")
+
+ENABLE_FEEDBACK_RERANK = os.environ.get("ENABLE_FEEDBACK_RERANK", "false").lower() in ("1", "true", "yes")
+
+# In-memory reputation map (safe default if file is empty/missing)
+CHUNK_REP = defaultdict(lambda: {"up": 0, "down": 0})  # <-- NEW
+
+def rebuild_reputation_from_log():  # <-- NEW
+    """Scan feedback.jsonl and rebuild CHUNK_REP (idempotent)."""
+    CHUNK_REP.clear()
+    if not os.path.exists(FEEDBACK_LOG):
+        return
+    try:
+        with open(FEEDBACK_LOG, "r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    row = json.loads(line)
+                except Exception:
+                    continue
+                helpful = bool(row.get("helpful"))
+                for snap in (row.get("retrieval_snapshot") or []):
+                    uid = snap.get("chunk_uid")
+                    if not uid:
+                        continue
+                    if helpful:
+                        CHUNK_REP[uid]["up"] += 1
+                    else:
+                        CHUNK_REP[uid]["down"] += 1
+    except Exception as e:
+        logging.error({"event": "reputation_rebuild_failed", "error": str(e)})
+
+# Build reputation once on startup (safe no-op if file absent)
+rebuild_reputation_from_log()  # <-- NEW
 
 app = FastAPI()
 
@@ -124,17 +163,39 @@ async def ask_question(
                 rag_chain = rag_chain_cache[cache_key]
             else:
                 logging.info({"event": "rag_cache_miss", "cache_key": str(cache_key)})
-                rag_chain = get_rag_chain(chroma_dir, llm_backend=llm_choice)
+                rag_chain = get_rag_chain(chroma_dir, llm_backend=llm_choice, enable_feedback_rerank=ENABLE_FEEDBACK_RERANK)
                 rag_chain_cache[cache_key] = rag_chain
 
         result = rag_chain.invoke(question)   # now returns {"answer": str, "sources": list[Document]}
         raw_answer = result["answer"]
         answer = spacy_polish(raw_answer)
 
-        response = {"answer": answer}
+        # --- build retrieval snapshot from result["sources"] ---
+        sources = result.get("sources", [])[:5]
+        retrieval_snapshot = []
+        for i, d in enumerate(sources, start=1):
+            md = getattr(d, "metadata", {}) or {}
+            retrieval_snapshot.append({
+                "chunk_uid": md.get("chunk_uid"),
+                "source_pdf": md.get("source_pdf") or md.get("source"),
+                "page": md.get("page"),
+                "rank": i
+            })
+
+        # --- create a session id and cache minimal context for feedback ---
+        qa_session_id = str(uuid.uuid4())
+        QA_CACHE[qa_session_id] = {
+            "query": question,
+            "retrieval_snapshot": retrieval_snapshot,
+            "answer_excerpt": (answer[:600] if isinstance(answer, str) else str(answer))
+        }
+
+        response = {
+            "answer": answer,
+            "qa_session_id": qa_session_id  # <--- return this to the UI
+        }
 
         if add_context:
-            sources = result.get("sources", [])[:5]
             context_bits = []
             for d in sources:
                 md = getattr(d, "metadata", {}) or {}
@@ -165,6 +226,47 @@ async def ask_question(
         return {"answer": f"Error while processing question: {e}"}
 
     return response
+
+class FeedbackIn(BaseModel):
+    qa_session_id: str
+    helpful: bool
+    comment: str | None = None
+    llm_backend: str | None = None
+
+@app.post("/api/feedback")
+async def submit_feedback(fb: FeedbackIn):
+    # pull the snapshot from cache (if not found, still log the raw feedback)
+    snap = QA_CACHE.pop(fb.qa_session_id, None) or {}
+    entry = {
+        "qa_session_id": fb.qa_session_id,
+        "helpful": fb.helpful,
+        "comment": fb.comment,
+        "llm_backend": fb.llm_backend,
+        "timestamp": datetime.utcnow().isoformat(),
+        "query": snap.get("query"),
+        "retrieval_snapshot": snap.get("retrieval_snapshot", []),
+        "answer_excerpt": snap.get("answer_excerpt"),
+    }
+    try:
+        # append to JSONL
+        with open(FEEDBACK_LOG, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+        # --- live update of CHUNK_REP (so we don't need to rescan the file) ---
+        helpful = bool(fb.helpful)
+        for s in (entry.get("retrieval_snapshot") or []):
+            uid = s.get("chunk_uid")
+            if not uid:
+                continue
+            if helpful:
+                CHUNK_REP[uid]["up"] += 1
+            else:
+                CHUNK_REP[uid]["down"] += 1
+
+        return {"ok": True}
+    except Exception as e:
+        logging.error({"event": "feedback_write_failed", "error": str(e)})
+        return JSONResponse(content={"ok": False, "error": str(e)}, status_code=500)
 
 @app.post("/evaluate-ragas/")
 async def evaluate_ragas_api(

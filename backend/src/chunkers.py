@@ -5,6 +5,11 @@ from src.utils import final_clean_text
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
 import logging
 import os
+import hashlib
+
+def _make_chunk_uid(text: str, meta: dict) -> str:
+    base = f"{meta.get('source_pdf','')}_{meta.get('page','')}_{hashlib.md5(text.encode('utf-8')).hexdigest()[:10]}"
+    return base
 
 def run_semantic_chunking(files, pre_chunker, embed_model):
     """
@@ -71,5 +76,9 @@ def run_semantic_chunking(files, pre_chunker, embed_model):
 
     for chunk in all_semantic_chunks:
         chunk.page_content = final_clean_text(chunk.page_content)
+        m = getattr(chunk, "metadata", {}) or {}
+        if "chunk_uid" not in m:
+            m["chunk_uid"] = _make_chunk_uid(chunk.page_content, m)
+        chunk.metadata = m
 
     return all_semantic_chunks
