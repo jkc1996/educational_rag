@@ -1,0 +1,702 @@
+[
+  {
+    "id": 1,
+    "question": "In one sentence, define Machine Learning.",
+    "contexts": [
+      "1. Introduction 1.1 Introduction to ML Machine Learning (ML) is a subfield of artificial intelligence that focuses on designing algorithms capable of learning from data and improving over time without being explicitly programmed for every possible task. Unlike traditional software, where rules are crafted by human programmers, ML systems identify and extract patterns from large volumes of data, allowing them to make predictions, detect anomalies, and even generate new content."
+    ],
+    "answer": "Machine Learning is writing programs that automatically create rules from data so software can work without human-defined logic.",
+    "ground_truth": "Machine Learning is a subfield of AI that designs algorithms which learn from data and improve over time without being explicitly programmed for every task.",
+    "user_input": "In one sentence, define Machine Learning.",
+    "retrieved_contexts": [
+      "1. Introduction 1.1 Introduction to ML Machine Learning (ML) is a subfield of artificial intelligence that focuses on designing algorithms capable of learning from data and improving over time without being explicitly programmed for every possible task. Unlike traditional software, where rules are crafted by human programmers, ML systems identify and extract patterns from large volumes of data, allowing them to make predictions, detect anomalies, and even generate new content."
+    ],
+    "response": "Machine Learning is writing programs that automatically create rules from data so software can work without human-defined logic.",
+    "reference": "Machine Learning is a subfield of AI that designs algorithms which learn from data and improve over time without being explicitly programmed for every task.",
+    "context_recall": 0.84,
+    "faithfulness": 0.66,
+    "answer_relevancy": 0.86,
+    "context_precision": 0.91,
+    "factual_correctness(mode=f1)": 0.62,
+    "semantic_similarity": 0.89,
+    "nv_accuracy": 0.75,
+    "bleu_score": 0.23,
+    "rouge_score(mode=fmeasure)": 0.52,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.75,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 2,
+    "question": "List four application areas mentioned for ML in the document.",
+    "contexts": [
+      "The applications of ML are vast: self -driving cars, language translation, recommendation engines, medical image analysis, fraud detection, and more. ML approaches include supervised learning (with labeled data), unsupervised learning (discovering structure in unlabeled data), semi-supervised learning (combining both), and reinforcement learning (learning via trial and error and rewards)."
+    ],
+    "answer": "Fraud detection, medical imaging, chatbots, and real-time translation.",
+    "ground_truth": "Examples include self-driving cars, language translation, recommendation engines, medical image analysis, and fraud detection.",
+    "user_input": "List four application areas mentioned for ML in the document.",
+    "retrieved_contexts": [
+      "The applications of ML are vast: self -driving cars, language translation, recommendation engines, medical image analysis, fraud detection, and more. ML approaches include supervised learning (with labeled data), unsupervised learning (discovering structure in unlabeled data), semi-supervised learning (combining both), and reinforcement learning (learning via trial and error and rewards)."
+    ],
+    "response": "Fraud detection, medical imaging, chatbots, and real-time translation.",
+    "reference": "Examples include self-driving cars, language translation, recommendation engines, medical image analysis, and fraud detection.",
+    "context_recall": 0.82,
+    "faithfulness": 0.64,
+    "answer_relevancy": 0.85,
+    "context_precision": 0.9,
+    "factual_correctness(mode=f1)": 0.55,
+    "semantic_similarity": 0.87,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.19,
+    "rouge_score(mode=fmeasure)": 0.44,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 3,
+    "question": "Name the four main approaches to machine learning highlighted in the notes.",
+    "contexts": [
+      "The applications of ML are vast: self -driving cars, language translation, recommendation engines, medical image analysis, fraud detection, and more. ML approaches include supervised learning (with labeled data), unsupervised learning (discovering structure in unlabeled data), semi-supervised learning (combining both), and reinforcement learning (learning via trial and error and rewards)."
+    ],
+    "answer": "Supervised, unsupervised, reinforcement, and self-supervised learning.",
+    "ground_truth": "Supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.",
+    "user_input": "Name the four main approaches to machine learning highlighted in the notes.",
+    "retrieved_contexts": [
+      "The applications of ML are vast: self -driving cars, language translation, recommendation engines, medical image analysis, fraud detection, and more. ML approaches include supervised learning (with labeled data), unsupervised learning (discovering structure in unlabeled data), semi-supervised learning (combining both), and reinforcement learning (learning via trial and error and rewards)."
+    ],
+    "response": "Supervised, unsupervised, reinforcement, and self-supervised learning.",
+    "reference": "Supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.",
+    "context_recall": 0.78,
+    "faithfulness": 0.6,
+    "answer_relevancy": 0.84,
+    "context_precision": 0.88,
+    "factual_correctness(mode=f1)": 0.52,
+    "semantic_similarity": 0.86,
+    "nv_accuracy": 0.75,
+    "bleu_score": 0.16,
+    "rouge_score(mode=fmeasure)": 0.4,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 4,
+    "question": "State the main objective of the course in one or two lines.",
+    "contexts": [
+      "By the end of this course, students will be able to implement, train, tune, and validate a range of ML models (including regression, classification, and clustering) and apply them to challenging problems in science, engineering, and business. The course also introduces students to Python-based ML libraries such as scikit -learn and TensorFlow, which are widely used in both academia and industry."
+    ],
+    "answer": "Practice building ML models end to end and learn how to deploy them in production with popular Python libraries.",
+    "ground_truth": "The purpose is to develop theoretical and practical understanding of key ML principles and gain hands-on experience with real-world datasets across preprocessing, model building, evaluation, and deployment.",
+    "user_input": "State the main objective of the course in one or two lines.",
+    "retrieved_contexts": [
+      "By the end of this course, students will be able to implement, train, tune, and validate a range of ML models (including regression, classification, and clustering) and apply them to challenging problems in science, engineering, and business. The course also introduces students to Python-based ML libraries such as scikit -learn and TensorFlow, which are widely used in both academia and industry."
+    ],
+    "response": "Practice building ML models end to end and learn how to deploy them in production with popular Python libraries.",
+    "reference": "The purpose is to develop theoretical and practical understanding of key ML principles and gain hands-on experience with real-world datasets across preprocessing, model building, evaluation, and deployment.",
+    "context_recall": 0.83,
+    "faithfulness": 0.69,
+    "answer_relevancy": 0.9,
+    "context_precision": 0.95,
+    "factual_correctness(mode=f1)": 0.58,
+    "semantic_similarity": 0.9,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.28,
+    "rouge_score(mode=fmeasure)": 0.57,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 1.0,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 5,
+    "question": "Write the basic gradient descent update rule and say what happens with a very high vs very low learning rate.",
+    "contexts": [
+      "2.2 Iterative Method - Gradient Descent For large -scale datasets or high -dimensional data, the direct method is not practical because it requires inverting a very large matrix, which is computationally expensive and numerically unstable for ill-conditioned problems. Gradient Descent is an iterative optimization algorithm that efficiently finds the weights minimizing the loss function by taking small steps in the direction of the negative gradient. It is widely used across many models, including linear and logistic regression, and is the backbone of training neural networks and many other ML models."
+    ],
+    "answer": "w = w + alpha * gradient. If alpha is too high it converges very fast; if too low it might diverge.",
+    "ground_truth": "w := w - alpha * grad L(w). Too high a learning rate can cause divergence; too low makes convergence slow.",
+    "user_input": "Write the basic gradient descent update rule and say what happens with a very high vs very low learning rate.",
+    "retrieved_contexts": [
+      "2.2 Iterative Method - Gradient Descent For large -scale datasets or high -dimensional data, the direct method is not practical because it requires inverting a very large matrix, which is computationally expensive and numerically unstable for ill-conditioned problems. Gradient Descent is an iterative optimization algorithm that efficiently finds the weights minimizing the loss function by taking small steps in the direction of the negative gradient. It is widely used across many models, including linear and logistic regression, and is the backbone of training neural networks and many other ML models."
+    ],
+    "response": "w = w + alpha * gradient. If alpha is too high it converges very fast; if too low it might diverge.",
+    "reference": "w := w - alpha * grad L(w). Too high a learning rate can cause divergence; too low makes convergence slow.",
+    "context_recall": 0.8,
+    "faithfulness": 0.58,
+    "answer_relevancy": 0.82,
+    "context_precision": 0.88,
+    "factual_correctness(mode=f1)": 0.45,
+    "semantic_similarity": 0.83,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.14,
+    "rouge_score(mode=fmeasure)": 0.36,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 6,
+    "question": "State the bias-variance decomposition and what it implies.",
+    "contexts": [
+      "2.4 Bias -Variance Decomposition Bias-variance decomposition is a fundamental theoretical concept in machine learning that helps explain the sources of error in model predictions. The goal of machine learning is to find a model that achieves the best trade-off between bias and variance: Expected Error = (Bias)^2 + Variance + Irreducible Error. This decomposition highlights that overly simple models may suffer from high bias (underfitting), while overly complex models may suffer from high variance (overfitting). The primary advantages of linear models are their simplicity, interpretability, and speed, making them suitable for large datasets. They serve as an excellent baseline for many real -world classification problems."
+    ],
+    "answer": "Error is bias plus variance; you want both low at the same time with no other term.",
+    "ground_truth": "Expected Error = (Bias)^2 + Variance + Irreducible Error; the goal is to strike a good trade-off between bias and variance.",
+    "user_input": "State the bias-variance decomposition and what it implies.",
+    "retrieved_contexts": [
+      "2.4 Bias -Variance Decomposition Bias-variance decomposition is a fundamental theoretical concept in machine learning that helps explain the sources of error in model predictions. The goal of machine learning is to find a model that achieves the best trade-off between bias and variance: Expected Error = (Bias)^2 + Variance + Irreducible Error. This decomposition highlights that overly simple models may suffer from high bias (underfitting), while overly complex models may suffer from high variance (overfitting). The primary advantages of linear models are their simplicity, interpretability, and speed, making them suitable for large datasets. They serve as an excellent baseline for many real -world classification problems."
+    ],
+    "response": "Error is bias plus variance; you want both low at the same time with no other term.",
+    "reference": "Expected Error = (Bias)^2 + Variance + Irreducible Error; the goal is to strike a good trade-off between bias and variance.",
+    "context_recall": 0.83,
+    "faithfulness": 0.6,
+    "answer_relevancy": 0.86,
+    "context_precision": 0.95,
+    "factual_correctness(mode=f1)": 0.53,
+    "semantic_similarity": 0.87,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.18,
+    "rouge_score(mode=fmeasure)": 0.42,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 1.0,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 7,
+    "question": "Write the closed-form normal equation for linear regression weights.",
+    "contexts": [
+      "2.1 Direct Solution Method Linear regression is one of the simplest and most widely used methods for predicting a continuous outcome based on one or more input features. The direct solution sometimes called the closed-form solution uses calculus and linear algebra to set the derivative of the loss function to zero and solve for the optimal weights. Additionally, if the matrix Xt * X is singular (not invertible) or nearly singular (ill-conditioned), the direct method can be unstable or may not work at all. In such cases, regularization techniques such as Ridge regression (which adds a penalty term to the diagonal of Xt * X) are commonly used to ensure a stable solution."
+    ],
+    "answer": "w_star = (X^T X) X^T y",
+    "ground_truth": "w_star = (X^T X)^{-1} X^T y",
+    "user_input": "Write the closed-form normal equation for linear regression weights.",
+    "retrieved_contexts": [
+      "2.1 Direct Solution Method Linear regression is one of the simplest and most widely used methods for predicting a continuous outcome based on one or more input features. The direct solution sometimes called the closed-form solution uses calculus and linear algebra to set the derivative of the loss function to zero and solve for the optimal weights. Additionally, if the matrix Xt * X is singular (not invertible) or nearly singular (ill-conditioned), the direct method can be unstable or may not work at all. In such cases, regularization techniques such as Ridge regression (which adds a penalty term to the diagonal of Xt * X) are commonly used to ensure a stable solution."
+    ],
+    "response": "w_star = (X^T X) X^T y",
+    "reference": "w_star = (X^T X)^{-1} X^T y",
+    "context_recall": 0.79,
+    "faithfulness": 0.55,
+    "answer_relevancy": 0.82,
+    "context_precision": 0.89,
+    "factual_correctness(mode=f1)": 0.47,
+    "semantic_similarity": 0.84,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.12,
+    "rouge_score(mode=fmeasure)": 0.35,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 8,
+    "question": "What problem do linear basis function models solve, in one sentence?",
+    "contexts": [
+      "2.3 Linear Basis Function Models Real-world data often exhibits non -linear relationships, which simple linear regression cannot capture. Linear basis function models address this limitation by transforming input data into a higher-dimensional feature space, where linear models can fit more complex patterns. Examples include polynomial basis functions, Gaussian or radial basis functions, and sigmoids. This transformation allows the model to capture non -linear trends while retaining the computational simplicity of linear models."
+    ],
+    "answer": "They make linear models work by adding polynomial terms only.",
+    "ground_truth": "They transform inputs into a higher-dimensional feature space so a linear model can capture nonlinear relationships.",
+    "user_input": "What problem do linear basis function models solve, in one sentence?",
+    "retrieved_contexts": [
+      "2.3 Linear Basis Function Models Real-world data often exhibits non -linear relationships, which simple linear regression cannot capture. Linear basis function models address this limitation by transforming input data into a higher-dimensional feature space, where linear models can fit more complex patterns. Examples include polynomial basis functions, Gaussian or radial basis functions, and sigmoids. This transformation allows the model to capture non -linear trends while retaining the computational simplicity of linear models."
+    ],
+    "response": "They make linear models work by adding polynomial terms only.",
+    "reference": "They transform inputs into a higher-dimensional feature space so a linear model can capture nonlinear relationships.",
+    "context_recall": 0.86,
+    "faithfulness": 0.62,
+    "answer_relevancy": 0.88,
+    "context_precision": 0.95,
+    "factual_correctness(mode=f1)": 0.56,
+    "semantic_similarity": 0.89,
+    "nv_accuracy": 0.75,
+    "bleu_score": 0.21,
+    "rouge_score(mode=fmeasure)": 0.48,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 1.0,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 9,
+    "question": "What is instance-based learning in machine learning?",
+    "contexts": [
+      "Instance-based learning, often referred to as \"memory-based learning\" or \"lazy learning,\" is a major paradigm within machine learning that contrasts with model-based, or \"eager,\" approaches. Unlike traditional methods that learn a global function or set of parameters from the training data, instance-based methods store the raw training examples and use them directly to make predictions for new queries. This approach fundamentally alters the learning process, shifting the burden of generalization from the training phase to the prediction phase. As a result, instance-based learners can naturally adapt to highly irregular or locally varying data, since every prediction can leverage the most relevant pieces of the training set."
+    ],
+    "answer": "Instance-based learning memorizes data and uses it to answer later queries without really comparing similarity or distances.",
+    "ground_truth": "Instance-based learning is a lazy approach that stores training examples and predicts for new inputs by comparing them to stored instances using similarity, without learning a global model during training.",
+    "user_input": "What is instance-based learning in machine learning?",
+    "retrieved_contexts": [
+      "Instance-based learning, often referred to as \"memory-based learning\" or \"lazy learning,\" is a major paradigm within machine learning that contrasts with model-based, or \"eager,\" approaches. Unlike traditional methods that learn a global function or set of parameters from the training data, instance-based methods store the raw training examples and use them directly to make predictions for new queries. This approach fundamentally alters the learning process, shifting the burden of generalization from the training phase to the prediction phase. As a result, instance-based learners can naturally adapt to highly irregular or locally varying data, since every prediction can leverage the most relevant pieces of the training set."
+    ],
+    "response": "Instance-based learning memorizes data and uses it to answer later queries without really comparing similarity or distances.",
+    "reference": "Instance-based learning is a lazy approach that stores training examples and predicts for new inputs by comparing them to stored instances using similarity, without learning a global model during training.",
+    "context_recall": 0.86,
+    "faithfulness": 0.62,
+    "answer_relevancy": 0.82,
+    "context_precision": 0.9,
+    "factual_correctness(mode=f1)": 0.55,
+    "semantic_similarity": 0.84,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.18,
+    "rouge_score(mode=fmeasure)": 0.44,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.75,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 10,
+    "question": "Write the Euclidean distance and the k-NN classification rule.",
+    "contexts": [
+      "At the heart of k-NN is a distance function, most commonly the Euclidean distance for real-valued features. When a new data point x arrives, the algorithm computes the distance between x and every training point x_i. The k training points with the smallest distances become the neighbors used for prediction. For classification tasks, the class label most frequently represented among these neighbors is assigned to x; for regression, the average or weighted average of their target values is used. The prediction step in k-NN is formalized as follows. For a query point x, compute d(x,x_i) = sqrt(sum_j (x_j - x_i_j)^2). The k closest instances are identified. For classification: y_hat = mode{y_1, ..., y_k}."
+    ],
+    "answer": "d(x,x_i) = sum_j (x_j - x_i_j)^2. For classification, pick the neighbor class that appears most often.",
+    "ground_truth": "d(x,x_i) = sqrt(sum_j (x_j - x_i_j)^2). For classification, y_hat = mode{y_1, ..., y_k}.",
+    "user_input": "Write the Euclidean distance and the k-NN classification rule.",
+    "retrieved_contexts": [
+      "At the heart of k-NN is a distance function, most commonly the Euclidean distance for real-valued features. When a new data point x arrives, the algorithm computes the distance between x and every training point x_i. The k training points with the smallest distances become the neighbors used for prediction. For classification tasks, the class label most frequently represented among these neighbors is assigned to x; for regression, the average or weighted average of their target values is used. The prediction step in k-NN is formalized as follows. For a query point x, compute d(x,x_i) = sqrt(sum_j (x_j - x_i_j)^2). The k closest instances are identified. For classification: y_hat = mode{y_1, ..., y_k}."
+    ],
+    "response": "d(x,x_i) = sum_j (x_j - x_i_j)^2. For classification, pick the neighbor class that appears most often.",
+    "reference": "d(x,x_i) = sqrt(sum_j (x_j - x_i_j)^2). For classification, y_hat = mode{y_1, ..., y_k}.",
+    "context_recall": 0.83,
+    "faithfulness": 0.6,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.88,
+    "factual_correctness(mode=f1)": 0.46,
+    "semantic_similarity": 0.82,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.16,
+    "rouge_score(mode=fmeasure)": 0.41,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 11,
+    "question": "True or False: A very small k makes k-NN sensitive to noise, while a very large k may oversmooth and ignore local structure.",
+    "contexts": [
+      "A key factor influencing k-NN's performance is the choice of k. A small k (e.g., k=1) makes the classifier sensitive to noise and outliers. On the other hand, a large k smooths the predictions and may ignore important local structure. Cross-validation is commonly used to select k, balancing bias and variance for the specific data at hand."
+    ],
+    "answer": "True.",
+    "ground_truth": "True.",
+    "user_input": "True or False: A very small k makes k-NN sensitive to noise, while a very large k may oversmooth and ignore local structure.",
+    "retrieved_contexts": [
+      "A key factor influencing k-NN's performance is the choice of k. A small k (e.g., k=1) makes the classifier sensitive to noise and outliers. On the other hand, a large k smooths the predictions and may ignore important local structure. Cross-validation is commonly used to select k, balancing bias and variance for the specific data at hand."
+    ],
+    "response": "True.",
+    "reference": "True.",
+    "context_recall": 0.94,
+    "faithfulness": 0.9,
+    "answer_relevancy": 0.98,
+    "context_precision": 0.96,
+    "factual_correctness(mode=f1)": 1.0,
+    "semantic_similarity": 0.99,
+    "nv_accuracy": 1.0,
+    "bleu_score": 1.0,
+    "rouge_score(mode=fmeasure)": 1.0,
+    "exact_match": 1.0,
+    "string_present": 1.0,
+    "nv_context_relevance": 1.0,
+    "nv_response_groundedness": 1.0
+  },
+  {
+    "id": 12,
+    "question": "In one or two lines, what is the main idea behind Locally Weighted Regression (LWR)?",
+    "contexts": [
+      "Locally Weighted Regression (LWR) stands as one of the most elegant methods for capturing complex, nonlinear trends in regression tasks. Its central philosophy is that while the global relationship between inputs and outputs might be hard to model, the behavior in any small neighborhood can often be well-approximated by a simple function, such as a straight line or low-degree polynomial. LWR brings this idea to life by fitting a unique, local regression model for every query point, using only the data points that are nearby and weighing their influence according to their proximity."
+    ],
+    "answer": "LWR computes one global regression and then tweaks nearby points; it does not rely on proximity for weighting.",
+    "ground_truth": "LWR fits a unique local regression model for each query point, using nearby data weighted by proximity to capture complex nonlinear relationships.",
+    "user_input": "In one or two lines, what is the main idea behind Locally Weighted Regression (LWR)?",
+    "retrieved_contexts": [
+      "Locally Weighted Regression (LWR) stands as one of the most elegant methods for capturing complex, nonlinear trends in regression tasks. Its central philosophy is that while the global relationship between inputs and outputs might be hard to model, the behavior in any small neighborhood can often be well-approximated by a simple function, such as a straight line or low-degree polynomial. LWR brings this idea to life by fitting a unique, local regression model for every query point, using only the data points that are nearby and weighing their influence according to their proximity."
+    ],
+    "response": "LWR computes one global regression and then tweaks nearby points; it does not rely on proximity for weighting.",
+    "reference": "LWR fits a unique local regression model for each query point, using nearby data weighted by proximity to capture complex nonlinear relationships.",
+    "context_recall": 0.86,
+    "faithfulness": 0.55,
+    "answer_relevancy": 0.78,
+    "context_precision": 0.9,
+    "factual_correctness(mode=f1)": 0.4,
+    "semantic_similarity": 0.8,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.12,
+    "rouge_score(mode=fmeasure)": 0.33,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.75,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 13,
+    "question": "Provide the Gaussian kernel weight formula used in LWR.",
+    "contexts": [
+      "The core process of LWR involves associating a weight with every training example, based on its distance from the query. Typically, this is achieved through a Gaussian kernel, but other kernels can be used as well. The kernel bandwidth (tau) determines the size of the local neighborhood: with a small tau the model is extremely responsive to local quirks, while a large tau makes it behave more like a global regression. The mathematical formulation for the weight assigned to the i-th training point is: w_i = exp(-||x - x_i||^2 / (2*tau^2)). After assigning weights, LWR fits a weighted least squares model."
+    ],
+    "answer": "w_i = 1 / (1 + ||x - x_i||).",
+    "ground_truth": "w_i = exp(-||x - x_i||^2 / (2*tau^2)).",
+    "user_input": "Provide the Gaussian kernel weight formula used in LWR.",
+    "retrieved_contexts": [
+      "The core process of LWR involves associating a weight with every training example, based on its distance from the query. Typically, this is achieved through a Gaussian kernel, but other kernels can be used as well. The kernel bandwidth (tau) determines the size of the local neighborhood: with a small tau the model is extremely responsive to local quirks, while a large tau makes it behave more like a global regression. The mathematical formulation for the weight assigned to the i-th training point is: w_i = exp(-||x - x_i||^2 / (2*tau^2)). After assigning weights, LWR fits a weighted least squares model."
+    ],
+    "response": "w_i = 1 / (1 + ||x - x_i||).",
+    "reference": "w_i = exp(-||x - x_i||^2 / (2*tau^2)).",
+    "context_recall": 0.8,
+    "faithfulness": 0.5,
+    "answer_relevancy": 0.76,
+    "context_precision": 0.88,
+    "factual_correctness(mode=f1)": 0.35,
+    "semantic_similarity": 0.78,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.11,
+    "rouge_score(mode=fmeasure)": 0.3,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 14,
+    "question": "Write the functional form of an RBF network and the Gaussian basis function.",
+    "contexts": [
+      "The mathematical structure of an RBF network is as follows: f(x) = sum_i w_i * phi(||x - c_i||) + b where c_i are the centers, w_i are weights, phi is the radial basis function (commonly Gaussian), and b is a bias term. The Gaussian RBF is: phi(||x - c_i||) = exp(-||x - c_i||^2 / (2*sigma^2))."
+    ],
+    "answer": "f(x) = sum_i w_i * phi(||x - c_i||) and phi(r) = exp(-r).",
+    "ground_truth": "f(x) = sum_i w_i * phi(||x - c_i||) + b, where phi(r) = exp(-r^2 / (2*sigma^2)).",
+    "user_input": "Write the functional form of an RBF network and the Gaussian basis function.",
+    "retrieved_contexts": [
+      "The mathematical structure of an RBF network is as follows: f(x) = sum_i w_i * phi(||x - c_i||) + b where c_i are the centers, w_i are weights, phi is the radial basis function (commonly Gaussian), and b is a bias term. The Gaussian RBF is: phi(||x - c_i||) = exp(-||x - c_i||^2 / (2*sigma^2))."
+    ],
+    "response": "f(x) = sum_i w_i * phi(||x - c_i||) and phi(r) = exp(-r).",
+    "reference": "f(x) = sum_i w_i * phi(||x - c_i||) + b, where phi(r) = exp(-r^2 / (2*sigma^2)).",
+    "context_recall": 0.82,
+    "faithfulness": 0.57,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.9,
+    "factual_correctness(mode=f1)": 0.42,
+    "semantic_similarity": 0.8,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.13,
+    "rouge_score(mode=fmeasure)": 0.37,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.75,
+    "nv_response_groundedness": 0.75
+  },
+  {
+    "id": 15,
+    "question": "Write the hard-margin SVM optimization problem and define the margin.",
+    "contexts": [
+      "Let (x_i, y_i) be the data with y_i in {+1, -1}. We want to find w and b so that y_i*(w^T x_i + b) >= 1 for all i. The margin is 2/||w||. Maximizing the margin is equivalent to minimizing (1/2)||w||^2 subject to y_i*(w^T x_i + b) >= 1 for all i. This is a convex quadratic programming problem."
+    ],
+    "answer": "Minimize ||w|| subject to y_i*(w^T x_i + b) > 0; the margin is 1/||w||.",
+    "ground_truth": "Minimize (1/2)||w||^2 subject to y_i*(w^T x_i + b) >= 1 for all i; the margin is 2/||w||.",
+    "user_input": "Write the hard-margin SVM optimization problem and define the margin.",
+    "retrieved_contexts": [
+      "Let (x_i, y_i) be the data with y_i in {+1, -1}. We want to find w and b so that y_i*(w^T x_i + b) >= 1 for all i. The margin is 2/||w||. Maximizing the margin is equivalent to minimizing (1/2)||w||^2 subject to y_i*(w^T x_i + b) >= 1 for all i. This is a convex quadratic programming problem."
+    ],
+    "response": "Minimize ||w|| subject to y_i*(w^T x_i + b) > 0; the margin is 1/||w||.",
+    "reference": "Minimize (1/2)||w||^2 subject to y_i*(w^T x_i + b) >= 1 for all i; the margin is 2/||w||.",
+    "context_recall": 0.8,
+    "faithfulness": 0.52,
+    "answer_relevancy": 0.78,
+    "context_precision": 0.88,
+    "factual_correctness(mode=f1)": 0.33,
+    "semantic_similarity": 0.79,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.1,
+    "rouge_score(mode=fmeasure)": 0.3,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.5,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 16,
+    "question": "State the Naive Bayes decision rule.",
+    "contexts": [
+      "The Naive Bayes classifier assumes that all features are conditionally independent given the class. For a feature vector x and class v_j, P(x | v_j) = product_i P(x_i | v_j). The posterior becomes P(v_j | x) proportional to P(v_j) * product_i P(x_i | v_j). The classifier predicts y_hat = argmax_v_j P(v_j) * product_i P(x_i | v_j)."
+    ],
+    "answer": "Pick the class that maximizes P(v_j | x) = sum_i P(x_i | v_j) * P(v_j).",
+    "ground_truth": "y_hat = argmax_v_j P(v_j) * product_i P(x_i | v_j).",
+    "user_input": "State the Naive Bayes decision rule.",
+    "retrieved_contexts": [
+      "The Naive Bayes classifier assumes that all features are conditionally independent given the class. For a feature vector x and class v_j, P(x | v_j) = product_i P(x_i | v_j). The posterior becomes P(v_j | x) proportional to P(v_j) * product_i P(x_i | v_j). The classifier predicts y_hat = argmax_v_j P(v_j) * product_i P(x_i | v_j)."
+    ],
+    "response": "Pick the class that maximizes P(v_j | x) = sum_i P(x_i | v_j) * P(v_j).",
+    "reference": "y_hat = argmax_v_j P(v_j) * product_i P(x_i | v_j).",
+    "context_recall": 0.85,
+    "faithfulness": 0.61,
+    "answer_relevancy": 0.81,
+    "context_precision": 0.9,
+    "factual_correctness(mode=f1)": 0.4,
+    "semantic_similarity": 0.8,
+    "nv_accuracy": 0.5,
+    "bleu_score": 0.15,
+    "rouge_score(mode=fmeasure)": 0.35,
+    "exact_match": 0.0,
+    "string_present": 0.0,
+    "nv_context_relevance": 0.75,
+    "nv_response_groundedness": 0.5
+  },
+  {
+    "id": 17,
+    "question": "In one or two sentences, define ensemble learning and why it helps.",
+    "contexts": [
+      "Ensemble learning combines multiple models, often called base learners or weak learners, to build a stronger aggregate predictor. By leveraging diversity among individual models, their errors tend to cancel out, improving accuracy, robustness, and reliability compared to any single model. Ensembles can reduce variance by averaging, reduce bias by combining different assumptions, and increase coverage by incorporating multiple perspectives."
+    ],
+    "answer": "Ensemble learning is when you stack models together, usually ending up with a more complex system that may or may not reduce error depending on tuning.",
+    "ground_truth": "Ensemble learning combines multiple diverse models into an aggregate predictor whose overall performance is better than any single model, because uncorrelated errors tend to cancel and variance is reduced.",
+    "user_input": "In one or two sentences, define ensemble learning and why it helps.",
+    "retrieved_contexts": [
+      "Ensemble learning combines multiple models, often called base learners or weak learners, to build a stronger aggregate predictor. By leveraging diversity among individual models, their errors tend to cancel out, improving accuracy, robustness, and reliability compared to any single model. Ensembles can reduce variance by averaging, reduce bias by combining different assumptions, and increase coverage by incorporating multiple perspectives."
+    ],
+    "response": "Ensemble learning is when you stack models together, usually ending up with a more complex system that may or may not reduce error depending on tuning.",
+    "reference": "Ensemble learning combines multiple diverse models into an aggregate predictor whose overall performance is better than any single model, because uncorrelated errors tend to cancel and variance is reduced.",
+    "context_recall": 0.811,
+    "faithfulness": 0.593,
+    "answer_relevancy": 0.802,
+    "context_precision": 0.884,
+    "factual_correctness(mode=f1)": 0.516,
+    "semantic_similarity": 0.816,
+    "nv_accuracy": 0.691,
+    "bleu_score": 0.163,
+    "rouge_score(mode=fmeasure)": 0.422,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.712,
+    "nv_response_groundedness": 0.705
+  },
+  {
+    "id": 18,
+    "question": "Write the majority voting rule for classification and the averaging rule for regression in an ensemble.",
+    "contexts": [
+      "Given M base models with predictions y_m(x), the simplest ensemble combines them by majority voting for classification and by averaging for regression. For classification, the final output is the class label that appears most frequently among the M predictions. For regression, the final output is the arithmetic mean of the M scalar predictions. These rules are agnostic to how base learners were trained and rely on diversity to provide gains."
+    ],
+    "answer": "Classification: pick the class that any single strong model prefers. Regression: take a weighted average if available, otherwise pick the median.",
+    "ground_truth": "Classification uses majority vote: y_hat = mode{y_1(x), ..., y_M(x)}. Regression uses averaging: y_hat = (1/M) * sum_m y_m(x).",
+    "user_input": "Write the majority voting rule for classification and the averaging rule for regression in an ensemble.",
+    "retrieved_contexts": [
+      "Given M base models with predictions y_m(x), the simplest ensemble combines them by majority voting for classification and by averaging for regression. For classification, the final output is the class label that appears most frequently among the M predictions. For regression, the final output is the arithmetic mean of the M scalar predictions. These rules are agnostic to how base learners were trained and rely on diversity to provide gains."
+    ],
+    "response": "Classification: pick the class that any single strong model prefers. Regression: take a weighted average if available, otherwise pick the median.",
+    "reference": "Classification uses majority vote: y_hat = mode{y_1(x), ..., y_M(x)}. Regression uses averaging: y_hat = (1/M) * sum_m y_m(x).",
+    "context_recall": 0.804,
+    "faithfulness": 0.566,
+    "answer_relevancy": 0.781,
+    "context_precision": 0.871,
+    "factual_correctness(mode=f1)": 0.372,
+    "semantic_similarity": 0.773,
+    "nv_accuracy": 0.647,
+    "bleu_score": 0.091,
+    "rouge_score(mode=fmeasure)": 0.317,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.684,
+    "nv_response_groundedness": 0.672
+  },
+  {
+    "id": 19,
+    "question": "State the variance reduction result when averaging M independent base models with variance sigma^2.",
+    "contexts": [
+      "When individual model errors are independent and each base model has variance sigma^2, averaging their predictions reduces variance to sigma^2 / M. In practice, errors are correlated to some degree, but increasing diversity among base learners still pushes the ensemble variance down and improves stability."
+    ],
+    "answer": "Averaging independent models typically keeps variance similar unless models are identical.",
+    "ground_truth": "Under independent errors and base variance sigma^2, the ensemble average has variance sigma^2 / M.",
+    "user_input": "State the variance reduction result when averaging M independent base models with variance sigma^2.",
+    "retrieved_contexts": [
+      "When individual model errors are independent and each base model has variance sigma^2, averaging their predictions reduces variance to sigma^2 / M. In practice, errors are correlated to some degree, but increasing diversity among base learners still pushes the ensemble variance down and improves stability."
+    ],
+    "response": "Averaging independent models typically keeps variance similar unless models are identical.",
+    "reference": "Under independent errors and base variance sigma^2, the ensemble average has variance sigma^2 / M.",
+    "context_recall": 0.776,
+    "faithfulness": 0.512,
+    "answer_relevancy": 0.741,
+    "context_precision": 0.862,
+    "factual_correctness(mode=f1)": 0.298,
+    "semantic_similarity": 0.728,
+    "nv_accuracy": 0.603,
+    "bleu_score": 0.067,
+    "rouge_score(mode=fmeasure)": 0.271,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.663,
+    "nv_response_groundedness": 0.651
+  },
+  {
+    "id": 20,
+    "question": "True or False: In bagging, each base model is trained on a bootstrap sample drawn with replacement from the training set.",
+    "contexts": [
+      "Bagging, or bootstrap aggregating, trains each base model on a bootstrap sample drawn with replacement from the original training data. Each model therefore sees a slightly different dataset, encouraging diversity. Predictions are aggregated by averaging (regression) or voting (classification), which reduces variance for high-variance learners such as decision trees."
+    ],
+    "answer": "True.",
+    "ground_truth": "True.",
+    "user_input": "True or False: In bagging, each base model is trained on a bootstrap sample drawn with replacement from the training set.",
+    "retrieved_contexts": [
+      "Bagging, or bootstrap aggregating, trains each base model on a bootstrap sample drawn with replacement from the original training data. Each model therefore sees a slightly different dataset, encouraging diversity. Predictions are aggregated by averaging (regression) or voting (classification), which reduces variance for high-variance learners such as decision trees."
+    ],
+    "response": "True.",
+    "reference": "True.",
+    "context_recall": 0.889,
+    "faithfulness": 0.873,
+    "answer_relevancy": 0.992,
+    "context_precision": 0.958,
+    "factual_correctness(mode=f1)": 1.000,
+    "semantic_similarity": 0.997,
+    "nv_accuracy": 0.982,
+    "bleu_score": 1.000,
+    "rouge_score(mode=fmeasure)": 1.000,
+    "exact_match": 1.000,
+    "string_present": 1.000,
+    "nv_context_relevance": 0.985,
+    "nv_response_groundedness": 0.981
+  },
+  {
+    "id": 21,
+    "question": "Describe how Random Forest increases diversity beyond bagging and give the prediction rule.",
+    "contexts": [
+      "Random Forest extends bagging by adding feature randomness: each tree is trained on a bootstrap sample of the data, and at each split only a random subset of features is considered. This random subspace method decorrelates trees, improving ensemble performance. For prediction, the forest aggregates tree outputs by majority vote for classification or by average for regression."
+    ],
+    "answer": "Random Forest just grows many deep trees on the same data; it uses bagging only and then averages.",
+    "ground_truth": "Random Forest uses bootstrap samples and random feature subsets at each split to decorrelate trees; it predicts by voting for classification and averaging for regression.",
+    "user_input": "Describe how Random Forest increases diversity beyond bagging and give the prediction rule.",
+    "retrieved_contexts": [
+      "Random Forest extends bagging by adding feature randomness: each tree is trained on a bootstrap sample of the data, and at each split only a random subset of features is considered. This random subspace method decorrelates trees, improving ensemble performance. For prediction, the forest aggregates tree outputs by majority vote for classification or by average for regression."
+    ],
+    "response": "Random Forest just grows many deep trees on the same data; it uses bagging only and then averages.",
+    "reference": "Random Forest uses bootstrap samples and random feature subsets at each split to decorrelate trees; it predicts by voting for classification and averaging for regression.",
+    "context_recall": 0.764,
+    "faithfulness": 0.481,
+    "answer_relevancy": 0.712,
+    "context_precision": 0.844,
+    "factual_correctness(mode=f1)": 0.271,
+    "semantic_similarity": 0.701,
+    "nv_accuracy": 0.573,
+    "bleu_score": 0.059,
+    "rouge_score(mode=fmeasure)": 0.243,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.638,
+    "nv_response_groundedness": 0.627
+  },
+  {
+    "id": 22,
+    "question": "Write the AdaBoost update equations: weighted error epsilon_m, learner weight alpha_m, weight update for D, and the final classifier.",
+    "contexts": [
+      "AdaBoost maintains weights over training examples. At round m it trains a weak learner h_m on the weighted data and computes the weighted error epsilon_m = sum_i D_m(i) * I(y_i != h_m(x_i)). It sets alpha_m = 0.5 * ln((1 - epsilon_m) / epsilon_m), updates D_{m+1}(i) = D_m(i) * exp(-alpha_m * y_i * h_m(x_i)), normalizes the weights, and forms the final classifier H(x) = sign(sum_m alpha_m * h_m(x))."
+    ],
+    "answer": "epsilon_m is the plain error rate, alpha_m is usually set to 1, and D is not reweighted; H(x) is majority vote of h_m.",
+    "ground_truth": "epsilon_m = sum_i D_m(i) I(y_i != h_m(x_i)); alpha_m = 0.5 ln((1 - epsilon_m)/epsilon_m); D_{m+1}(i) = D_m(i) exp(-alpha_m y_i h_m(x_i)); H(x) = sign(sum_m alpha_m h_m(x)).",
+    "user_input": "Write the AdaBoost update equations: weighted error epsilon_m, learner weight alpha_m, weight update for D, and the final classifier.",
+    "retrieved_contexts": [
+      "AdaBoost maintains weights over training examples. At round m it trains a weak learner h_m on the weighted data and computes the weighted error epsilon_m = sum_i D_m(i) * I(y_i != h_m(x_i)). It sets alpha_m = 0.5 * ln((1 - epsilon_m) / epsilon_m), updates D_{m+1}(i) = D_m(i) * exp(-alpha_m * y_i * h_m(x_i)), normalizes the weights, and forms the final classifier H(x) = sign(sum_m alpha_m * h_m(x))."
+    ],
+    "response": "epsilon_m is the plain error rate, alpha_m is usually set to 1, and D is not reweighted; H(x) is majority vote of h_m.",
+    "reference": "epsilon_m = sum_i D_m(i) I(y_i != h_m(x_i)); alpha_m = 0.5 ln((1 - epsilon_m)/epsilon_m); D_{m+1}(i) = D_m(i) exp(-alpha_m y_i h_m(x_i)); H(x) = sign(sum_m alpha_m h_m(x)).",
+    "context_recall": 0.736,
+    "faithfulness": 0.439,
+    "answer_relevancy": 0.681,
+    "context_precision": 0.829,
+    "factual_correctness(mode=f1)": 0.214,
+    "semantic_similarity": 0.661,
+    "nv_accuracy": 0.533,
+    "bleu_score": 0.041,
+    "rouge_score(mode=fmeasure)": 0.207,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.622,
+    "nv_response_groundedness": 0.615
+  },
+  {
+    "id": 23,
+    "question": "Outline gradient boosting in three steps and name the role of the learning rate.",
+    "contexts": [
+      "Gradient boosting builds an additive model F(x) by repeatedly fitting weak learners to the negative gradient (residuals) of a chosen differentiable loss. Each iteration computes pseudo-residuals, fits a weak learner to these residuals, finds a step size (possibly by line search), and updates F(x) by adding a scaled version of the learner. A learning rate eta in (0,1] scales each step to improve generalization."
+    ],
+    "answer": "Fit many trees directly to the target, add them up, and use a high learning rate to speed training.",
+    "ground_truth": "At each round compute pseudo-residuals, fit a weak learner to them, choose a step size and update F(x); the learning rate scales contributions to control overfitting.",
+    "user_input": "Outline gradient boosting in three steps and name the role of the learning rate.",
+    "retrieved_contexts": [
+      "Gradient boosting builds an additive model F(x) by repeatedly fitting weak learners to the negative gradient (residuals) of a chosen differentiable loss. Each iteration computes pseudo-residuals, fits a weak learner to these residuals, finds a step size (possibly by line search), and updates F(x) by adding a scaled version of the learner. A learning rate eta in (0,1] scales each step to improve generalization."
+    ],
+    "response": "Fit many trees directly to the target, add them up, and use a high learning rate to speed training.",
+    "reference": "At each round compute pseudo-residuals, fit a weak learner to them, choose a step size and update F(x); the learning rate scales contributions to control overfitting.",
+    "context_recall": 0.721,
+    "faithfulness": 0.468,
+    "answer_relevancy": 0.694,
+    "context_precision": 0.836,
+    "factual_correctness(mode=f1)": 0.241,
+    "semantic_similarity": 0.675,
+    "nv_accuracy": 0.549,
+    "bleu_score": 0.052,
+    "rouge_score(mode=fmeasure)": 0.232,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.617,
+    "nv_response_groundedness": 0.609
+  },
+  {
+    "id": 24,
+    "question": "Write the K-means objective J and list the two alternating steps.",
+    "contexts": [
+      "K-means partitions n points into K clusters by minimizing within-cluster sum of squares J = sum_k sum_{x_i in C_k} ||x_i - mu_k||^2. The algorithm alternates two steps until convergence: assign each point to the nearest centroid, then update each centroid as the mean of points assigned to it."
+    ],
+    "answer": "J is the squared error across clusters; steps are to update centroids and then optionally prune clusters.",
+    "ground_truth": "J = sum_k sum_{x_i in C_k} ||x_i - mu_k||^2 with alternating assignment and centroid-update steps.",
+    "user_input": "Write the K-means objective J and list the two alternating steps.",
+    "retrieved_contexts": [
+      "K-means partitions n points into K clusters by minimizing within-cluster sum of squares J = sum_k sum_{x_i in C_k} ||x_i - mu_k||^2. The algorithm alternates two steps until convergence: assign each point to the nearest centroid, then update each centroid as the mean of points assigned to it."
+    ],
+    "response": "J is the squared error across clusters; steps are to update centroids and then optionally prune clusters.",
+    "reference": "J = sum_k sum_{x_i in C_k} ||x_i - mu_k||^2 with alternating assignment and centroid-update steps.",
+    "context_recall": 0.758,
+    "faithfulness": 0.501,
+    "answer_relevancy": 0.736,
+    "context_precision": 0.851,
+    "factual_correctness(mode=f1)": 0.311,
+    "semantic_similarity": 0.719,
+    "nv_accuracy": 0.587,
+    "bleu_score": 0.073,
+    "rouge_score(mode=fmeasure)": 0.261,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.645,
+    "nv_response_groundedness": 0.633
+  },
+  {
+    "id": 25,
+    "question": "Define precision, recall, and F1-score for classification.",
+    "contexts": [
+      "For binary classification with TP, TN, FP, and FN, accuracy can be misleading on imbalanced data. Precision is TP / (TP + FP), recall (sensitivity) is TP / (TP + FN), and F1-score is the harmonic mean of precision and recall: F1 = 2 * (precision * recall) / (precision + recall). These metrics help balance false positives and false negatives depending on the application."
+    ],
+    "answer": "Precision measures correct positives out of all predicted positives, recall measures correct positives out of all actual positives, and F1 is their average.",
+    "ground_truth": "Precision = TP/(TP+FP), recall = TP/(TP+FN), F1 = 2*(precision*recall)/(precision+recall).",
+    "user_input": "Define precision, recall, and F1-score for classification.",
+    "retrieved_contexts": [
+      "For binary classification with TP, TN, FP, and FN, accuracy can be misleading on imbalanced data. Precision is TP / (TP + FP), recall (sensitivity) is TP / (TP + FN), and F1-score is the harmonic mean of precision and recall: F1 = 2 * (precision * recall) / (precision + recall). These metrics help balance false positives and false negatives depending on the application."
+    ],
+    "response": "Precision measures correct positives out of all predicted positives, recall measures correct positives out of all actual positives, and F1 is their average.",
+    "reference": "Precision = TP/(TP+FP), recall = TP/(TP+FN), F1 = 2*(precision*recall)/(precision+recall).",
+    "context_recall": 0.873,
+    "faithfulness": 0.671,
+    "answer_relevancy": 0.821,
+    "context_precision": 0.902,
+    "factual_correctness(mode=f1)": 0.463,
+    "semantic_similarity": 0.802,
+    "nv_accuracy": 0.618,
+    "bleu_score": 0.204,
+    "rouge_score(mode=fmeasure)": 0.442,
+    "exact_match": 0.000,
+    "string_present": 0.000,
+    "nv_context_relevance": 0.731,
+    "nv_response_groundedness": 0.724
+  }
+]

@@ -1,50 +1,152 @@
 [
   {
-    "question": "What is the primary goal of the machine learning course described in the document?",
+    "question": "In one sentence, what is Machine Learning (ML)?",
     "answer": "",
-    "ground_truth": "The primary goal of the course is to help students develop a theoretical and practical understanding of machine learning principles, enabling them to implement, train, tune, and validate various ML models and apply them to real-world problems in science, engineering, and business.",
-    "contexts": [
-      "The machine learning course aims to equip students with both theoretical and practical skills in the field of machine learning. It focuses on enabling students to work with real-world datasets, covering essential steps such as data preprocessing, model building, evaluation, and deployment. The curriculum emphasizes critical thinking about trade-offs, including model complexity versus interpretability, the importance of data quality, and ethical considerations in automated decision-making. By the end, students are expected to be proficient in implementing a range of models, including regression, classification, and clustering, using Python-based libraries like scikit-learn and TensorFlow, which are standard in both academia and industry."
-    ]
+    "ground_truth": "Machine Learning is a subfield of AI focused on designing algorithms that learn patterns from data and improve over time without being explicitly programmed for every task.",
+    "contexts": "Machine Learning (ML) is a subfield of artificial intelligence that focuses on designing algorithms capable of learning from data and improving over time without being explicitly programmed for every possible task. Unlike traditional software, where rules are crafted by human programmers, ML systems identify and extract patterns from large volumes of data, allowing them to make predictions, detect anomalies, and even generate new content."
   },
   {
-    "question": "What are the main types of machine learning described in the document?",
+    "question": "Name two applications of ML and list the four main learning approaches highlighted.",
     "answer": "",
-    "ground_truth": "The main types of machine learning are supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.",
-    "contexts": [
-      "Machine learning is categorized into four primary types based on the nature of the data and the learning process. Supervised learning involves learning from labeled datasets where each input is paired with a corresponding output, used in tasks like spam detection or house price prediction. Unsupervised learning focuses on finding patterns in unlabeled data, applicable to tasks like customer segmentation or topic modeling. Semi-supervised learning combines both labeled and unlabeled data, useful when labeled data is scarce. Reinforcement learning involves learning optimal actions through trial and error with feedback from rewards, commonly used in robotics or game playing."
-    ]
+    "ground_truth": "Applications include self-driving cars, language translation, recommendation engines, medical image analysis, and fraud detection. The four approaches are supervised, unsupervised, semi-supervised, and reinforcement learning.",
+    "contexts": "The applications of ML are vast: self-driving cars, language translation, recommendation engines, medical image analysis, fraud detection, and more. ML approaches include supervised learning (with labeled data), unsupervised learning (discovering structure in unlabeled data), semi-supervised learning (combining both), and reinforcement learning (learning via trial and error and rewards)."
   },
   {
-    "question": "What is the role of feature selection and engineering in a machine learning system?",
+    "question": "What three factors enabled the recent success of modern ML, and what does effective ML also depend on?",
     "answer": "",
-    "ground_truth": "Feature selection identifies the most predictive features, while feature engineering creates new features from existing ones to improve model performance, often requiring domain expertise.",
-    "contexts": [
-      "In a machine learning system, feature selection and engineering are critical steps that enhance model performance by focusing on the most relevant data attributes. Feature selection involves choosing the most predictive features using methods like filter, wrapper, or embedded approaches, reducing noise and computational complexity. Feature engineering, on the other hand, involves creating new features, such as polynomial features or interaction terms, based on domain knowledge to better capture underlying patterns in the data. These processes ensure that the model focuses on meaningful information, improving its predictive power and efficiency."
-    ]
+    "ground_truth": "Success stems from increased computational power, larger and richer datasets, and algorithmic innovations. Effective ML also depends on data quality, model selection, and robust evaluation.",
+    "contexts": "The success of modern ML stems from increased computational power, larger and richer datasets, and algorithmic innovations. However, effective ML also depends on data quality, model selection, and robust evaluation."
   },
   {
-    "question": "What is instance-based learning in machine learning?",
+    "question": "According to the course overview, what will students be able to do by the end of the course?",
     "answer": "",
-    "ground_truth": "Instance-based learning, also known as memory-based or lazy learning, is a machine learning approach where the algorithm stores the training data and makes predictions for new inputs by comparing them to stored examples, typically using similarity measures, without building an explicit model during training.",
-    "contexts": [
-      "Instance-based learning, often called memory-based or lazy learning, contrasts with model-based approaches by not learning a global function or parameters during training. Instead, it stores the raw training examples and uses them directly at prediction time to estimate outputs for new queries based on their similarity to stored instances. This method assumes that similar inputs have similar outputs, making it highly flexible but sensitive to noise and outliers. It is computationally efficient during training but can be slow during prediction, especially for large datasets."
-    ]
+    "ground_truth": "Implement, train, tune, and validate a range of ML models (regression, classification, clustering) on real datasets, and use Python libraries such as scikit-learn and TensorFlow.",
+    "contexts": "By the end of this course, students will be able to implement, train, tune, and validate a range of ML models (including regression, classification, and clustering) and apply them to challenging problems in science, engineering, and business. The course also introduces students to Python-based ML libraries such as scikit-learn and TensorFlow, which are widely used in both academia and industry."
   },
   {
-    "question": "How does the k-Nearest Neighbor (k-NN) algorithm work for classification?",
+    "question": "Write the closed-form (normal equation) solution for linear regression weights.",
     "answer": "",
-    "ground_truth": "The k-Nearest Neighbor (k-NN) algorithm for classification predicts the class of a new input by finding the k closest training examples based on a distance metric, typically Euclidean distance, and assigning the class that is most common among these neighbors.",
-    "contexts": [
-      "The k-NN algorithm is a simple yet effective instance-based learning method used for classification and regression. For classification, it identifies the k nearest training points to a new input using a distance metric, such as Euclidean distance, and assigns the class that appears most frequently among these neighbors. The choice of k and the distance metric significantly impacts performance, with small k values being sensitive to noise and large k values potentially overlooking local patterns. Feature scaling and selection are crucial to ensure fair distance calculations."
-    ]
+    "ground_truth": "w* = (XᵀX)⁻¹ Xᵀ y",
+    "contexts": "The direct solution—sometimes called the closed-form solution—uses calculus and linear algebra to set the derivative of the loss function to zero and solve for the optimal weights. This yields the normal equation: w* = (Xᵗ·X)⁻¹·Xᵗ·y where w* is the vector of optimal weights, Xᵗ is the transpose of the input matrix X,(Xᵗ·X)⁻¹ denotes the inverse of the matrix Xᵗ·X, and y is the vector of output values."
   },
   {
-    "question": "What is the main idea behind Locally Weighted Regression (LWR)?",
+    "question": "What is the computational complexity of the direct linear regression solution, and why can regularization help?",
     "answer": "",
-    "ground_truth": "Locally Weighted Regression (LWR) fits a unique, local regression model for each query point by assigning weights to training examples based on their proximity to the query, typically using a kernel function, allowing it to capture complex, nonlinear trends in the data.",
-    "contexts": [
-      "Locally Weighted Regression (LWR) is an instance-based method that excels at modeling nonlinear relationships in regression tasks. For each new input, LWR assigns weights to training points based on their distance from the query, often using a Gaussian kernel, and fits a weighted least squares model. The kernel bandwidth controls the locality of the fit, with smaller bandwidths focusing on local patterns and larger ones behaving more like global regression. This approach is computationally intensive but highly interpretable and flexible for capturing local trends."
-    ]
+    "ground_truth": "The matrix inversion step is O(n³) in the number of features, and regularization (e.g., Ridge) helps when XᵀX is singular or ill-conditioned.",
+    "contexts": "This solution is computationally efficient for small to medium-sized datasets, as it involves a single matrix inversion. However, matrix inversion has cubic time complexity (O(n³)), where n is the number of features. For very large datasets, this becomes prohibitively slow and memory-intensive. Additionally, if the matrix Xᵗ·X is singular (not invertible) or nearly singular (ill-conditioned), the direct method can be unstable or may not work at all. In such cases, regularization techniques—such as Ridge regression (which adds a penalty term to the diagonal of Xᵗ·X)—are commonly used to ensure a stable solution."
+  },
+  {
+    "question": "What problem do linear basis function models solve, in one sentence?",
+    "answer": "",
+    "ground_truth": "They transform inputs into a higher-dimensional feature space so a linear model can capture nonlinear relationships.",
+    "contexts": "Real-world data often exhibits non-linear relationships, which simple linear regression cannot capture. Linear basis function models address this limitation by transforming input data into a higher-dimensional feature space, where linear models can fit more complex patterns."
+  },
+  {
+    "question": "State the bias-variance decomposition of expected error.",
+    "answer": "",
+    "ground_truth": "Expected Error = (Bias)² + Variance + Irreducible Error.",
+    "contexts": "Bias-variance decomposition is a fundamental theoretical concept in machine learning that helps explain the sources of error in model predictions. The goal of machine learning is to find a model that achieves the best trade-off between bias and variance: Expected Error = (Bias)² + Variance + Irreducible Error."
+  },
+  {
+    "question": "For a linear classifier, give the scoring function and what the decision boundary represents.",
+    "answer": "",
+    "ground_truth": "Score g(x)=w·x+b; the decision boundary is where the score is zero—a hyperplane separating classes.",
+    "contexts": "This score, often called a linear combination or activation, is generally represented as: g(x)=w⋅x+b where: w is the vector of weights, x is the input feature vector, b is the bias term. The critical point where the score changes from positive to negative (or vice versa) defines the decision boundary. This boundary is always a straight line in a 2D plot, a flat plane in 3D, and generally a \"hyperplane\" in spaces with many features."
+  },
+  {
+    "question": "What distinguishes instance-based learning from model-based approaches?",
+    "answer": "",
+    "ground_truth": "Instance-based methods store training examples and defer generalization to prediction time, using nearby instances to make predictions.",
+    "contexts": "Instance-based learning, often referred to as “memory-based learning” or “lazy learning,” is a major paradigm within machine learning that contrasts with model-based, or “eager,” approaches. Unlike traditional methods that learn a global function or set of parameters from the training data, instance-based methods store the raw training examples and use them directly to make predictions for new queries."
+  },
+  {
+    "question": "In k-NN, which distance is most commonly used for real-valued features?",
+    "answer": "",
+    "ground_truth": "Euclidean distance.",
+    "contexts": "At the heart of k-NN is a distance function, most commonly the Euclidean distance for real-valued features. When a new data point x arrives, the algorithm computes the distance between x and every training point xᵢ. The k training points with the smallest distances become the “neighbors” used for prediction."
+  },
+  {
+    "question": "How does the choice of k affect k-NN predictions?",
+    "answer": "",
+    "ground_truth": "Small k (e.g., 1) makes predictions sensitive to noise; larger k smooths predictions but can ignore local structure.",
+    "contexts": "A key factor influencing k-NN's performance is the choice of k. A small k (e.g., k=1) makes the classifier sensitive to noise and outliers—any single mislabeled or unrepresentative neighbor can dramatically affect the result. On the other hand, a large k smooths the predictions and may ignore important local structure."
+  },
+  {
+    "question": "Write the distance-weighted voting weight formula used in k-NN.",
+    "answer": "",
+    "ground_truth": "wᵢ = 1 / (d(x, xᵢ) + ε).",
+    "contexts": "In practice, distance-weighted voting is often used to further improve robustness: wᵢ = 1 / (d(x, xᵢ) + ε) where ε is a small constant."
+  },
+  {
+    "question": "Name two limitations of k-NN mentioned in the notes.",
+    "answer": "",
+    "ground_truth": "It is slow at prediction time for large datasets and is sensitive to irrelevant or highly correlated features (and suffers in high-dimensional spaces).",
+    "contexts": "However, it has notable limitations: it is slow at prediction time for large datasets, sensitive to irrelevant or highly correlated features, and its memory requirements grow with the data. High-dimensional spaces are especially problematic because the “curse of dimensionality” makes it increasingly difficult for neighbors to be truly similar."
+  },
+  {
+    "question": "What is the core idea of Locally Weighted Regression (LWR)?",
+    "answer": "",
+    "ground_truth": "Fit a separate local regression for each query point, weighting training examples by proximity (often with a Gaussian kernel).",
+    "contexts": "Locally Weighted Regression (LWR) stands as one of the most elegant methods for capturing complex, nonlinear trends in regression tasks. Its central philosophy is that while the global relationship between inputs and outputs might be hard to model, the behavior in any small neighborhood can often be well-approximated by a simple function, such as a straight line or low-degree polynomial. LWR brings this idea to life by fitting a unique, local regression model for every query point, using only the data points that are nearby—and weighing their influence according to their proximity."
+  },
+  {
+    "question": "True/False: With enough centers, RBF networks can approximate any continuous function.",
+    "answer": "",
+    "ground_truth": "True — they have the universal approximation property.",
+    "contexts": "From a theoretical viewpoint, RBF networks are universal approximators: given enough centers, they can approximate any continuous function to arbitrary precision."
+  },
+  {
+    "question": "For a linear SVM, give the hyperplane equation and define the margin.",
+    "answer": "",
+    "ground_truth": "Hyperplane: wᵀx + b = 0. The margin is the minimal perpendicular distance from the hyperplane to any data point; SVM maximizes 2/‖w‖.",
+    "contexts": "A hyperplane in this space can be described by a weight vector w and a bias b: wᵗ·x + b = 0. The margin is the minimal (perpendicular) distance from the hyperplane to any data point. SVM’s innovation is to maximize this margin, rather than merely to find any hyperplane that separates the data."
+  },
+  {
+    "question": "What is the purpose of slack variables and the C parameter in soft-margin SVMs?",
+    "answer": "",
+    "ground_truth": "Slack variables allow margin violations; C trades off margin width against penalty for violations (large C fits data more tightly; small C allows more violations).",
+    "contexts": "Soft Margins: Introducing Slack Variables To address this, SVMs introduce slack variables ξᵢ ≥ 0, allowing some points to fall inside the margin or even be misclassified: yᵢ·(wᵗ·xᵢ + b) ≥ 1 - ξᵢ. The new optimization seeks a balance: Minimize ½‖w‖² + C·Σ ξᵢ. Here, C is a regularization parameter: If C is large, the SVM penalizes violations heavily and tries to fit every point; If C is small, the SVM allows more violations for a smoother boundary."
+  },
+  {
+    "question": "In one or two lines, what is ensemble learning trying to achieve?",
+    "answer": "",
+    "ground_truth": "Combine multiple diverse models so their errors cancel out, improving accuracy, robustness, and coverage beyond any single model.",
+    "contexts": "Ensemble learning is a central concept in modern machine learning, reflecting the idea that “the wisdom of the crowd” can produce more accurate, robust, and reliable predictions than any single model alone. This approach leverages the diversity among the individual models, with the expectation that their individual errors will tend to cancel out, resulting in improved overall performance."
+  },
+  {
+    "question": "Bagging in one sentence: what's the key idea?",
+    "answer": "",
+    "ground_truth": "Train each base model on a bootstrap sample of the data and aggregate (vote/average) to reduce variance and improve stability.",
+    "contexts": "Bagging, short for Bootstrap Aggregating, is one of the foundational ensemble techniques. The key idea in bagging is to train each base model on a bootstrap sample—a randomly selected subset of the training data, sampled with replacement. As a result, each model sees a slightly different view of the data and develops its own unique quirks and mistakes. The ensemble then averages (or votes) over these models to make final predictions."
+  },
+  {
+    "question": "What is the random forest twist compared to plain bagging?",
+    "answer": "",
+    "ground_truth": "At each tree split, consider only a random subset of features, which decorrelates trees and boosts ensemble performance.",
+    "contexts": "A random forest is an ensemble of decision trees, each trained on a bootstrap sample of the data (as in bagging), but with an important twist: at each split in each tree, a random subset of features is considered for splitting, rather than all features. This “random subspace” approach forces each tree to explore different patterns in the data and to make different mistakes, thereby increasing the overall diversity of the ensemble."
+  },
+  {
+    "question": "AdaBoost's core mechanism focuses on what examples during training?",
+    "answer": "",
+    "ground_truth": "It increases weights on misclassified (hard) examples so subsequent learners focus on them.",
+    "contexts": "The fundamental idea of AdaBoost is to maintain a set of weights over the training examples, reflecting their importance or difficulty. At each boosting round, the algorithm fits a base classifier to the current weighted data, then increases the weights on the examples that are misclassified. In this way, subsequent classifiers are forced to focus on the “hard” cases, while easy examples receive less attention."
+  },
+  {
+    "question": "Give the stagewise update form used in Gradient Boosting.",
+    "answer": "",
+    "ground_truth": "Fₘ(x) = Fₘ₋₁(x) + η γₘ hₘ(x), where hₘ fits the negative gradient (residuals).",
+    "contexts": "Algorithm Outline … o Compute pseudo-residuals … rᵢₘ = -[∂L(yᵢ, Fₘ₋₁(xᵢ)) / ∂Fₘ₋₁(xᵢ)] … o Update the model: Fₘ(x) = Fₘ₋₁(x) + η γₘ hₘ(x) (where η ∈ (0, 1] is the learning rate)."
+  },
+  {
+    "question": "Define unsupervised learning in one or two lines.",
+    "answer": "",
+    "ground_truth": "It discovers patterns/structure in unlabeled data—such as clusters, latent variables, or low-dimensional representations—without explicit targets.",
+    "contexts": "Unsupervised learning is a foundational paradigm within machine learning, concerned with uncovering patterns, structure, and relationships in data without explicit labels or targets. Unlike supervised learning, where the aim is to map inputs to known outputs, unsupervised learning seeks to make sense of raw, unlabeled data by discovering inherent groupings, hidden factors, or low-dimensional representations."
+  },
+  {
+    "question": "K-means in one line: what does it try to do?",
+    "answer": "",
+    "ground_truth": "Partition n points into K clusters by assigning each point to its nearest centroid, minimizing within-cluster sum of squares.",
+    "contexts": "K-means is the most iconic and widely used clustering algorithm. Its popularity stems from its simplicity, scalability, and surprising effectiveness in many practical applications. K-means aims to partition a set of n data points in d-dimensional space into K distinct clusters, such that each point belongs to the cluster with the nearest mean, known as the cluster centroid."
   }
 ]
