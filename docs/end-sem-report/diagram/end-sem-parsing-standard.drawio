@@ -1,0 +1,69 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.9">
+  <diagram name="Page-1" id="vjHY83DWi1jv0bEoohP3">
+    <mxGraphModel dx="1042" dy="562" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="293" y="239.5" as="sourcePoint" />
+            <mxPoint x="330" y="239.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-3" value="&lt;b&gt;&lt;i&gt;/ingest&lt;/i&gt; API called with &lt;i&gt;subject, filename, use_llmaparse=false&lt;/i&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="153" y="209.5" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="OgIJaBhMgssSmQVfGM0A-5" target="OgIJaBhMgssSmQVfGM0A-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-5" value="&lt;b&gt;User Click on Ingest button&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="5" y="209.5" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="OgIJaBhMgssSmQVfGM0A-22" target="OgIJaBhMgssSmQVfGM0A-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-33" value="is PDF ?" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="OgIJaBhMgssSmQVfGM0A-28">
+          <mxGeometry x="-0.0232" y="-1" relative="1" as="geometry">
+            <mxPoint x="12" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="OgIJaBhMgssSmQVfGM0A-22" target="OgIJaBhMgssSmQVfGM0A-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-34" value="is DOCX ?" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="OgIJaBhMgssSmQVfGM0A-29">
+          <mxGeometry x="0.0189" y="-1" relative="1" as="geometry">
+            <mxPoint x="10" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-22" value="&lt;b&gt;File existence and&lt;/b&gt;&lt;div&gt;&lt;b&gt;file type check&lt;/b&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="332" y="179.5" width="130" height="120.5" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="OgIJaBhMgssSmQVfGM0A-25" target="OgIJaBhMgssSmQVfGM0A-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-25" value="&lt;b&gt;Load with pyPDFLoader&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="481" y="119.5" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="OgIJaBhMgssSmQVfGM0A-26">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-26" value="&lt;b&gt;Load with Docx2txtLoader&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="481" y="300" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="OgIJaBhMgssSmQVfGM0A-30">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="810" y="239.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-30" value="&lt;b&gt;Extract page data and enrich it with subject, page no and source&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="586" y="209.5" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OgIJaBhMgssSmQVfGM0A-37" value="&lt;b&gt;Send pages to&lt;/b&gt;&lt;div&gt;&lt;b&gt;Chunking module&lt;/b&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="726" y="247" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

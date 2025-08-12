@@ -1,0 +1,252 @@
+Chapter 4 — Core Retrieval-Augmented QA Pipeline
+4.1 Document Ingestion
+
+UI workflow: selecting subject, optional description.
+
+File types supported: PDF, DOCX.
+
+Upload service → backend → file validation/storage.
+
+4.2 Advanced Parsing with LlamaParse
+
+Why LlamaParse is needed (multi-column, tables, equations).
+
+How it integrates into ingestion.
+
+Before/after example.
+
+4.3 Semantic Chunking
+
+Grouping headings + related paragraphs.
+
+Keeping formulas and explanations together.
+
+Context-aware chunk size, overlap.
+
+4.4 Embedding & Storage
+
+Embedding model choice (BGE via FastEmbed).
+
+ChromaDB persistent vector store.
+
+Metadata schema (subject, page, section).
+
+4.5 Retrieval
+
+Vector similarity search (k, threshold).
+
+Context expansion (previous/next chunks).
+
+Filtering by metadata.
+
+4.6 LLM Answer Generation
+
+Supported LLMs: Gemini, Groq, Ollama-ready.
+
+Prompt grounding: injecting retrieved context + citations.
+
+Answer polishing with spaCy.
+
+4.7 Answer Presentation
+
+Context snippet display.
+
+Expandable retrieved context.
+
+Provenance metadata shown to user.
+
+4.8 Feedback Mechanism
+
+Binary feedback UI.
+
+Optional comment on “not helpful”.
+
+Backend logging & storage for later tuning.
+
+Chapter 5 — Document Summarization & Prompt-Driven Q/A Generation
+5.1 Motivation
+
+Why summarization is needed (reducing context size, focusing on key points).
+
+5.2 Document Selection
+
+UI flow: select documents from ingested corpus.
+
+Option to choose by subject, date, or relevance.
+
+5.3 Summarization Pipeline
+
+Using LLM to generate section-wise or topic-wise summaries.
+
+Ensuring factual grounding from ingested data.
+
+Example: full text → structured summary.
+
+5.4 Prompt Construction for Q/A Generation
+
+Adding question details (type, difficulty, scope).
+
+How the summary is inserted into the LLM prompt.
+
+Example prompt template.
+
+5.5 LLM Response Processing
+
+Validating against context.
+
+Formatting questions and answers.
+
+Attaching references where possible.
+
+5.6 Output Presentation
+
+Preview of generated Q/A pairs.
+
+Export formats (PDF/CSV).
+
+Integration into educator workflows.
+
+Chapter 6 — Evaluation & Miscellaneous Enhancements
+6.1 RAGAS Evaluation
+
+Metrics: Faithfulness, Context Recall, Answer Relevance.
+
+Setup: datasets, query list, ground truths.
+
+Results: tables, graphs, discussion.
+
+6.2 Model Benchmarking
+
+Compare Gemini, Groq, Ollama.
+
+Latency, accuracy, user preference.
+
+Chart example.
+
+6.3 Logging & Monitoring
+
+Log viewer UI: filtering by level, keyword.
+
+Uses for debugging & performance tracking.
+
+6.4 Scalability & Deployment
+
+ChromaDB persistence.
+
+Multi-user concurrency.
+
+Deployment scenarios: single user, classroom, institution.
+
+6.5 Future Enhancements
+
+Multi-modal document support.
+
+Adaptive learning integrations.
+
+Automatic retriever re-ranking from feedback.
+
+------------------------------------------------------------------
+
+improved section 4:
+
+Chapter 4 — Core Retrieval-Augmented QA Pipeline (Continued)
+4.3 Retriever Pipeline: From Upload to Semantic Retrieval
+This section will include:
+
+🔹 4.3.1 Document Upload & Subject Mapping
+UI flow for subject selection and file upload (PDF/DOCX)
+
+Optional description and LlamaParse toggle
+
+Snapshots from UploadPage.jsx
+
+Code logic from app.py for /upload-pdf/ and /ingest-pdf/
+
+Diagram: “Upload Flow” showing Subject → Upload → LlamaParse (if selected) → save to uploads/ → ingestion trigger
+
+🔹 4.3.2 Advanced PDF Parsing (LlamaParse)
+Why LlamaParse is needed (multi-column, formula-aware)
+
+Before/after parsing example (if available)
+
+Code logic from llamaparse_loader.py
+
+Diagram: Flow showing raw PDF → LlamaParse → cleaned text output
+
+🔹 4.3.3 Semantic Chunking
+How semantically coherent chunks are created (headings, proximity, math, etc.)
+
+Controlled chunk size, overlap (e.g., 2000 chars, 200 overlap)
+
+Diagram: Content → chunkers.py logic → final chunk set
+
+🔹 4.3.4 Embedding and Persistent Vector Storage
+BAAI/bge-base-en-v1.5 via FastEmbed → 768-d embeddings
+
+Code from embeddings.py, vectorstore.py
+
+Stored in ChromaDB: persistent + queryable
+
+Metadata schema: subject, page, source, etc.
+
+Diagram: chunk → embedding → ChromaDB with metadata
+
+Table: Show sample metadata + embedding preview
+
+🔹 4.3.5 Semantic Retrieval with Metadata Filtering
+Code from retriever.py
+
+Query vectorization and similarity scoring
+
+k-top filtering, threshold, subject filtering
+
+Diagram: user query → embedding → top-k chunk fetch
+
+Optionally, include retrieved chunks in frontend context (checkbox)
+
+4.4 Reader Pipeline: Prompting, Generation & Feedback
+🔹 4.4.1 Prompt Grounding and Context Injection
+Explain usage of prompts.py (custom RAG template)
+
+Sample prompt layout (query + context injection)
+
+Diagram: user question + top chunks → formatted prompt
+
+🔹 4.4.2 Answer Generation with LLM Orchestration
+LLM options: Gemini, Groq (Llama 3), Ollama (local)
+
+How selection is passed via UI (llm_choice)
+
+Show snippet from llms.py (routing logic to correct LLM backend)
+
+Snapshots: Dropdown from QAPage.jsx
+
+Diagram: Prompt → LLM (based on selected model) → response
+
+🔹 4.4.3 Post-processing with spaCy
+Code from postprocess.py
+
+Explain: trimming, cleaning, formatting
+
+Show before/after if possible
+
+🔹 4.4.4 Answer Display and Feedback Capture
+UI snapshot of answer + context + provenance metadata
+
+Feedback (binary + comment) shown
+
+How feedback is stored for future fine-tuning
+
+Snippets from QAPage.jsx (feedback UI), backend route for POST /api/feedback
+
+Diagram: LLM Answer → Display → Feedback → Backend logging
+
+Each of these subsections will have:
+
+A short theoretical explanation
+
+A flow diagram or snapshot
+
+A table or result/log example (if meaningful)
+
+No unnecessary code or file name mentions (as per your preference)
