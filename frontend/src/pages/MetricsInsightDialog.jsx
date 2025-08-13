@@ -252,6 +252,20 @@ export default function MetricsInsightDialog({
     [rowsByModel, selectedModels, selectedMetrics]
   );
 
+  /* ---- keep bars SLIM even when only 1–2 metrics are selected ---- */
+  const barCountPerGroup = mode === "single" ? 1 : (selectedModels?.length || 1);
+  const groupCount = groupedBarData.length || 1;
+  const barSize = useMemo(() => {
+    if (groupCount <= 2) return 60; // wider for 1–2 metrics
+    if (groupCount <= 4) return 60; // medium for 3–4 metrics
+    return 50;                      // smaller when many metrics
+  }, [groupCount]);
+  const computedBarSize = useMemo(() => {
+    const base = 24;                     // tweak if you want even thinner
+    const size = Math.min(28, Math.max(14, Math.floor(base)));
+    return size;
+  }, [groupCount, barCountPerGroup, mode, selectedModels]);
+
   /* ---------- radar (per model, per category; includes ALL metrics) ---------- */
   const radarData = useMemo(() => {
     const out = {};
@@ -363,19 +377,20 @@ export default function MetricsInsightDialog({
 
         {/* top-right global scale toggle */}
         {tab !== 2 && (
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
             <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="caption" color="text.secondary">Scale</Typography>
-                <ToggleButtonGroup
+              <Typography variant="caption" color="text.secondary">Scale</Typography>
+              <ToggleButtonGroup
                 exclusive size="small" value={scaleMode}
                 onChange={(_, v) => v && setScaleMode(v)}
-                >
+              >
                 <ToggleButton value="pct">%</ToggleButton>
                 <ToggleButton value="abs">ABS</ToggleButton>
-                </ToggleButtonGroup>
+              </ToggleButtonGroup>
             </Stack>
-            </Box>
+          </Box>
         )}
+
         {/* ===== Tab 0: Averages (Grouped Bars) ===== */}
         {tab === 0 && (
           <Box sx={{ p: 1 }}>
@@ -427,67 +442,77 @@ export default function MetricsInsightDialog({
                 </Select>
               </FormControl>
 
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="body2" color="text.secondary">
                 Average of each selected metric across all questions.
               </Typography>
             </Stack>
 
-            <Box sx={{ height: 520, border: "1px solid #eee", borderRadius: 2, p: 1 }}>
+            <Box sx={{ height: 560, border: "1px solid #e0e0e0", borderRadius: 2, p: 1.5, background: "#fff" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={groupedBarData}
-                  barCategoryGap={20}
-                  margin={{ top: 40, right: 24, left: 8, bottom: 84 }} // more space so ticks/legend aren't cut
+                  barCategoryGap="30%"
+                  barGap={10} // small gap between bars inside a group
+                  margin={{ top: 56, right: 32, left: 16, bottom: 96 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="metric"
-                    angle={-30}
+                    angle={-24}
                     textAnchor="end"
                     interval={0}
-                    tick={{ fontSize: 12 }}
-                    tickMargin={14}
+                    tick={{ fontSize: 14, fontWeight: 600 }}
+                    tickMargin={18}
                   />
                   <YAxis
                     domain={isPct ? [0, 1] : [0, barsAbsMax]}
                     tickFormatter={fmtAxis}
+                    tick={{ fontSize: 14, fontWeight: 600 }}
                   />
                   <Tooltip
                     formatter={(v) => fmtLabel(v)}
-                    labelStyle={{ fontWeight: 600 }}
+                    labelStyle={{ fontWeight: 700, fontSize: 14 }}
+                    itemStyle={{ fontSize: 14, fontWeight: 600 }}
                   />
+                  <Legend
+                    verticalAlign="top"
+                    align="right"
+                    iconSize={16}
+                    wrapperStyle={{ fontSize: 14, fontWeight: 600, paddingBottom: 10, lineHeight: "22px" }}
+                    formatter={(value) => String(value).toUpperCase()}
+                  />
+
                   {mode === "single" ? (
-                    <>
-                      <Legend
-                        verticalAlign="top"
-                        align="right"
-                        wrapperStyle={{ paddingBottom: 8 }}
-                      />
-                      <Bar
+                    <Bar
+                      dataKey="value"
+                      fill={MODEL_COLORS[selectedModels?.[0]] || "#1976d2"}
+                      radius={[6, 6, 0, 0]}
+                      barSize={barSize} // ⬅ dynamic width
+                    >
+                      <LabelList
                         dataKey="value"
-                        fill={MODEL_COLORS[selectedModels?.[0]] || "#1976d2"}
+                        position="top"
+                        formatter={(v) => fmtLabel(v)}
+                        style={{ fontSize: 14, fontWeight: 700 }}
+                      />
+                    </Bar>
+                  ) : (
+                    (selectedModels || []).map((m) => (
+                      <Bar
+                        key={m}
+                        dataKey={m}
+                        fill={MODEL_COLORS[m]}
                         radius={[6, 6, 0, 0]}
+                        barSize={barSize} // ⬅ dynamic width
                       >
                         <LabelList
-                          dataKey="value"
+                          dataKey={m}
                           position="top"
                           formatter={(v) => fmtLabel(v)}
+                          style={{ fontSize: 14, fontWeight: 700 }}
                         />
                       </Bar>
-                    </>
-                  ) : (
-                    <>
-                      <Legend
-                        verticalAlign="top"
-                        align="right"
-                        wrapperStyle={{ paddingBottom: 8 }}
-                      />
-                      {(selectedModels || []).map(m => (
-                        <Bar key={m} dataKey={m} fill={MODEL_COLORS[m]} radius={[6, 6, 0, 0]}>
-                          <LabelList dataKey={m} position="top" formatter={(v) => fmtLabel(v)} />
-                        </Bar>
-                      ))}
-                    </>
+                    ))
                   )}
                 </BarChart>
               </ResponsiveContainer>
@@ -519,14 +544,15 @@ export default function MetricsInsightDialog({
                       cy="50%"
                       outerRadius="78%"
                       data={cat.data}
-                      margin={{ top: 22, right: 28, bottom: 22, left: 28 }} // breathing room so labels don't clip
+                      margin={{ top: 22, right: 28, bottom: 22, left: 28 }}
                     >
                       <PolarGrid />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
+                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 13, fontWeight: 600 }} />
                       <PolarRadiusAxis
                         angle={30}
                         domain={isPct ? [0, 1] : [0, radarAbsMax]}
                         tickFormatter={fmtAxis}
+                        tick={{ fontSize: 13, fontWeight: 600 }}
                       />
                       <Radar
                         name={activeModel}
