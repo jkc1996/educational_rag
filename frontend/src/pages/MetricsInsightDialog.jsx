@@ -10,22 +10,24 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   BarChart, Bar, LabelList, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
+import { METRIC_CATEGORIES as BASE_METRIC_CATEGORIES } from "../utils/metricUtils";
 
 /* ===================== constants ===================== */
 // changed ollama color away from green
 const MODEL_COLORS = { groq: "#1976d2", gemini: "#9c27b0", ollama: "#ef6c00" };
 
 // Base categories (we’ll auto-append “Other” for extra metrics in metricLabels)
-const BASE_METRIC_CATEGORIES = [
-  { key: "retrieval", label: "Retrieval", metrics: ["context_precision", "context_recall", "faithfulness"] },
-  { key: "nvidia",    label: "Nvidia",    metrics: ["nv_accuracy", "nv_context_relevance", "nv_response_groundedness"] },
-  { key: "language",  label: "Language",  metrics: ["factual_correctness", "semantic_similarity", "bleu_score", "rouge_score"] },
-];
+// const BASE_METRIC_CATEGORIES = [
+//   { key: "retrieval", label: "Retrieval", metrics: ["context_precision", "context_recall", "faithfulness"] },
+//   { key: "nvidia",    label: "Nvidia",    metrics: ["nv_accuracy", "nv_context_relevance", "nv_response_groundedness"] },
+//   { key: "language",  label: "Language",  metrics: ["factual_correctness", "semantic_similarity", "bleu_score", "rouge_score", "string_present",
+//   "exact_match"] },
+// ];
 
 /* ===================== robust readers ===================== */
 const toNum = (v) =>
   typeof v === "number" ? v :
-  (typeof v === "string" && v.trim() !== "" && !isNaN(+v)) ? +v : 0;
+  (typeof v === "string" && v.trim() !== "" && !isNaN(+v)) ? +v : NaN;
 
 const norm = (s) =>
   String(s).toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
@@ -44,19 +46,31 @@ const aliasesFor = (metric) => {
     base.replace(/_mode_.+$/, "").replace(/_score$/, ""),
     base.replace(/_f1$/, ""),
   ]);
+  // safety for common misspelling
+  if (base.includes("groundedness")) extras.add(base.replace("groundedness", "groundness"));
+  if (base.includes("groundness")) extras.add(base.replace("groundness", "groundedness"));
   return [...extras];
 };
 
+// ⬇️ FIXED: now reads {score} or {value} objects too
 const valueFromObject = (obj, metricKey) => {
   if (!obj || typeof obj !== "object") return 0;
   const targets = aliasesFor(metricKey);
   const sources = [obj, obj.metrics || {}, obj.scores || {}];
   for (const src of sources) {
     for (const [k, v] of Object.entries(src)) {
-      if (keyMatches(k, targets)) {
-        const n = toNum(v);
-        if (!Number.isNaN(n)) return n;
+      if (!keyMatches(k, targets)) continue;
+
+      if (typeof v === "object" && v !== null) {
+        // common shapes: { score }, { value }
+        if (typeof v.score === "number") return v.score;
+        if (typeof v.value === "number") return v.value;
+        if (typeof v.score === "string" && !isNaN(+v.score)) return +v.score;
+        if (typeof v.value === "string" && !isNaN(+v.value)) return +v.value;
       }
+
+      const n = toNum(v);
+      if (!Number.isNaN(n)) return n;
     }
   }
   return 0;
@@ -69,7 +83,11 @@ function averageByMetric(rows, metrics) {
   (rows || []).forEach(r => {
     metrics.forEach(m => {
       const v = valueFromObject(r, m);
-      if (!Number.isNaN(v)) { sums[m] += v; counts[m] += 1; }
+      // treat only real numbers; skip truly-missing values (we return 0 only when it's a real 0)
+      if (typeof v === "number" && !Number.isNaN(v)) {
+        sums[m] += v;
+        counts[m] += 1;
+      }
     });
   });
   const out = {};
@@ -204,7 +222,7 @@ export default function MetricsInsightDialog({
     setSelectedDrillMetrics(Array.from(setSel));
   };
 
-  /* state for per-model radar */
+  /* state for correlation heatmap model picker */
   const [activeModel, setActiveModel] = useState(selectedModels?.[0] || "");
   useEffect(() => { setTab(0); }, [mode]);
   useEffect(() => {
@@ -252,41 +270,46 @@ export default function MetricsInsightDialog({
     [rowsByModel, selectedModels, selectedMetrics]
   );
 
-  /* ---- keep bars SLIM even when only 1–2 metrics are selected ---- */
-  const barCountPerGroup = mode === "single" ? 1 : (selectedModels?.length || 1);
+  /* ---- dynamic bar width by number of groups ---- */
   const groupCount = groupedBarData.length || 1;
   const barSize = useMemo(() => {
     if (groupCount <= 2) return 60; // wider for 1–2 metrics
     if (groupCount <= 4) return 60; // medium for 3–4 metrics
     return 50;                      // smaller when many metrics
   }, [groupCount]);
-  const computedBarSize = useMemo(() => {
-    const base = 24;                     // tweak if you want even thinner
-    const size = Math.min(28, Math.max(14, Math.floor(base)));
-    return size;
-  }, [groupCount, barCountPerGroup, mode, selectedModels]);
 
-  /* ---------- radar (per model, per category; includes ALL metrics) ---------- */
-  const radarData = useMemo(() => {
+  /* ---------- RADAR: category dropdown + one radar per model (side-by-side) ---------- */
+  const [radarCategoryKey, setRadarCategoryKey] = useState(
+    () => (categories[0]?.key ?? "")
+  );
+  useEffect(() => {
+    if (!radarCategoryKey && categories[0]?.key) setRadarCategoryKey(categories[0].key);
+  }, [categories, radarCategoryKey]);
+
+  const activeCategory = useMemo(() => {
+    return categories.find(c => c.key === radarCategoryKey) || categories[0] || { metrics: [], label: "" };
+  }, [categories, radarCategoryKey]);
+
+  // Per-model radar data: { modelName: [{subject, value}, ...] }
+  const radarPerModelData = useMemo(() => {
     const out = {};
-    (selectedModels || []).forEach(m => {
-      const avg = averageByMetric(rowsByModel[m] || [], ALL_METRICS);
-      out[m] = categories.map(cat => ({
-        key: cat.key,
-        label: cat.label,
-        data: cat.metrics.map(k => ({
+    if (!activeCategory?.metrics?.length) return out;
+    (selectedModels || []).forEach((m) => {
+      out[m] = activeCategory.metrics.map((k) => {
+        const avg = averageByMetric(rowsByModel[m] || [], [k]);
+        return {
           subject: metricLabels?.[k] || k,
-          value: +(avg[k] ?? 0).toFixed(3),
-          fullMark: 1
-        }))
-      }));
+          value: +((avg[k] ?? 0)).toFixed(3),
+        };
+      });
     });
     return out;
-  }, [rowsByModel, selectedModels, metricLabels, categories, ALL_METRICS]);
+  }, [activeCategory, metricLabels, rowsByModel, selectedModels]);
 
-  const radarAbsMax = useMemo(
-    () => computeMax(rowsByModel, selectedModels, ALL_METRICS),
-    [rowsByModel, selectedModels, ALL_METRICS]
+  // ABS max for the selected category only
+  const radarCatAbsMax = useMemo(
+    () => computeMax(rowsByModel, selectedModels, activeCategory.metrics),
+    [rowsByModel, selectedModels, activeCategory]
   );
 
   /* ---------- correlation matrix for active model (ALL metrics) ---------- */
@@ -452,7 +475,7 @@ export default function MetricsInsightDialog({
                 <BarChart
                   data={groupedBarData}
                   barCategoryGap="30%"
-                  barGap={10} // small gap between bars inside a group
+                  barGap={10}
                   margin={{ top: 56, right: 32, left: 16, bottom: 96 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -487,7 +510,7 @@ export default function MetricsInsightDialog({
                       dataKey="value"
                       fill={MODEL_COLORS[selectedModels?.[0]] || "#1976d2"}
                       radius={[6, 6, 0, 0]}
-                      barSize={barSize} // ⬅ dynamic width
+                      barSize={barSize}
                     >
                       <LabelList
                         dataKey="value"
@@ -503,7 +526,7 @@ export default function MetricsInsightDialog({
                         dataKey={m}
                         fill={MODEL_COLORS[m]}
                         radius={[6, 6, 0, 0]}
-                        barSize={barSize} // ⬅ dynamic width
+                        barSize={barSize}
                       >
                         <LabelList
                           dataKey={m}
@@ -520,46 +543,59 @@ export default function MetricsInsightDialog({
           </Box>
         )}
 
-        {/* ===== Tab 1: Individual performance (radar) ===== */}
+        {/* ===== Tab 1: Individual performance (radar, category dropdown; one radar per model) ===== */}
         {tab === 1 && (
           <Box>
-            <ToggleButtonGroup
-              exclusive size="small" value={activeModel}
-              onChange={(_, v) => v && setActiveModel(v)} sx={{ mb: 2 }}
-            >
-              {(selectedModels || []).map(m => (
-                <ToggleButton key={m} value={m} sx={{ fontWeight: 700 }}>
-                  <span style={{ color: MODEL_COLORS[m] }}>{m.toUpperCase()}</span>
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
+            <Stack direction="row" spacing={2} sx={{ mb: 2, alignItems: "center", flexWrap: "wrap" }}>
+              <FormControl size="small" sx={{ minWidth: 220 }}>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={radarCategoryKey}
+                  label="Category"
+                  onChange={(e) => setRadarCategoryKey(e.target.value)}
+                >
+                  {categories.map((c) => (
+                    <MenuItem key={c.key} value={c.key}>{c.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Typography variant="caption" color="text.secondary">
+                Showing one radar per model for <strong>{activeCategory?.label}</strong>.
+              </Typography>
+            </Stack>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center" }}>
-              {(radarData[activeModel] || []).map(cat => (
-                <Box key={cat.key} sx={{ width: 380, height: 380, textAlign: "center" }}>
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>{cat.label}</Typography>
+              {(selectedModels || []).map((m) => (
+                <Box key={m} sx={{ width: 360, height: 360, p: 1 }}>
+                  <Stack direction="row" justifyContent="center" sx={{ mb: 1 }}>
+                    <Chip
+                      size="small"
+                      label={m.toUpperCase()}
+                      sx={{ background: MODEL_COLORS[m], color: "#fff", fontWeight: 700 }}
+                    />
+                  </Stack>
                   <ResponsiveContainer>
                     <RadarChart
                       cx="50%"
                       cy="50%"
                       outerRadius="78%"
-                      data={cat.data}
-                      margin={{ top: 22, right: 28, bottom: 22, left: 28 }}
+                      data={radarPerModelData[m] || []}
+                      margin={{ top: 10, right: 18, bottom: 10, left: 18 }}
                     >
                       <PolarGrid />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 13, fontWeight: 600 }} />
+                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
                       <PolarRadiusAxis
                         angle={30}
-                        domain={isPct ? [0, 1] : [0, radarAbsMax]}
+                        domain={isPct ? [0, 1] : [0, radarCatAbsMax || 1]}
                         tickFormatter={fmtAxis}
-                        tick={{ fontSize: 13, fontWeight: 600 }}
                       />
                       <Radar
-                        name={activeModel}
+                        name={m.toUpperCase()}
                         dataKey="value"
-                        stroke={MODEL_COLORS[activeModel]}
-                        fill={MODEL_COLORS[activeModel]}
-                        fillOpacity={0.45}
+                        stroke={MODEL_COLORS[m]}
+                        fill={MODEL_COLORS[m]}
+                        fillOpacity={0.36}
                       />
                       <Tooltip formatter={(v) => fmtLabel(v)} />
                     </RadarChart>
@@ -702,7 +738,7 @@ export default function MetricsInsightDialog({
             ) : (
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 520, overflow: "auto", pr: 1 }}>
                 {perQuestionMatrix.map(q => (
-                  <Box key={q.id} sx={{ border: "1px solid #eee", borderRadius: 2, p: 1.25 }}>
+                  <Box key={q.id} sx={{ border: '1px solid #eee', borderRadius: 2, p: 1.25 }}>
                     <Typography
                       variant="body2"
                       sx={{ mb: 1, fontWeight: 600 }}

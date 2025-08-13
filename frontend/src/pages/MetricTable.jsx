@@ -2,6 +2,7 @@ import React from "react";
 import { Table, TableHead, TableRow, TableCell, TableBody, Chip } from "@mui/material";
 import { STATIC_COLS, METRIC_LABELS, getMetricColor } from "../utils/metricUtils";
 import TruncatedCell from "./TruncatedCell";
+import { resolveMetricValue } from "../utils/metricUtils";
 
 export default function MetricTable({
   results, metricsToShow, expandedCell, setExpandedCell, showContexts
@@ -148,7 +149,7 @@ export default function MetricTable({
               </TableCell>
             )}
             {metricsToShow.map(metric => {
-              let val = row[metric];
+              let val = resolveMetricValue(row, metric);
               if (typeof val === "object" && val !== null && typeof val.score === "number") val = val.score;
               return (
                 <TableCell key={metric} sx={{ textAlign: "center" }}>

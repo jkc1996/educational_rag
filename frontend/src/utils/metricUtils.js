@@ -20,14 +20,13 @@ export const METRIC_CATEGORIES = [
     ],
   },
   {
-    key: "nlp",
+    key: "language",
     label: "Language Metrics",
     metrics: [
-      "factual_correctness(mode=f1)",
+      "factual_correctness",
       "semantic_similarity",
-      "non_llm_string_similarity",
       "bleu_score",
-      "rouge_score(mode=fmeasure)",
+      "rouge_score",
       "string_present",
       "exact_match",
     ],
@@ -41,11 +40,10 @@ export const METRIC_LABELS = {
   "nv_accuracy": "NV Answer Accuracy",
   "nv_context_relevance": "NV Context Relevance",
   "nv_response_groundedness": "NV Response Groundedness",
-  "factual_correctness(mode=f1)": "Factual Correctness (F1)",
+  "factual_correctness": "Factual Correctness (F1)",
   "semantic_similarity": "Semantic Similarity",
-  "non_llm_string_similarity": "Non-LLM String Similarity",
   "bleu_score": "BLEU Score",
-  "rouge_score(mode=fmeasure)": "ROUGE Score (F-measure)",
+  "rouge_score": "ROUGE Score (F-measure)",
   "string_present": "String Presence",
   "exact_match": "Exact Match",
 };
@@ -73,22 +71,45 @@ export function getMetricsForCategory(categoryKey) {
   return cat ? cat.metrics : [];
 }
 
-// Average values per metric across results
+// src/utils/metricUtils.js
+
+// NEW: robust resolver for "metric" OR "metric(...)" keys and {score}/{value} shapes
+export function resolveMetricValue(row, metricKey) {
+  if (!row || !metricKey) return null;
+
+  // exact match first
+  let v = row[metricKey];
+  if (v === undefined) {
+    // fallback: find keys like "metricKey(...)" or "metricKey_score" etc.
+    const re = new RegExp(`^${metricKey}(\\(|_|$)`, "i");
+    const hit = Object.keys(row).find(k => re.test(k));
+    if (hit) v = row[hit];
+  }
+
+  if (v && typeof v === "object") {
+    if (typeof v.score === "number") return v.score;
+    if (typeof v.value === "number") return v.value;
+    if (typeof v.score === "string" && !isNaN(+v.score)) return +v.score;
+    if (typeof v.value === "string" && !isNaN(+v.value)) return +v.value;
+  }
+
+  return (typeof v === "number") ? v
+       : (typeof v === "string" && !isNaN(+v)) ? +v
+       : null;
+}
+
+// ⬇️ update existing function to use the resolver
 export function getMetricAverages(results, metrics) {
   if (!results || !metrics) return {};
   const avg = {};
   metrics.forEach(metric => {
-    let values = results.map(row => {
-      const v = row[metric];
-      return typeof v === "number"
-        ? v
-        : (typeof v === "object" && v !== null && typeof v.score === "number")
-        ? v.score
-        : null;
-    }).filter(x => typeof x === "number");
+    const values = (results || [])
+      .map(row => resolveMetricValue(row, metric))
+      .filter(x => typeof x === "number");
     avg[metric] = values.length
       ? values.reduce((a, b) => a + b, 0) / values.length
       : 0;
   });
   return avg;
 }
+

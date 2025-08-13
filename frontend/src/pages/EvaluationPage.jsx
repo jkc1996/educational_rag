@@ -37,7 +37,7 @@ export default function EvaluationPage() {
   const [shownMetrics, setShownMetrics] = useState({
     retrieval: [...DEFAULT_METRICS.retrieval],
     nvidia: [...DEFAULT_METRICS.nvidia],
-    nlp: [...DEFAULT_METRICS.nlp],
+    language: [...DEFAULT_METRICS.language],
   });
   const [anchorEl, setAnchorEl] = useState(null);
   const [showContexts, setShowContexts] = useState(false);

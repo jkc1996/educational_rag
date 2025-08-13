@@ -1,31 +1,40 @@
 // CompareUtils.js
 
+function normalizeMetricKey(key) {
+  // strip mode=f1 or (mode=f1)
+  return key.replace(/\(.*?\)/g, "").trim().toLowerCase();
+}
 // Returns array of objects like { id, question, ground_truth, ...model1: {answer, metrics...}, model2: {...} }
-export function alignCompareResults(resultsByModel) {
-    // resultsByModel: { modelName1: [rows], modelName2: [rows], ... }
-    // Assume all results arrays are for same question set, align by 'id'
-    const modelNames = Object.keys(resultsByModel);
-    if (!modelNames.length) return [];
-    const base = resultsByModel[modelNames[0]] || [];
-  
-    return base.map(row => {
-      const res = {
-        id: row.id,
-        question: row.question,
-        ground_truth: row.ground_truth,
-        // contexts: row.contexts, // can add if needed
+
+export function alignCompareResults(compareResults) {
+  const allIds = new Set();
+  const allRows = {};
+
+  for (const model in compareResults) {
+    for (const row of compareResults[model]) {
+      const rowId = row.id;
+      allIds.add(rowId);
+      if (!allRows[rowId]) {
+        allRows[rowId] = { id: rowId, question: row.question, ground_truth: row.ground_truth, contexts: row.contexts };
+      }
+
+      const normalizedMetrics = {};
+      for (const key in row) {
+        const normKey = normalizeMetricKey(key);
+        normalizedMetrics[normKey] = row[key];
+      }
+      console.log("Normalized keys for row:", Object.keys(normalizedMetrics));
+
+      allRows[rowId][model] = {
+        answer: row.answer,
+        ...normalizedMetrics,
       };
-      modelNames.forEach(model => {
-        // Find row in that model by id
-        const match = (resultsByModel[model] || []).find(r => r.id === row.id);
-        res[model] = match ? {
-          answer: match.answer,
-          ...match // includes metrics like context_precision etc.
-        } : {};
-      });
-      return res;
-    });
+    }
   }
+
+  return Array.from(allIds).map(id => allRows[id]);
+}
+
   
   // Averages per model/metric
   export function getCompareMetricAverages(resultsByModel, metricsToShow) {
