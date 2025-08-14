@@ -1,5 +1,6 @@
 import React from "react";
 import { Table, TableHead, TableRow, TableCell, TableBody, Box, Chip, Typography } from "@mui/material";
+import { resolveMetricValue } from "../utils/metricUtils";
 
 /**
  * @param {Object} props
@@ -23,11 +24,9 @@ export default function AggregatedCompareTable({
     const rows = compareResults[model] || [];
     metricCategories.forEach(category => {
       category.metrics.forEach(metric => {
-        const vals = rows.map(row =>
-          typeof row[metric] === "number"
-            ? row[metric]
-            : (typeof row[metric] === "object" && row[metric]?.score)
-        ).filter(v => typeof v === "number");
+        const vals = rows
+         .map(row => resolveMetricValue(row, metric))
+         .filter(v => typeof v === "number");
         averagesByModel[model][metric] =
           vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
       });
