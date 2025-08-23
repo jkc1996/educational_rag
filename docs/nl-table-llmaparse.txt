@@ -1,0 +1,13 @@
+From Table 1: Comparison of Word Embedding Techniques
+1. Question: Which word embedding technique is specifically noted for its ability to handle out-of-vocabulary (OOV) words effectively?
+Answer: FastText.
+
+2. Question: According to the table, what is the dimensionality of the BERT-base model and is it a contextual technique?
+Answer: The dimensionality is 768, and yes, it is a contextual technique.
+
+From Table 2: Overview of Common NLP Tasks
+3. Question: What is the key evaluation metric for a Text Summarization task?
+Answer: The ROUGE Score or BLEU Score.
+
+4. Question: Based on the table, what is the example output for a Question Answering (QA) task when the input context is "The Amazon rainforest is the world's largest tropical rainforest" and the question is "What is the largest rainforest?"?
+Answer: "The Amazon rainforest".

@@ -34,31 +34,50 @@ def ingest_pdfs_to_chroma(
         from langchain.text_splitter import RecursiveCharacterTextSplitter
         from langchain.schema import Document
         from hashlib import md5
+        import os, re
 
-        all_semantic_chunks = []
         splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        all_semantic_chunks = []
+
+        PAGE_RX = re.compile(r"^\s*=== PAGE (\d+) ===\s*$")  # {pageNumber} = next page
 
         for pdf in pdf_files:
             nodes = load_llamaparse_nodes(pdf)
-            for node in nodes:
-                subchunks = splitter.split_text(node.text)
-                for idx, chunk_text in enumerate(subchunks):
-                    # build a fresh metadata dict (so we don't mutate node.metadata)
+            raw_md = "\n".join([n.text for n in nodes]) if nodes else ""
+
+            # Start at page 1; each marker means "next page begins"
+            pages = []
+            current_page = 1
+            current_buf = []
+
+            for line in raw_md.splitlines():
+                m = PAGE_RX.match(line)
+                if m:
+                    # flush the current page BEFORE switching to the next one
+                    pages.append((current_page, "\n".join(current_buf).strip()))
+                    current_page = int(m.group(1))  # marker already holds *next* page number
+                    current_buf = []
+                else:
+                    current_buf.append(line)
+
+            # flush the last page
+            pages.append((current_page, "\n".join(current_buf).strip()))
+
+            base_name = os.path.basename(pdf).replace("\\", "/").split("/")[-1]
+
+            for page_num, page_text in pages:
+                if not page_text:
+                    continue
+                for idx, chunk_text in enumerate(splitter.split_text(page_text)):
                     meta = {
-                        **(getattr(node, "metadata", {}) or {}),
-                        "source_pdf": pdf,
+                        "source_pdf": base_name,
+                        "page": page_num,          # correct 1-based page number
                         "parsed_by": "llamaparse",
-                        "parent_chunk_type": getattr(node, "type", ""),
+                        "parent_chunk_type": "page_block",
                         "parent_chunk_index": idx,
                     }
-                    # optional: ensure "page" exists if llamaparse didn't include it
-                    meta.setdefault("page", meta.get("page_number") or meta.get("page") or None)
-
-                    # stable ID for feedback & analytics
-                    meta["chunk_uid"] = f"{meta.get('source_pdf','')}_{meta.get('page','')}_{md5(chunk_text.encode('utf-8')).hexdigest()[:10]}"
-
-                    doc = Document(page_content=chunk_text, metadata=meta)
-                    all_semantic_chunks.append(doc)
+                    meta["chunk_uid"] = f"{base_name}_{page_num}_{md5(chunk_text.encode('utf-8')).hexdigest()[:10]}"
+                    all_semantic_chunks.append(Document(page_content=chunk_text, metadata=meta))
 
     else:
         from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -76,6 +95,7 @@ def ingest_pdfs_to_chroma(
         "total_chunks": len(all_semantic_chunks)
     })
     return True
+
 
 
 def get_rag_chain(
