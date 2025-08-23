@@ -1,0 +1,104 @@
+Slide 1 — Title Slide
+
+Title: Enhanced LLM-based Retrieval-Augmented QA System for Educational Content
+
+Name, Roll No., Program, Semester, Guide’s Name
+--------------------------------------------------------------------
+Slide 2 — Project Overview
+
+Brief description of the project
+
+Why educational QA?
+
+High-level workflow: Document ingestion → Retrieval → LLM Answering → Evaluation
+-----------------------------------------------------------------
+Slide 3 — Objectives & Goals
+
+Provide accurate, context-backed answers from educational material
+
+Support multiple LLM backends (Gemini, Groq, Ollama)
+
+Allow question paper generation from ingested content
+
+Enable RAGAS-based benchmarking for performance insights
+----------------------------------------------------------------
+Slide 4 — System Architecture
+
+Visual diagram of your complete pipeline
+(Ingestion → Parsing (LlamaParse) → Vector Store → Retrieval → LLM QA → Evaluation)
+-------------------------------------------------------------
+Slide 5 — Enhanced QA Flow
+
+Advanced parsing with LlamaParse (tables, equations, markdown conversion)
+
+Caching for faster repeated queries
+
+Add_context toggle to return top retrieved passages
+
+Unified /ask-question backend interface
+------------------------------------------------------------
+Slide 6 — Additional Context Retrieval & Feedback
+
+Optional retrieval of top-5 supporting contexts
+
+User feedback loop (helpful/not helpful + comments) for continuous improvement
+----------------------------------------------------------
+Slide 7 — Question Paper Generation
+
+Auto-generation of questions from domain-specific documents
+
+Support for MCQs, descriptive, and short-answer formats
+
+Dynamic total count update based on question-type selection
+----------------------------------------------------------
+Slide 8 — RAGAS Evaluation Framework
+
+Purpose: Measure retrieval quality & answer accuracy
+
+Three categories of metrics:
+
+Retrieval metrics (Context Precision, Context Recall, Faithfulness)
+
+Nvidia metrics (Answer Accuracy, Context Relevance, Response Groundedness)
+
+Language metrics (Factual Correctness, BLEU, ROUGE, String Presence, Exact Match)
+---------------------------------------------------------
+Slide 9 — Key Evaluation Insights
+
+Gemini: Strongest overall performer
+
+Groq: Competitive, slightly lower on factual correctness
+
+Ollama: Functional but higher hallucination rates
+
+Graphs/Radar charts summarizing comparison
+-------------------------------------------------------
+Slide 10 — Technical Highlights
+
+Multi-LLM backend integration
+
+Semantic chunking with structure-aware parsing
+
+FastAPI backend with caching & provenance tracking
+
+Metadata indexing for traceability
+-------------------------------------------------------
+Slide 11 — Future Scope
+
+Smart chunk merging for better semantic coherence
+
+Domain-adapted embeddings (Sentence-BERT fine-tuning)
+
+Adjacent chunk expansion for richer retrieval
+
+Improved equation handling
+
+Continuous feedback-based learning
+----------------------------------------------------
+Slide 12 — Conclusion
+
+System successfully delivers accurate, explainable answers for academic content
+
+Supports evaluation and iterative improvement via RAGAS
+
+Ready for further domain-specific optimization & scalability
