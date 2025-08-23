@@ -197,12 +197,18 @@ async def ask_question(
 
         if add_context:
             context_bits = []
-            for d in sources:
+            for i, d in enumerate(sources, start=1):
                 md = getattr(d, "metadata", {}) or {}
                 context_bits.append({
+                    "chunk_uid": md.get("chunk_uid"),
                     "source_pdf": md.get("source_pdf") or md.get("source"),
                     "page": md.get("page"),
-                    "preview": (d.page_content[:300] + "…") if d.page_content and len(d.page_content) > 300 else d.page_content
+                    "rank": i,
+                    "preview": (
+                        (d.page_content[:300] + "…")
+                        if d.page_content and len(d.page_content) > 300
+                        else d.page_content
+                    )
                 })
             response["context"] = context_bits
 
