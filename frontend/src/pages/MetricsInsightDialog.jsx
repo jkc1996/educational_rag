@@ -12,6 +12,8 @@ import {
 } from "recharts";
 import { METRIC_CATEGORIES as BASE_METRIC_CATEGORIES } from "../utils/metricUtils";
 
+// feature flag: hide/show correlation heatmap tab & panel
+const ENABLE_CORR_HEATMAP = false; // <- set true to show, false to hide
 /* ===================== constants ===================== */
 // changed ollama color away from green
 const MODEL_COLORS = { groq: "#1976d2", gemini: "#9c27b0", ollama: "#ef6c00" };
@@ -138,12 +140,21 @@ export default function MetricsInsightDialog({
   onQuestionClick,
 }) {
   /* -------- tabs -------- */
-  const TABS = [
-    { value: 0, label: "AVERAGES (GROUPED BARS)" },
-    { value: 1, label: "INDIVIDUAL PERFORMANCE" },
-    { value: 2, label: "METRIC CORRELATION" },
-    { value: 3, label: "PER-QUESTION DRILLDOWN" },
+  const BASE_TABS = [
+  { value: 0, label: "AVERAGES (GROUPED BARS)" },
+  { value: 1, label: mode === "single" ? "INDIVIDUAL PERFORMANCE" : "COMPARE PERFORMANCE" },
+  // NOTE: correlation tab (value: 2) is conditionally added below
+  { value: 3, label: "PER-QUESTION DRILLDOWN" },
   ];
+
+  const TABS = ENABLE_CORR_HEATMAP
+    ? [
+        { value: 0, label: "AVERAGES (GROUPED BARS)" },
+        { value: 1, label: mode === "single" ? "INDIVIDUAL PERFORMANCE" : "COMPARE PERFORMANCE" },
+        { value: 2, label: "METRIC CORRELATION" },
+        { value: 3, label: "PER-QUESTION DRILLDOWN" },
+      ]
+    : BASE_TABS;
   const [tab, setTab] = useState(0);
 
   // global scale toggle (% vs ABS) — applies to bars, radar, and drilldown
@@ -224,7 +235,10 @@ export default function MetricsInsightDialog({
 
   /* state for correlation heatmap model picker */
   const [activeModel, setActiveModel] = useState(selectedModels?.[0] || "");
-  useEffect(() => { setTab(0); }, [mode]);
+  // if correlation is disabled and current tab is 2, bump back to 0
+  useEffect(() => {
+    if (!ENABLE_CORR_HEATMAP && tab === 2) setTab(0);
+  }, [tab]);
   useEffect(() => {
     if (selectedModels?.length && !selectedModels.includes(activeModel)) {
       setActiveModel(selectedModels[0]);
@@ -607,7 +621,7 @@ export default function MetricsInsightDialog({
         )}
 
         {/* ===== Tab 2: correlation heatmap (ALL metrics) ===== */}
-        {tab === 2 && (
+        {ENABLE_CORR_HEATMAP && tab === 2 && (
           <Box>
             <ToggleButtonGroup
               exclusive size="small" value={activeModel}

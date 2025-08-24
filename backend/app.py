@@ -192,7 +192,7 @@ async def ask_question(
 
         response = {
             "answer": answer,
-            "qa_session_id": qa_session_id  # <--- return this to the UI
+            "qa_session_id": qa_session_id
         }
 
         if add_context:
@@ -241,8 +241,8 @@ class FeedbackIn(BaseModel):
 
 @app.post("/api/feedback")
 async def submit_feedback(fb: FeedbackIn):
-    # pull the snapshot from cache (if not found, still log the raw feedback)
-    snap = QA_CACHE.pop(fb.qa_session_id, None) or {}
+    # just read (don't pop) so retrieval_snapshot is preserved
+    snap = QA_CACHE.get(fb.qa_session_id, {}) or {}
     entry = {
         "qa_session_id": fb.qa_session_id,
         "helpful": fb.helpful,

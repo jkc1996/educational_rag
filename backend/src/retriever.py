@@ -51,13 +51,15 @@ class FeedbackAwareRetriever(BaseRetriever):
         for i, d in enumerate(docs):
             md = getattr(d, "metadata", {}) or {}
             uid = md.get("chunk_uid")
-            up = down = 0
+            score = 0
             if uid:
                 rep = self.rep_lookup(uid) or {"up": 0, "down": 0}
                 up = int(rep.get("up", 0))
                 down = int(rep.get("down", 0))
-            penalty = max(0, down - up) * self.beta
+                score = up - down   # net reputation
+            penalty = -score * self.beta  # downvotes increase penalty
             rescored.append((penalty, i, d))
 
-        rescored.sort(key=lambda x: (x[0], x[1]))  # lower penalty first, stable by original rank
+        # sort: lowest penalty = most preferred, stable by original order
+        rescored.sort(key=lambda x: (x[0], x[1]))
         return [d for _, _, d in rescored]
