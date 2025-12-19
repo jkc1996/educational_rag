@@ -1,0 +1,3 @@
+Focus more on regression algorithms, decision tree and evaluation metrics.
+Prioritize questions from Chapter 2, 3 and 5 only.
+Include at least one conceptual question on decision tree topic.
