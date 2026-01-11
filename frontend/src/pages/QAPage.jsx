@@ -17,7 +17,8 @@ const SUBJECTS = ["Machine Learning", "Natural Language Processing"];
 const LLMS = [
   { value: "gemini", label: "Gemini (Google)" },
   { value: "groq", label: "Groq (Llama3)" },
-  { value: "ollama", label: "Ollama (Local)" }
+  { value: "ollama", label: "Ollama (Local)" },
+  { value: "openai", label: "Open AI" }
 ];
 
 function QAPage() {

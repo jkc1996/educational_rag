@@ -1,7 +1,8 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_ollama import ChatOllama
-from src.config import GEMINI_API_KEY, GROQ_API_KEY, OLLAMA_BASE_URL
+from langchain_openai import ChatOpenAI
+from src.config import GEMINI_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OLLAMA_BASE_URL
 import logging
 
 def get_gemini_llm(model_name="models/gemini-1.5-flash"):
@@ -63,3 +64,27 @@ def get_ollama_llm(model_name="edusage"):
         "model_name": model_name
     })
     return llm
+
+def get_openai_llm(model_name="gpt-4o-mini"):
+    """
+    Returns an OpenAI chat model for answering queries.
+    """
+    logging.info({
+        "event": "llm_load_start",
+        "llm_type": "openai",
+        "model_name": model_name
+    })
+
+    llm = ChatOpenAI(
+        model=model_name,
+        api_key=OPENAI_API_KEY,
+        temperature=0
+    )
+
+    logging.info({
+        "event": "llm_load_done",
+        "llm_type": "openai",
+        "model_name": model_name
+    })
+    return llm
+

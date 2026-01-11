@@ -12,7 +12,7 @@ Context:
 {context}
 
 Instructions:
-- Avoid unnecessary line breaks, slashes, or bullet points unless specifically required.
+- Avoid unnecessary line breaks, slashes, or bullet points unless specifically required.Please use the provided context to answer the question.
 """
     logging.debug({
         "event": "rag_prompt_created",
