@@ -4,7 +4,7 @@ from langchain_ollama import ChatOllama
 from src.config import GEMINI_API_KEY, GROQ_API_KEY, OLLAMA_BASE_URL
 import logging
 
-def get_gemini_llm(model_name="gemini-1.5-flash-latest"):
+def get_gemini_llm(model_name="models/gemini-1.5-flash"):
     """
     Returns a Gemini chat model for answering queries.
     """
@@ -24,7 +24,7 @@ def get_gemini_llm(model_name="gemini-1.5-flash-latest"):
     })
     return llm
 
-def get_groq_llm(model_name="llama3-8b-8192"):
+def get_groq_llm(model_name="llama-3.1-8b-instant"):
     """
     Returns a Groq chat model for answering queries.
     """

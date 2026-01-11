@@ -2,7 +2,7 @@
 
 import logging
 from typing import List, Callable, Optional
-from langchain.schema import Document
+from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever  # <-- key change
 
 def get_retriever(vectorstore, k: int = 5):

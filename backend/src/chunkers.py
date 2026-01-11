@@ -2,7 +2,7 @@
 
 from langchain_experimental.text_splitter import SemanticChunker
 from src.utils import final_clean_text
-from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 import logging
 import os
 import hashlib

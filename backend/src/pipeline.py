@@ -32,7 +32,7 @@ def ingest_pdfs_to_chroma(
     if use_llamaparse:
         from src.llamaparse_loader import load_llamaparse_nodes
         from langchain.text_splitter import RecursiveCharacterTextSplitter
-        from langchain.schema import Document
+        from langchain_core.documents import Document
         from hashlib import md5
         import os, re
 
