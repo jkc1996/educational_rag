@@ -1,0 +1,400 @@
+=====================================================================
+QUESTION PAPER GENERATION PIPELINE
+(SUMMARIZATION + STRUCTURED QUESTION GENERATION)
+=====================================================================
+
+PURPOSE
+-------
+This module generates an academic question paper from selected PDFs
+using a multi-stage GenAI pipeline.
+
+The system does NOT directly generate questions from PDFs.
+
+Instead, it follows a robust two-phase design:
+1) Deep summarization of syllabus content
+2) Strict, schema-driven question paper generation
+
+This design ensures:
+- Token safety
+- High-quality exam questions
+- Deterministic and UI-safe output
+- Reduced hallucinations
+- Reusability and caching
+
+
+=====================================================================
+BIG PICTURE OVERVIEW
+=====================================================================
+
+User selects PDFs + configuration
+        ↓
+Fetch all related chunks from ChromaDB
+        ↓
+Deep recursive LLM summarization
+        ↓
+Filter & compress summary
+        ↓
+Cache summary
+        ↓
+Generate structured question paper JSON
+        ↓
+Return summary + questions
+
+
+=====================================================================
+PHASE 0: UI → API ENTRY POINT
+=====================================================================
+
+Endpoint:
+POST /generate-question-paper/
+
+UI sends JSON payload:
+{
+  "subject": "...",
+  "filenames": ["file1.pdf", "file2.pdf"],
+  "llm_choice": "groq | gemini | ollama",
+  "question_config": {...},
+  "extra_context": "optional instructions"
+}
+
+Meaning of inputs:
+- subject:
+    Determines which ChromaDB to load
+- filenames:
+    Restricts content to selected syllabus files
+- llm_choice:
+    Controls summarization + question generation
+- question_config:
+    Total questions, difficulty, distribution
+- extra_context:
+    Free-form instructions injected into prompt
+
+Validation:
+- subject, filenames, question_config are mandatory
+- Pipeline stops early if missing
+
+
+=====================================================================
+PHASE 1: SUMMARY GENERATION (CORE PIPELINE)
+=====================================================================
+
+Function:
+summarize_selected_pdfs(subject, filenames, llm_choice, extra_context)
+
+This function is responsible for producing a
+deep, exam-ready summary from selected PDFs.
+
+
+-------------------------------------------------
+1.1 SUMMARY CACHE (PERFORMANCE CRITICAL)
+-------------------------------------------------
+
+Before heavy processing, a cache key is generated:
+
+Cache key components:
+- subject
+- sorted filenames
+- llm_choice
+- extra_context
+
+Hashing:
+SHA-256 → unique summary key
+
+Cache location:
+cache/summary_<hash>.pkl
+
+If cache hit:
+- Summary is returned immediately
+- No LLM calls
+- No ChromaDB access
+
+Purpose:
+- Avoid repeated expensive summarization
+- Enable instant response for repeated requests
+
+
+-------------------------------------------------
+1.2 FETCH CHUNKS FROM CHROMADB
+-------------------------------------------------
+
+Function:
+fetch_chunks_for_question_generation()
+
+Steps:
+1) Load subject-specific ChromaDB
+2) Retrieve ALL stored chunks
+3) Filter chunks by metadata.source_pdf
+4) Match only selected filenames
+5) Concatenate chunk texts
+
+Important:
+- This is NOT semantic search
+- This is syllabus extraction
+- Metadata-based filtering only
+
+Output:
+long_text → large string containing all syllabus content
+
+
+-------------------------------------------------
+1.3 WHY DIRECT LLM INPUT IS NOT POSSIBLE
+-------------------------------------------------
+
+Problems with raw syllabus input:
+- Token limit overflow
+- Truncation
+- Loss of structure
+- Poor coherence
+
+Solution:
+Recursive, token-safe summarization
+
+
+=====================================================================
+PHASE 2: DEEP RECURSIVE SUMMARIZATION
+=====================================================================
+
+Function:
+deep_summarize_content()
+
+Core idea:
+- Break large content into safe blocks
+- Summarize each block
+- Combine summaries
+- Repeat if still large
+
+This is hierarchical summarization.
+
+
+-------------------------------------------------
+2.1 BLOCK SPLITTING
+-------------------------------------------------
+
+Input:
+long_text
+
+Process:
+- Split into blocks of ~900 words
+- Each block is independently summarizable
+
+Purpose:
+- Token safety
+- Avoid request failure
+- Preserve semantic coherence
+
+
+-------------------------------------------------
+2.2 LLM SUMMARIZATION FUNCTION
+-------------------------------------------------
+
+Function:
+llm_summarize_func()
+
+Responsibilities:
+- Build academic-safe summarization prompt
+- Clip input conservatively
+- Respect model token budgets
+- Retry on transient failures
+
+Prompt intent:
+- Deep academic summary
+- Capture definitions and explanations
+- Remove exam question sections
+
+Token safety:
+- Estimate tokens heuristically
+- Clip text to fit budget
+- Reserve overhead for prompt structure
+
+
+-------------------------------------------------
+2.3 MODEL-SPECIFIC SAFETY
+-------------------------------------------------
+
+Token budgets:
+- Groq: ~5000 tokens
+- Gemini: ~12000 tokens
+- Ollama: ~3500 tokens
+
+Parallelism:
+- Groq: sequential (rate safety)
+- Gemini / Ollama: limited parallel threads
+
+Retry logic:
+- Exponential backoff
+- Jitter
+- Prevents transient API failures
+
+
+-------------------------------------------------
+2.4 COMBINING BLOCK SUMMARIES
+-------------------------------------------------
+
+After block summaries:
+- Combine all summaries
+- If combined text is still large:
+    → Recurse and summarize again
+
+Fallback:
+- If all blocks fail, return truncated input
+- Ensures non-empty summary
+
+
+-------------------------------------------------
+2.5 FILTERING SUMMARY CONTENT
+-------------------------------------------------
+
+Function:
+filter_summary()
+
+Removes:
+- Exam question sections
+- Past question lists
+- Any leakage from source material
+
+Purpose:
+- Prevent copying of exam questions
+- Maintain academic integrity
+
+
+-------------------------------------------------
+2.6 FINAL LENGTH ENFORCEMENT
+-------------------------------------------------
+
+Maximum final summary size:
+~1800 words
+
+If exceeded:
+- Re-summarize summary
+- Or trim safely as fallback
+
+Purpose:
+- Ensure summary fits into question-generation LLM
+- Leave room for instructions and schema
+
+
+-------------------------------------------------
+2.7 CACHE FINAL SUMMARY
+-------------------------------------------------
+
+If summary is valid:
+- Store in cache
+- Reuse for future requests
+
+If empty:
+- Do not cache
+
+
+=====================================================================
+PHASE 3: QUESTION PAPER GENERATION
+=====================================================================
+
+Function:
+generate_question_paper(summary, question_config, llm_choice, extra_context)
+
+This phase converts the summary into
+a structured, exam-ready question paper.
+
+
+-------------------------------------------------
+3.1 WHY USE SUMMARY (NOT RAW TEXT)
+-------------------------------------------------
+
+Advantages:
+- Smaller input
+- Higher abstraction
+- Less hallucination
+- More exam-oriented output
+- Deterministic generation
+
+
+-------------------------------------------------
+3.2 STRICT QUESTION SCHEMA (PYDANTIC)
+-------------------------------------------------
+
+QuestionPaper schema:
+{
+  "questions": [
+    {
+      "type": "...",
+      "question": "...",
+      "options": [... or null],
+      "answer": "string only"
+    }
+  ]
+}
+
+Benefits:
+- Guaranteed JSON
+- UI-safe rendering
+- No ambiguous output
+- No post-processing hacks
+
+
+-------------------------------------------------
+3.3 PROMPT CONSTRUCTION
+-------------------------------------------------
+
+System prompt:
+- Role: academic exam generator
+- Output: JSON only
+- Must match schema
+- No explanations
+
+User prompt includes:
+- Total questions
+- Difficulty
+- Distribution
+- Extra context
+- Summary text
+
+Extra context example:
+"Focus more on numerical problems"
+
+
+-------------------------------------------------
+3.4 LLM-SPECIFIC STRUCTURED OUTPUT
+-------------------------------------------------
+
+Groq:
+- LangChain structured output
+- JSON mode
+- Validated against Pydantic
+- Exception on schema violation
+
+Gemini:
+- Native schema enforcement
+- response_schema parameter
+- MIME type: application/json
+
+Result:
+- Strict, validated question paper JSON
+
+
+-------------------------------------------------
+3.5 ERROR HANDLING
+-------------------------------------------------
+
+If LLM fails schema validation:
+- Error JSON returned
+- No malformed output sent to UI
+
+
+=====================================================================
+PHASE 4: FINAL API RESPONSE
+=====================================================================
+
+API returns:
+{
+  "summary": "...",
+  "questions": "{ structured JSON }"
+}
+
+UI can:
+- Display summary
+- Render question paper
+- Export or save
+- Reuse summary
+
+
+=====================================

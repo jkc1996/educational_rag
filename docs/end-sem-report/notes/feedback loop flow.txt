@@ -1,0 +1,360 @@
+=====================================================================
+FEEDBACK & HUMAN-IN-THE-LOOP MECHANISM
+RAG SYSTEM – CONTINUAL RETRIEVAL IMPROVEMENT
+=====================================================================
+
+PURPOSE
+-------
+This module introduces a Human-in-the-Loop (HITL) feedback mechanism
+into the RAG-based Question Answering system.
+
+Goal:
+- Capture user feedback on generated answers
+- Link feedback to retrieved document chunks
+- Persist feedback for audit and analysis
+- Adjust future retrieval ranking based on feedback
+- Improve answer quality WITHOUT retraining models
+
+This is NOT model training.
+This is RETRIEVAL BEHAVIOR ADAPTATION.
+
+
+=====================================================================
+1. WHY FEEDBACK IS NEEDED IN RAG SYSTEMS
+=====================================================================
+
+Traditional RAG limitations:
+- Retrieval is static
+- Same chunks get retrieved repeatedly
+- Small retrieval errors propagate to LLM answers
+
+Your system adds:
+- Human feedback
+- Chunk-level reputation
+- Retrieval re-ranking
+
+This creates a CONTINUAL IMPROVEMENT LOOP that is:
+- Safe
+- Explainable
+- Production-ready
+
+
+=====================================================================
+2. KEY DATA STRUCTURES (MEMORY + DISK)
+=====================================================================
+
+-------------------------------------------------
+2.1 QA_CACHE (Session-level cache)
+-------------------------------------------------
+
+Definition:
+QA_CACHE = {}
+
+Structure:
+qa_session_id →
+{
+  "query": string,
+  "retrieval_snapshot": [
+      { "chunk_uid", "source_pdf", "page", "rank" }
+  ],
+  "answer_excerpt": string
+}
+
+When populated:
+- During /ask-question
+- Immediately after answer generation
+
+Purpose:
+- Allows feedback submission using only qa_session_id
+- Avoids re-running retrieval during feedback
+- Preserves exact chunks used for that answer
+
+Lifecycle:
+- Short-lived
+- In-memory
+- Per active session
+
+
+-------------------------------------------------
+2.2 feedback.jsonl (Persistent feedback log)
+-------------------------------------------------
+
+Location:
+feedback.jsonl (JSON Lines format)
+
+Each line represents ONE feedback event.
+
+Example structure:
+{
+  "qa_session_id": "...",
+  "helpful": true | false,
+  "comment": "optional text",
+  "llm_backend": "groq | gemini | ollama | openai",
+  "timestamp": "...",
+  "query": "...",
+  "retrieval_snapshot": [...],
+  "answer_excerpt": "..."
+}
+
+Why JSONL:
+- Append-only
+- Crash-safe
+- Easy to scan and replay
+- Common in ML pipelines
+
+Purpose:
+- Persistent audit log
+- Offline analysis
+- Reputation rebuilding on restart
+
+
+-------------------------------------------------
+2.3 CHUNK_REP (In-memory reputation map)
+-------------------------------------------------
+
+Definition:
+CHUNK_REP[chunk_uid] = { "up": int, "down": int }
+
+Meaning:
+- Tracks how often a chunk contributed to:
+  - Helpful answers (up)
+  - Unhelpful answers (down)
+
+Purpose:
+- Fast lookup during retrieval
+- Drives feedback-aware re-ranking
+
+Scope:
+- In-memory
+- Rebuilt from feedback.jsonl on startup
+- Updated live on feedback submission
+
+
+=====================================================================
+3. SYSTEM STARTUP: REPUTATION REBUILD
+=====================================================================
+
+Function:
+rebuild_reputation_from_log()
+
+Flow:
+Server start
+   ↓
+Clear CHUNK_REP
+   ↓
+If feedback.jsonl exists:
+   ↓
+Read each line
+   ↓
+For each retrieval_snapshot:
+   ↓
+Increment up/down counters per chunk_uid
+
+Properties:
+- Idempotent
+- Safe if file missing
+- No duplication
+- No database dependency
+
+Purpose:
+- Ensures feedback learning persists across restarts
+
+
+=====================================================================
+4. UI → BACKEND FEEDBACK FLOW
+=====================================================================
+
+-------------------------------------------------
+4.1 UI receives answer
+-------------------------------------------------
+
+From /ask-question API:
+{
+  "answer": "...",
+  "qa_session_id": "uuid"
+}
+
+Optional:
+{
+  "context": [...]
+}
+
+UI shows:
+- Generated answer
+- Helpful / Not Helpful buttons
+- Optional comment input
+
+
+-------------------------------------------------
+4.2 User submits feedback (UI → API)
+-------------------------------------------------
+
+Endpoint:
+POST /api/feedback
+
+Payload:
+{
+  "qa_session_id": "uuid",
+  "helpful": true | false,
+  "comment": "optional",
+  "llm_backend": "groq | gemini | ollama | openai"
+}
+
+Important:
+- UI sends ONLY qa_session_id
+- No chunks or documents sent from UI
+
+
+=====================================================================
+5. BACKEND FEEDBACK HANDLING (submit_feedback)
+=====================================================================
+
+-------------------------------------------------
+5.1 Retrieve session snapshot
+-------------------------------------------------
+
+snap = QA_CACHE.get(qa_session_id)
+
+Retrieved:
+- Original query
+- Retrieval snapshot (chunk_uids + ranks)
+- Answer excerpt
+
+Purpose:
+- Map feedback to exact retrieved chunks
+- Maintain explainability
+
+
+-------------------------------------------------
+5.2 Build feedback entry
+-------------------------------------------------
+
+Constructs a full feedback record including:
+- User judgment (helpful / not helpful)
+- Query
+- Retrieved chunks
+- Answer excerpt
+- Timestamp
+- LLM backend
+
+This creates a COMPLETE FEEDBACK TRACE.
+
+
+-------------------------------------------------
+5.3 Persist feedback to disk
+-------------------------------------------------
+
+Action:
+Append entry to feedback.jsonl
+
+Effects:
+- Feedback becomes permanent
+- Survives server restarts
+- Enables offline evaluation
+
+
+-------------------------------------------------
+5.4 Live update CHUNK_REP
+-------------------------------------------------
+
+For each chunk_uid in retrieval_snapshot:
+
+IF helpful:
+    CHUNK_REP[uid]["up"] += 1
+ELSE:
+    CHUNK_REP[uid]["down"] += 1
+
+Why live update matters:
+- Immediate impact on future retrieval
+- No need to rescan file
+- Enables online learning behavior
+
+
+=====================================================================
+6. HOW FEEDBACK AFFECTS FUTURE QUESTIONS
+=====================================================================
+
+Condition:
+ENABLE_FEEDBACK_RERANK = true
+
+When enabled:
+- get_rag_chain wraps retriever with FeedbackAwareRetriever
+
+
+-------------------------------------------------
+6.1 FeedbackAwareRetriever logic
+-------------------------------------------------
+
+Base retriever:
+- Retrieves top-k chunks as usual
+
+Re-ranking logic:
+For each chunk:
+    score = upvotes - downvotes
+    penalty = -score * beta
+
+Sorting:
+- Lower penalty = higher priority
+- Stable sort preserves original order if no feedback exists
+
+Important properties:
+- Same chunks (no recall loss)
+- Only ranking changes
+- Safe and controlled learning
+
+
+=====================================================================
+7. END-TO-END FEEDBACK LOOP
+=====================================================================
+
+User asks question
+      ↓
+System retrieves chunks
+      ↓
+LLM generates answer
+      ↓
+UI shows answer
+      ↓
+User gives feedback
+      ↓
+Feedback logged to JSONL
+      ↓
+CHUNK_REP updated
+      ↓
+Future retrieval re-ranked
+
+
+=====================================================================
+8. DESIGN DECISIONS & SAFETY
+=====================================================================
+
+What this system DOES:
+- Improves retrieval quality over time
+- Learns from real user signals
+- Maintains explainability
+- Supports evaluation frameworks
+
+What this system DOES NOT:
+- Retrain embeddings
+- Fine-tune LLMs
+- Modify stored vectors
+- Introduce black-box learning
+
+This makes it:
+- Enterprise-safe
+- Auditable
+- Predictable
+
+
+=====================================================================
+9. INTERVIEW-READY ONE-LINER
+=====================================================================
+
+"The feedback mechanism introduces a human-in-the-loop learning layer
+that adjusts retrieval ranking based on user feedback, improving answer
+quality over time without retraining embeddings or language models."
+
+
+=====================================================================
+END OF FEEDBACK MECHANISM NOTES
+=====================================================================

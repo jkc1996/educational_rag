@@ -1,0 +1,420 @@
+=====================================================================
+ASK QUESTION (QA) PIPELINE – RAG GENERATION FLOW
+Chapter 5 – Question Answering & Generation Layer
+=====================================================================
+
+PURPOSE
+-------
+This pipeline handles runtime question answering using a
+Retrieval-Augmented Generation (RAG) architecture.
+
+Goal:
+- Retrieve the most relevant document chunks from ChromaDB
+- Augment the LLM prompt with retrieved context
+- Generate a grounded, explainable answer
+- Optionally return supporting context for transparency
+- Support multiple LLM backends
+- Enable feedback-driven improvement
+
+This is the GENERATION side of RAG.
+
+
+=====================================================================
+HIGH-LEVEL RAG FLOW
+=====================================================================
+
+User Question
+     ↓
+Subject-based Vector DB selection
+     ↓
+RAG Chain (cached or newly built)
+     ↓
+Semantic Retrieval (Top-k chunks)
+     ↓
+(Optional) Feedback-aware re-ranking
+     ↓
+Context formatting
+     ↓
+Prompt + LLM
+     ↓
+Answer generation
+     ↓
+Return answer + sources (+ optional context)
+
+
+=====================================================================
+1. API ENTRY POINT – /ask-question/ (app.py)
+=====================================================================
+
+Endpoint:
+POST /ask-question/
+
+Inputs:
+- subject (string)
+- question (string)
+- llm_choice (string: groq | gemini | ollama | openai)
+- add_context (boolean)
+
+Purpose:
+- Execute the full RAG pipeline
+- Return answer and traceable evidence
+
+
+-------------------------------------------------
+1.1 Subject-based ChromaDB selection
+-------------------------------------------------
+
+Code:
+chroma_dir = outputs/chroma_{subject}
+
+Meaning:
+- Each subject/domain has its own vector database
+- Prevents cross-domain context leakage
+- Enables multi-subject QA system
+
+Output:
+Path to persistent ChromaDB directory
+
+
+-------------------------------------------------
+1.2 RAG Chain Cache (Performance Optimization)
+-------------------------------------------------
+
+Cache key:
+(chroma_dir, llm_choice)
+
+Why cache:
+- Vectorstore loading + LLM initialization are expensive
+- These components do NOT change per question
+- Reusing them improves latency significantly
+
+Flow:
+IF cache hit:
+    reuse RAG chain
+ELSE:
+    build new RAG chain
+    store in cache
+
+This reflects production-grade GenAI system design.
+
+
+=====================================================================
+2. RAG CHAIN CONSTRUCTION (pipeline.py)
+=====================================================================
+
+Function:
+get_rag_chain()
+
+Purpose:
+- Assemble all components required for RAG execution
+- Retrieval + LLM + Prompt + Output parsing
+
+
+-------------------------------------------------
+2.1 Embedding model loading
+-------------------------------------------------
+
+Function:
+get_fastembed_embedding()
+
+Model:
+BAAI/bge-base-en-v1.5
+
+Why required at QA time:
+- User query must be embedded
+- Must match ingestion-time embedding model
+- Ensures vector compatibility
+
+Output:
+Embedding model object
+
+
+-------------------------------------------------
+2.2 Load Chroma Vectorstore (vectorstore.py)
+-------------------------------------------------
+
+Function:
+load_chroma_vectorstore()
+
+What happens:
+- Loads existing vector index from disk
+- No re-ingestion
+- No re-embedding
+
+Output:
+vectorstore object backed by persistent embeddings
+
+
+-------------------------------------------------
+2.3 Retriever creation (retriever.py)
+-------------------------------------------------
+
+Function:
+get_retriever(vectorstore, k=5)
+
+Purpose:
+- Convert vectorstore into a retriever interface
+- Performs semantic similarity search
+
+Input:
+- User question (string)
+
+Output:
+List[Document] (LangChain Documents)
+
+Each Document contains:
+- page_content (chunk text)
+- metadata:
+    - source_pdf
+    - page number
+    - chunk_uid
+
+
+-------------------------------------------------
+2.4 Feedback-Aware Retriever (Optional)
+-------------------------------------------------
+
+Component:
+FeedbackAwareRetriever
+
+Purpose:
+- Improve ranking using user feedback
+- Does NOT change retrieval candidates
+- Only reorders top-k results
+
+Feedback logic:
+score = upvotes - downvotes
+penalty = -score * beta
+
+Sorting:
+- Lower penalty = higher priority
+- Stable ordering preserved if no feedback exists
+
+Why important:
+- Enables human-in-the-loop RAG
+- Supports continual system improvement
+- Aligns with evaluation & feedback loop in report
+
+
+=====================================================================
+3. LLM SELECTION LAYER (llms.py)
+=====================================================================
+
+Supported backends:
+- Groq     → LLaMA 3 (fast inference)
+- Gemini   → Google Gemini
+- Ollama   → Local / private models
+- OpenAI  → GPT models
+
+Each function:
+- Loads chat model
+- Returns LangChain-compatible Runnable
+
+Design advantage:
+- LLM-agnostic pipeline
+- Easy benchmarking & comparison
+- Multi-LLM support (Chapter 6 relevance)
+
+
+=====================================================================
+4. SEMANTIC RAG CHAIN (chain.py)
+=====================================================================
+
+This file defines HOW retrieval and generation are combined.
+
+
+-------------------------------------------------
+4.1 Formatting retrieved documents for LLM
+-------------------------------------------------
+
+Function:
+_format_docs_for_prompt(docs)
+
+Input:
+List[Document]
+
+Output:
+Single formatted string
+
+Format example:
+[1] ML_notes.pdf — page 12
+Definition of overfitting...
+
+[2] ML_notes.pdf — page 13
+Bias-variance tradeoff...
+
+This is the ONLY context visible to the LLM.
+
+
+-------------------------------------------------
+4.2 Prompt construction
+-------------------------------------------------
+
+Function:
+get_rag_prompt()
+
+Prompt enforces:
+- Answer only from provided context
+- Academic tone
+- No hallucination
+
+Inputs:
+- {context}
+- {question}
+
+
+-------------------------------------------------
+4.3 Answer generation chain
+-------------------------------------------------
+
+Pipeline:
+{
+  context: formatted_context,
+  question: user_question
+}
+→ Prompt
+→ LLM
+→ StrOutputParser()
+
+Output:
+Raw answer string
+
+
+-------------------------------------------------
+4.4 Parallel execution (Critical design choice)
+-------------------------------------------------
+
+RunnableParallel:
+- answer → generated answer string
+- sources → raw retrieved Document objects
+
+Why this matters:
+- Enables explainability
+- Allows citation and context preview
+- Supports evaluation and feedback
+
+
+Final RAG chain output:
+{
+  "answer": string,
+  "sources": List[Document]
+}
+
+
+=====================================================================
+5. POST-PROCESSING IN /ask-question/
+=====================================================================
+
+-------------------------------------------------
+5.1 Answer polishing
+-------------------------------------------------
+
+Function:
+spacy_polish()
+
+Purpose:
+- Grammar correction
+- Sentence normalization
+- Improve academic readability
+
+Output:
+Final polished answer
+
+
+-------------------------------------------------
+5.2 Retrieval snapshot creation
+-------------------------------------------------
+
+Stored per QA session:
+- chunk_uid
+- source_pdf
+- page
+- rank
+
+Purpose:
+- Traceability
+- Feedback mapping
+- Audit & evaluation (RAGAS alignment)
+
+Stored in:
+QA_CACHE[qa_session_id]
+
+
+-------------------------------------------------
+5.3 Optional context return (add_context = true)
+-------------------------------------------------
+
+Returned fields:
+- chunk_uid
+- source_pdf
+- page
+- rank
+- preview (first ~300 characters)
+
+Purpose:
+- Explainable AI
+- UI “Show Sources”
+- Academic trust & validation
+
+
+=====================================================================
+6. FINAL API RESPONSE
+=====================================================================
+
+Minimal response:
+{
+  "answer": "...",
+  "qa_session_id": "uuid"
+}
+
+With context:
+{
+  "answer": "...",
+  "qa_session_id": "uuid",
+  "context": [ ... ]
+}
+
+
+=====================================================================
+7. END-TO-END ASK QUESTION FLOW (ASCII DIAGRAM)
+=====================================================================
+
+[User Question]
+      ↓
+[Subject & LLM Selection]
+      ↓
+[Load ChromaDB]
+      ↓
+[Retrieve Top-k Chunks]
+      ↓
+[Optional Feedback Re-ranking]
+      ↓
+[Format Context]
+      ↓
+[Prompt + LLM]
+      ↓
+[Generate Answer]
+      ↓
+[Return Answer + Sources]
+
+
+=====================================================================
+8. INTERVIEW-READY SUMMARY
+=====================================================================
+
+One-liner:
+-----------
+"The question answering pipeline uses a Retrieval-Augmented Generation architecture where relevant document chunks are retrieved from ChromaDB, formatted into a grounded prompt, and passed to a selected LLM to generate accurate, explainable answers with optional supporting context."
+
+Key strengths:
+--------------
+- End-to-end RAG implementation
+- Multi-LLM backend support
+- Explainable answer generation
+- Feedback-aware retrieval enhancement
+- Production-level caching
+- Evaluation-ready architecture
+
+=====================================================================
+END OF QA PIPELINE NOTES
+=====================================================================

@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from src.config import GEMINI_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OLLAMA_BASE_URL
 import logging
 
-def get_gemini_llm(model_name="models/gemini-1.5-flash"):
+def get_gemini_llm(model_name="models/gemini-2.5-flash"):
     """
     Returns a Gemini chat model for answering queries.
     """

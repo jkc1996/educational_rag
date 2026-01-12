@@ -15,7 +15,7 @@ from src.question_generation import summarize_selected_pdfs, generate_question_p
 from typing import List, Optional
 from datetime import datetime
 import uuid
-from collections import defaultdict  # <-- NEW
+from collections import defaultdict
 
 # --- Feedback/session caches ---
 QA_CACHE = {}  # qa_session_id -> {query, retrieval_snapshot, answer_excerpt}

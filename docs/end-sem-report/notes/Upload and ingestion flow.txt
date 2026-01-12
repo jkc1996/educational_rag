@@ -1,0 +1,306 @@
+=================================================================
+DOCUMENT UPLOAD & INGESTION PIPELINE (RAG SYSTEM)
+Chapter 4 – Modern RAG System (Retrieval Layer)
+=================================================================
+
+PURPOSE
+-------
+This part of the system prepares academic documents for Retrieval-Augmented Generation (RAG).
+
+Goal:
+- Convert raw PDF / DOCX files into semantic vector embeddings
+- Store them persistently in ChromaDB
+- Make documents retrievable (but NOT answer questions yet)
+
+This stage is purely:
+- Retrieval preparation
+- No LLM
+- No question answering
+
+
+=================================================================
+HIGH-LEVEL MENTAL MODEL
+=================================================================
+
+User uploads document
+        ↓
+File saved to disk (subject-prefixed)
+        ↓
+User triggers ingestion
+        ↓
+Parsing (Standard OR LlamaParse)
+        ↓
+Semantic chunking
+        ↓
+Embedding (FastEmbed – BGE model)
+        ↓
+Vectors stored in ChromaDB
+        ↓
+System ready for retrieval
+
+
+=================================================================
+1. API LAYER (app.py)
+=================================================================
+
+-------------------------------------------------
+1.1 /upload-pdf/ endpoint
+-------------------------------------------------
+
+Purpose:
+- Accept document + metadata
+- Save file to disk
+- DOES NOT process or embed the document
+
+Inputs:
+- subject (required)
+- description (optional)
+- file (PDF / DOCX)
+
+Key logic:
+- File is saved as:
+  ./uploads/{subject}_{filename}
+
+Example:
+./uploads/Machine_Learning_ML_course_content_1.pdf
+
+Why upload and ingest are separated:
+- Allows user validation
+- Allows parser selection (LlamaParse toggle)
+- Prevents accidental heavy processing
+
+Output:
+{
+  "message": "File received and saved",
+  "filename": "subject_filename.pdf"
+}
+
+-------------------------------------------------
+1.2 /ingest/ endpoint
+-------------------------------------------------
+
+Purpose:
+- Convert uploaded document into semantic vectors
+- Persist them into ChromaDB
+
+Input model:
+- subject
+- filename
+- use_llamaparse (boolean)
+
+Key steps:
+1. Validate file exists in /uploads
+2. Create subject-specific ChromaDB directory
+3. Call ingestion pipeline
+4. Clear in-memory RAG cache for this subject
+
+Why cache clearing is important:
+- Cached retrievers become stale if documents change
+- Ensures correctness in future QA calls
+
+Cache key structure:
+(chroma_dir, llm_choice)
+
+
+=================================================================
+2. INGESTION PIPELINE (pipeline.py)
+=================================================================
+
+Function:
+ingest_pdfs_to_chroma()
+
+Design principle:
+- Prepares retrieval data only
+- No LLM
+- No retriever creation
+- Clean separation of concerns
+
+
+-------------------------------------------------
+2.1 Embedding model loading
+-------------------------------------------------
+
+embed_model = get_fastembed_embedding()
+
+Why first:
+- Required for semantic chunking
+- Required for vector creation
+
+
+-------------------------------------------------
+2.2 Parsing strategy selection
+-------------------------------------------------
+
+Two modes:
+
+A) Standard parsing (default)
+--------------------------------
+PDF   → PyPDFLoader
+DOCX  → Docx2txtLoader
+
+Flow:
+Raw page text
+   ↓
+Pre-chunking (RecursiveCharacterTextSplitter)
+   ↓
+Semantic chunking
+
+
+B) Advanced parsing (LlamaParse)
+--------------------------------
+Used for:
+- Multi-column PDFs
+- Tables
+- Equations
+- Complex layouts
+
+Flow:
+PDF
+  ↓
+LlamaParse (structured nodes / markdown)
+  ↓
+Page-aware splitting
+  ↓
+Recursive chunking
+  ↓
+Semantic chunks
+
+Metadata added:
+- source_pdf
+- page number
+- parsed_by = "llamaparse"
+- parent_chunk_type
+- chunk_uid
+
+
+=================================================================
+3. SEMANTIC CHUNKING (chunkers.py)
+=================================================================
+
+Why semantic chunking:
+- Academic content is concept-based
+- Length-based chunks lose meaning
+- Semantic chunks preserve topic coherence
+
+Two-stage chunking strategy:
+----------------------------
+
+Raw document
+    ↓
+Pre-chunking (size safety)
+    ↓
+SemanticChunker (meaning-based)
+
+SemanticChunker behavior:
+- Uses embedding similarity
+- Splits when semantic shift occurs
+- Percentile-based thresholding
+
+
+-------------------------------------------------
+Chunk metadata
+-------------------------------------------------
+
+Each chunk contains:
+- source_pdf       → original filename
+- page             → page number (1-based)
+- subject          → domain (ML, NLP, etc.)
+- chunk_uid        → hash-based unique ID
+
+chunk_uid purpose:
+- Stable identification
+- Feedback-based re-ranking
+- Debugging and traceability
+
+
+=================================================================
+4. EMBEDDING LAYER (embeddings.py)
+=================================================================
+
+Embedding model:
+FastEmbedEmbeddings
+Model: BAAI/bge-base-en-v1.5
+
+Why this model:
+- Strong semantic representation
+- 768-dimensional vectors
+- Faster than sentence-transformers
+- Production-friendly
+
+Each semantic chunk →
+Dense vector representation capturing meaning (not keywords)
+
+
+=================================================================
+5. VECTOR STORAGE (vectorstore.py)
+=================================================================
+
+Vector database:
+ChromaDB
+
+Why ChromaDB over FAISS:
+- Persistent storage (disk-based)
+- Rich metadata support
+- Incremental ingestion
+- RAG-native design
+
+Storage structure:
+outputs/
+ └── chroma_{subject}/
+      ├── index
+      ├── embeddings
+      └── metadata
+
+Insertion method:
+Chroma.from_documents(
+  documents,
+  embedding_model,
+  persist_directory
+)
+
+
+=================================================================
+6. END-TO-END INGESTION FLOW (ASCII DIAGRAM)
+=================================================================
+
+[User Uploads Document]
+        ↓
+[File Saved to /uploads]
+        ↓
+[User Triggers Ingest]
+        ↓
+[Parser Selection]
+   ├── Standard Parser
+   └── LlamaParse (if enabled)
+        ↓
+[Pre-chunking]
+        ↓
+[Semantic Chunking]
+        ↓
+[FastEmbed Embeddings]
+        ↓
+[Store Vectors in ChromaDB]
+        ↓
+[System Ready for Retrieval]
+
+
+=================================================================
+7. INTERVIEW-READY SUMMARY
+=================================================================
+
+One-liner:
+-----------
+"The document ingestion pipeline converts uploaded academic PDFs into semantically coherent chunks, embeds them using FastEmbed with BGE models, and stores them persistently in ChromaDB, enabling accurate and traceable retrieval for downstream RAG-based question answering."
+
+Key strengths to highlight:
+---------------------------
+- Clean separation of upload, ingestion, and QA
+- Support for complex PDFs via LlamaParse
+- Semantic chunking instead of naive splitting
+- Persistent vector storage
+- Metadata-rich, traceable chunks
+- Cache invalidation for correctness
+
+=================================================================
+END OF NOTES
+=================================================================
