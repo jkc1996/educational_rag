@@ -1,0 +1,306 @@
+# 🐍 PYTHON + NUMPY + PANDAS
+## 4-Day Intensive Learning Plan (Deep + Practical)
+
+--------------------------------------------------
+GOAL
+--------------------------------------------------
+- Refresh Python from vague memory to confidence
+- Gain academic understanding + practical mastery
+- Deep dive into NumPy & Pandas (data-focused)
+- Learn by coding for every concept
+
+--------------------------------------------------
+DAY 1 — CORE PYTHON (FOUNDATIONS)
+--------------------------------------------------
+
+🎯 Objective:
+Build strong Python fundamentals required for NumPy & Pandas.
+Focus on understanding HOW Python works internally.
+
+--------------------------------
+1. Python Language Fundamentals
+--------------------------------
+- What is Python?
+  - Interpreted vs compiled
+  - Dynamic typing
+  - Object-based memory model
+- Python execution flow
+- Indentation & code blocks
+
+--------------------------------
+2. Variables & Data Types (DEEP)
+--------------------------------
+Theory:
+- Everything in Python is an object
+- Variables are references, not containers
+
+Data Types:
+- int, float, complex
+- bool
+- str
+- NoneType
+
+Collections:
+- list (ordered, mutable)
+- tuple (ordered, immutable)
+- set (unordered, unique)
+- dict (key-value mapping)
+
+Hands-on:
+- Type checking with type()
+- Mutability vs immutability
+- Shallow understanding of memory reference
+
+--------------------------------
+3. Operators & Expressions
+--------------------------------
+- Arithmetic operators
+- Comparison operators
+- Logical operators
+- Assignment operators
+- Identity vs equality (is vs ==)
+
+--------------------------------
+4. Control Flow (Decision Making)
+--------------------------------
+- if / elif / else
+- Nested conditions
+- for loops
+- while loops
+- break, continue, pass
+- range() function
+
+--------------------------------
+5. Functions (VERY IMPORTANT)
+--------------------------------
+Theory:
+- Why functions exist
+- Scope (local vs global)
+- Return vs print
+
+Hands-on:
+- Basic functions
+- Default arguments
+- Keyword arguments
+- Simple docstrings
+
+--------------------------------
+6. Built-in Functions (Daily Use)
+--------------------------------
+- len(), sum(), min(), max()
+- sorted()
+- enumerate()
+- zip()
+- any(), all()
+
+--------------------------------
+7. Basic Error Handling
+--------------------------------
+- try / except
+- Common exceptions
+- Why exception handling is needed
+
+--------------------------------
+DAY 1 OUTCOME
+--------------------------------
+✔ Comfortable writing Python code
+✔ Strong foundation for NumPy & Pandas
+✔ Clear mental model of Python execution
+
+--------------------------------------------------
+DAY 2 — NUMPY (NUMERICAL COMPUTING - DEEP DIVE)
+--------------------------------------------------
+
+🎯 Objective:
+Learn to THINK in arrays instead of loops.
+
+--------------------------------
+1. Why NumPy?
+--------------------------------
+- Limitations of Python lists
+- Vectorized computation
+- Performance advantages
+
+--------------------------------
+2. NumPy Arrays (ndarray)
+--------------------------------
+Theory:
+- What is ndarray?
+- Shape, dimension, dtype
+
+Hands-on:
+- Creating arrays
+- Converting lists to arrays
+- zeros, ones, arange, linspace
+
+--------------------------------
+3. Indexing & Slicing
+--------------------------------
+- 1D slicing
+- 2D slicing
+- Row vs column access
+
+--------------------------------
+4. Mathematical Operations
+--------------------------------
+- Element-wise operations
+- Broadcasting concept
+- Aggregation functions
+  - sum, mean, std, min, max
+
+--------------------------------
+5. Axis Explained (CRITICAL)
+--------------------------------
+- axis = 0 vs axis = 1
+- Real-world interpretation
+
+--------------------------------
+6. Boolean Masking & Filtering
+--------------------------------
+- Condition-based selection
+- Chaining conditions
+
+--------------------------------
+7. Reshaping & Transposing
+--------------------------------
+- reshape()
+- flatten()
+- transpose()
+
+--------------------------------
+DAY 2 OUTCOME
+--------------------------------
+✔ Comfortable with NumPy arrays
+✔ Strong numerical thinking
+✔ Ready for Pandas data manipulation
+
+--------------------------------------------------
+DAY 3 — PANDAS (DATA ANALYSIS CORE)
+--------------------------------------------------
+
+🎯 Objective:
+Understand Pandas deeply and use it confidently for data analysis.
+
+--------------------------------
+1. Introduction to Pandas
+--------------------------------
+- What problem Pandas solves
+- Series vs DataFrame
+- Index concept
+
+--------------------------------
+2. Creating DataFrames
+--------------------------------
+- From dictionaries
+- From lists
+- From NumPy arrays
+- From CSV / Excel files
+
+--------------------------------
+3. Exploring Data
+--------------------------------
+- head(), tail()
+- info()
+- describe()
+- shape, columns, index
+
+--------------------------------
+4. Data Selection & Indexing
+--------------------------------
+- Column selection
+- Row filtering
+- loc vs iloc
+- Boolean filtering
+
+--------------------------------
+5. Data Cleaning (PART 1)
+--------------------------------
+- Missing values (NaN)
+- isnull(), notnull()
+- dropna()
+- fillna()
+
+--------------------------------
+DAY 3 OUTCOME
+--------------------------------
+✔ Confident reading and exploring datasets
+✔ Strong grasp of indexing & filtering
+✔ Ready for advanced operations
+
+--------------------------------------------------
+DAY 4 — PANDAS (ADVANCED + REAL-WORLD)
+--------------------------------------------------
+
+🎯 Objective:
+Use Pandas like in real projects.
+
+--------------------------------
+1. Data Cleaning (PART 2)
+--------------------------------
+- Renaming columns
+- Changing data types
+- Handling duplicates
+- String operations
+
+--------------------------------
+2. GroupBy & Aggregation (VERY IMPORTANT)
+--------------------------------
+- groupby mechanics
+- Single & multiple aggregations
+- Real business examples
+
+--------------------------------
+3. Sorting & Ranking
+--------------------------------
+- sort_values()
+- sort_index()
+- rank()
+
+--------------------------------
+4. Merging & Joining
+--------------------------------
+- merge()
+- join()
+- concat()
+- SQL-style joins
+
+--------------------------------
+5. Time Series Basics
+--------------------------------
+- Date parsing
+- Datetime index
+- Basic resampling
+
+--------------------------------
+6. Mini End-to-End Project
+--------------------------------
+- Load raw dataset
+- Clean data
+- Filter relevant records
+- Perform aggregation
+- Save cleaned output
+
+--------------------------------
+DAY 4 OUTCOME
+--------------------------------
+✔ Real-world Pandas confidence
+✔ Ready for ML / Analytics
+✔ Strong data intuition
+
+--------------------------------------------------
+FINAL RESULT AFTER 4 DAYS
+--------------------------------------------------
+✔ Python fundamentals solid
+✔ NumPy deeply understood
+✔ Pandas mastered for practical use
+✔ Confident to move into ML, NLP, or DS
+
+--------------------------------------------------
+NEXT STEP
+--------------------------------------------------
+Start DAY 1 topic-by-topic with:
+- Theory
+- Code
+- Output explanation
+- Common mistakes
+- Practice exercises
