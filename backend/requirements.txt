@@ -4,7 +4,8 @@ langchain-core
 langchain_experimental
 langchain-groq
 langchain-google-genai
-google-generativeai
+langchain-text-splitters
+google-genai
 chromadb
 PyPDF2
 pdfplumber

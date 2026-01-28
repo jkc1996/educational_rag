@@ -1,0 +1,268 @@
+PYTHON LANGUAGE FUNDAMENTALS – CORE CONCEPTS
+===================================================
+
+This note covers the foundational concepts of Python as a language.
+It explains how Python executes code, handles memory, typing, and
+why function order and indentation matter.
+
+================================================
+1. WHAT IS PYTHON?
+================================================
+
+Python is a HIGH-LEVEL, GENERAL-PURPOSE programming language designed
+to emphasize readability, simplicity, and rapid development.
+
+Key characteristics:
+- Easy-to-read syntax
+- Large standard library
+- Multi-paradigm (procedural, OOP, functional)
+- Widely used in Data Science, ML, Web, Automation
+
+Python philosophy:
+"Readability counts."
+
+================================================
+2. INTERPRETED vs COMPILED LANGUAGES
+================================================
+
+------------------------------------------------
+2.1 Compiled Languages (e.g., C, C++)
+------------------------------------------------
+- Entire source code is compiled BEFORE execution
+- Compilation happens once
+- Errors detected at compile time
+- Faster runtime execution
+
+Execution Flow:
+Source Code → Compiler → Machine Code → Execution
+
+------------------------------------------------
+2.2 Interpreted Languages (e.g., Python)
+------------------------------------------------
+- Code is executed LINE BY LINE
+- No manual compilation step
+- Errors appear at runtime
+
+Python internal execution:
+.py file → Bytecode (.pyc) → Python Virtual Machine (PVM) → Execution
+
+NOTE:
+Although Python uses bytecode internally, it BEHAVES like
+an interpreted language from the developer’s perspective.
+
+================================================
+3. DYNAMIC TYPING IN PYTHON
+================================================
+
+Python is a DYNAMICALLY TYPED language.
+
+This means:
+- Variable types are decided at runtime
+- No need to declare variable types
+- Same variable can refer to different types
+
+Example:
+x = 10
+x = "Python"
+
+Explanation:
+- First, x refers to an integer object
+- Later, x refers to a string object
+
+Advantages:
+- Faster development
+- Less boilerplate code
+
+Disadvantages:
+- Type-related errors appear at runtime
+
+================================================
+4. OBJECT-BASED MEMORY MODEL
+================================================
+
+------------------------------------------------
+4.1 Everything is an Object
+------------------------------------------------
+In Python, EVERYTHING is an object:
+- Numbers
+- Strings
+- Lists
+- Functions
+- Classes
+- None
+
+------------------------------------------------
+4.2 Variables are REFERENCES
+------------------------------------------------
+Variables do NOT store values directly.
+They store references (memory addresses) to objects.
+
+Example:
+a = 10
+b = a
+
+Memory idea:
+- Object 10 exists in memory
+- Both a and b refer to the same object
+
+Reassignment:
+a = 20
+
+Result:
+- New object 20 is created
+- a refers to 20
+- b still refers to 10
+
+This explains:
+- Mutability vs immutability
+- Function argument behavior
+- Side effects with lists and dictionaries
+
+================================================
+5. PYTHON EXECUTION FLOW (VERY IMPORTANT)
+================================================
+
+Python executes code:
+- LINE BY LINE
+- From TOP TO BOTTOM
+- WITHOUT scanning the whole file first
+
+Example:
+print("Start")
+x = 5
+print(x)
+print("End")
+
+Output:
+Start
+5
+End
+
+Each line is executed immediately as Python reads it.
+
+================================================
+6. FUNCTION DEFINITION vs FUNCTION CALL
+================================================
+
+------------------------------------------------
+6.1 Function Definition (def)
+------------------------------------------------
+- Creates a function object
+- Stores it in memory
+- DOES NOT execute the function body
+
+Example:
+def greet():
+    print("Hello")
+
+------------------------------------------------
+6.2 Function Call
+------------------------------------------------
+- Executes the function body
+- Happens ONLY when parentheses () are used
+
+Example:
+greet()
+
+------------------------------------------------
+6.3 CORRECT ORDER (WORKS)
+------------------------------------------------
+def greet():
+    print("Hello")
+
+greet()
+
+Output:
+Hello
+
+Explanation:
+- Python reads def greet() → stores function
+- Python reaches greet() → executes function body
+
+------------------------------------------------
+6.4 INCORRECT ORDER (ERROR)
+------------------------------------------------
+greet()
+
+def greet():
+    print("Hello")
+
+Error:
+NameError: name 'greet' is not defined
+
+Reason:
+Python executes line by line and does NOT look ahead.
+The function must be defined BEFORE it is called.
+
+------------------------------------------------
+6.5 EXECUTION ORDER PROOF
+------------------------------------------------
+print("Start")
+
+def test():
+    print("Inside function")
+
+print("Before call")
+test()
+print("End")
+
+Output:
+Start
+Before call
+Inside function
+End
+
+================================================
+7. INDENTATION & CODE BLOCKS
+================================================
+
+Python uses INDENTATION instead of curly braces {} to define blocks.
+
+Indentation defines:
+- if / else blocks
+- loops
+- functions
+- classes
+
+------------------------------------------------
+7.1 Correct Indentation
+------------------------------------------------
+if True:
+    print("Inside if")
+    print("Still inside if")
+
+print("Outside if")
+
+Output:
+Inside if
+Still inside if
+Outside if
+
+------------------------------------------------
+7.2 Incorrect Indentation (ERROR)
+------------------------------------------------
+if True:
+print("Error")
+
+Error:
+IndentationError
+
+Rules:
+- Use 4 spaces per indentation level
+- Do not mix tabs and spaces
+- Indentation is mandatory and meaningful
+
+================================================
+SUMMARY
+================================================
+
+✔ Python is interpreted and dynamically typed  
+✔ Everything in Python is an object  
+✔ Variables are references, not containers  
+✔ Code executes line by line (top to bottom)  
+✔ Functions must be defined before calling  
+✔ Indentation defines program logic  
+
+================================================
+END OF NOTES
+================================================

@@ -31,7 +31,7 @@ def run_ragas_evaluation(model_name, answer_delay=30, eval_delay=30, eval_json="
     OUTPUT_JSON = os.path.join(OUTPUT_DIR, f"{OUTPUT_BASENAME}.json")
     OUTPUT_CSV = os.path.join(OUTPUT_DIR, f"{OUTPUT_BASENAME}.csv")
 
-    # Check for existing .json and return if exists
+    # Check for existing .json and return if exists (caching)
     if os.path.exists(OUTPUT_JSON):
         with open(OUTPUT_JSON, "r", encoding="utf-8") as f:
             results = json.load(f)

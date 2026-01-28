@@ -1,0 +1,320 @@
+PYTHON COLLECTION OPERATIONS – LIST, TUPLE, SET, DICT
+===================================================
+
+This note covers the MOST IMPORTANT and FREQUENT operations
+performed on Python collections.
+Focus is on real-world usage, mutability, and behavior.
+
+================================================
+1. LIST OPERATIONS (ORDERED, MUTABLE)
+================================================
+
+Lists are:
+- Ordered
+- Mutable
+- Allow duplicates
+- Most commonly used collection
+
+------------------------------------------------
+1.1 Creating a List
+------------------------------------------------
+nums = [1, 2, 3]
+
+------------------------------------------------
+1.2 Accessing Elements
+------------------------------------------------
+nums = [10, 20, 30]
+
+print(nums[0])   # 10
+print(nums[-1])  # 30
+
+------------------------------------------------
+1.3 Modifying Elements (MUTATES)
+------------------------------------------------
+nums[1] = 200
+print(nums)  # [10, 200, 30]
+
+------------------------------------------------
+1.4 append() – Add ONE element (MUTATES)
+------------------------------------------------
+nums = [1, 2]
+nums.append(3)
+
+print(nums)  # [1, 2, 3]
+
+------------------------------------------------
+1.5 extend() – Add MULTIPLE elements (MUTATES)
+------------------------------------------------
+nums = [1, 2]
+nums.extend([3, 4])
+
+print(nums)  # [1, 2, 3, 4]
+
+------------------------------------------------
+1.6 insert() – Add at specific index (MUTATES)
+------------------------------------------------
+nums = [1, 3]
+nums.insert(1, 2)
+
+print(nums)  # [1, 2, 3]
+
+------------------------------------------------
+1.7 remove() – Remove by VALUE (MUTATES)
+------------------------------------------------
+nums = [1, 2, 3]
+nums.remove(2)
+
+print(nums)  # [1, 3]
+
+------------------------------------------------
+1.8 pop() – Remove by INDEX (MUTATES)
+------------------------------------------------
+nums = [1, 2, 3]
+x = nums.pop()
+
+print(x)     # 3
+print(nums)  # [1, 2]
+
+------------------------------------------------
+1.9 del – Delete by index or slice (MUTATES)
+------------------------------------------------
+nums = [1, 2, 3, 4]
+del nums[1]
+
+print(nums)  # [1, 3, 4]
+
+------------------------------------------------
+1.10 clear() – Remove ALL elements
+------------------------------------------------
+nums = [1, 2]
+nums.clear()
+
+print(nums)  # []
+
+------------------------------------------------
+1.11 copy() – Shallow Copy (IMPORTANT)
+------------------------------------------------
+a = [1, 2]
+b = a.copy()
+
+b.append(3)
+
+print(a)  # [1, 2]
+print(b)  # [1, 2, 3]
+
+------------------------------------------------
+1.12 Sorting
+------------------------------------------------
+nums = [3, 1, 2]
+
+nums.sort()          # MUTATES
+print(nums)          # [1, 2, 3]
+
+nums = [3, 1, 2]
+sorted_nums = sorted(nums)  # NON-MUTATING
+
+print(sorted_nums)  # [1, 2, 3]
+print(nums)         # [3, 1, 2]
+
+------------------------------------------------
+1.13 Other Useful List Operations
+------------------------------------------------
+len(nums)
+min(nums)
+max(nums)
+sum(nums)
+nums.count(2)
+nums.index(3)
+
+================================================
+2. TUPLE OPERATIONS (ORDERED, IMMUTABLE)
+================================================
+
+Tuples are:
+- Ordered
+- Immutable
+- Faster than lists
+- Used for fixed data
+
+------------------------------------------------
+2.1 Creating a Tuple
+------------------------------------------------
+coords = (10, 20)
+
+------------------------------------------------
+2.2 Accessing Elements
+------------------------------------------------
+print(coords[0])  # 10
+
+------------------------------------------------
+2.3 Immutability (NO MODIFICATION)
+------------------------------------------------
+# coords[0] = 5  ❌ ERROR
+
+------------------------------------------------
+2.4 Tuple Packing & Unpacking
+------------------------------------------------
+point = (3, 4)
+
+x, y = point
+
+print(x)  # 3
+print(y)  # 4
+
+------------------------------------------------
+2.5 Useful Tuple Operations
+------------------------------------------------
+len(coords)
+coords.count(10)
+coords.index(20)
+
+------------------------------------------------
+2.6 Tuple to List Conversion
+------------------------------------------------
+t = (1, 2, 3)
+lst = list(t)
+
+lst.append(4)
+print(lst)  # [1, 2, 3, 4]
+
+================================================
+3. SET OPERATIONS (UNORDERED, UNIQUE)
+================================================
+
+Sets are:
+- Unordered
+- Mutable
+- Store unique elements
+- Used for membership tests & deduplication
+
+------------------------------------------------
+3.1 Creating a Set
+------------------------------------------------
+s = {1, 2, 2, 3}
+
+print(s)  # {1, 2, 3}
+
+------------------------------------------------
+3.2 add() – Add ONE element
+------------------------------------------------
+s.add(4)
+print(s)
+
+------------------------------------------------
+3.3 update() – Add MULTIPLE elements
+------------------------------------------------
+s.update([5, 6])
+print(s)
+
+------------------------------------------------
+3.4 remove() vs discard()
+------------------------------------------------
+s.remove(2)    # ERROR if not present
+s.discard(10)  # SAFE (no error)
+
+------------------------------------------------
+3.5 pop() – Remove RANDOM element
+------------------------------------------------
+x = s.pop()
+print(x)
+
+------------------------------------------------
+3.6 Set Operations (VERY IMPORTANT)
+------------------------------------------------
+a = {1, 2, 3}
+b = {3, 4, 5}
+
+print(a | b)  # Union → {1, 2, 3, 4, 5}
+print(a & b)  # Intersection → {3}
+print(a - b)  # Difference → {1, 2}
+print(a ^ b)  # Symmetric difference
+
+------------------------------------------------
+3.7 Membership Testing
+------------------------------------------------
+print(2 in a)   # True
+print(10 in a)  # False
+
+================================================
+4. DICTIONARY OPERATIONS (KEY–VALUE)
+================================================
+
+Dictionaries are:
+- Unordered (insertion-ordered in modern Python)
+- Mutable
+- Keys must be unique
+
+------------------------------------------------
+4.1 Creating a Dictionary
+------------------------------------------------
+student = {
+    "name": "Jay",
+    "age": 29
+}
+
+------------------------------------------------
+4.2 Accessing Values
+------------------------------------------------
+print(student["name"])      # Jay
+print(student.get("age"))   # 29
+print(student.get("marks")) # None (SAFE)
+
+------------------------------------------------
+4.3 Adding / Modifying Values
+------------------------------------------------
+student["age"] = 30
+student["city"] = "Mumbai"
+
+------------------------------------------------
+4.4 Removing Items
+------------------------------------------------
+del student["city"]
+
+age = student.pop("age")
+
+------------------------------------------------
+4.5 keys(), values(), items()
+------------------------------------------------
+print(student.keys())
+print(student.values())
+print(student.items())
+
+------------------------------------------------
+4.6 Looping Through Dictionary
+------------------------------------------------
+for key, value in student.items():
+    print(key, value)
+
+------------------------------------------------
+4.7 copy() – Shallow Copy
+------------------------------------------------
+a = {"x": 1}
+b = a.copy()
+
+b["x"] = 2
+
+print(a)  # {'x': 1}
+print(b)  # {'x': 2}
+
+------------------------------------------------
+4.8 update() – Merge Dictionaries
+------------------------------------------------
+a = {"x": 1}
+b = {"y": 2}
+
+a.update(b)
+print(a)  # {'x': 1, 'y': 2}
+
+================================================
+SUMMARY
+================================================
+
+✔ list → ordered, mutable, most flexible  
+✔ tuple → ordered, immutable, fixed data  
+✔ set → unordered, unique, fast membership  
+✔ dict → key–value mapping, highly powerful  
+✔ Assignment copies references, not objects  
+
+================================================
+END OF NOTES
+================================================

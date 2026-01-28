@@ -1,0 +1,7 @@
+OrderID,Region,Product,Sales,Manager
+101,North,Laptop,1000,Alice
+102,South,Mouse,20,Bob
+103,North,Laptop,1000,Alice
+104,East,Monitor,300,Charlie
+105,North,Mouse,25,Alice
+106,South,Monitor,300,Bob

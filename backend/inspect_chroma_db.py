@@ -13,7 +13,6 @@ def show_chunks(cur, n=5):
     """
     print(f"Showing the first {n} text chunks:\n")
     
-    # ▼▼▼ UPDATE THESE TWO COLUMN NAMES ▼▼▼
     # Replace 'id' and 'string_value' with the names you found in DBeaver.
     id_column = "id"
     text_column = "string_value" 

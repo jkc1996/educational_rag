@@ -1,0 +1,200 @@
+================================================================================
+              END-TO-END DOCUMENT SUMMARIZATION PIPELINE
+           (Used for Question Paper Generation – Updated)
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                               USER / UI LAYER                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        │  User selects:
+        │  - Subject
+        │  - PDF file(s)
+        │  - LLM choice (Groq / Gemini / Ollama)
+        │  - Question configuration
+        │  - Extra instructions (optional)
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        POST /generate-question-paper                          │
+│                                                                              │
+│  Payload:                                                                    │
+│  - subject                                                                   │
+│  - filenames[]                                                               │
+│  - llm_choice                                                                │
+│  - question_config                                                          │
+│  - extra_context                                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      summarize_selected_pdfs()                                │
+│                                                                              │
+│  1. Build cache key (SHA-256):                                                │
+│     - subject + filenames + llm_choice + extra_context                        │
+│                                                                              │
+│  2. Check summary cache                                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ├─────────────── Cache HIT ───────────────▶ Return cached summary
+        │
+        ▼ Cache MISS
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                Fetch Content from ChromaDB Vectorstore                        │
+│                                                                              │
+│  - Load ChromaDB (subject-specific)                                           │
+│  - Fetch ALL stored chunks                                                    │
+│  - Filter by metadata.source_pdf ∈ selected filenames                         │
+│  - Join matched chunks into raw text                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│               Initialize Gemini Budget (ONLY if llm = Gemini)                │
+│                                                                              │
+│  GeminiRecursionBudget:                                                       │
+│   - Level 1 → max 5 calls                                                     │
+│   - Level 2 → max 5 calls                                                     │
+│   - Level 3+ → 0 calls                                                        │
+│                                                                              │
+│  (Groq / Ollama skip this step entirely)                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                 deep_summarize_content() – PASS 1                             │
+│                           (Recursion Level 1)                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        │  Split raw text into blocks (~900 words each)
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         FOR EACH BLOCK (LEVEL 1)                              │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ Gemini?                                                                  │  │
+│  │  ├─ YES → Check Level-1 Budget                                           │  │
+│  │  │     ├─ Budget available → LLM call                                   │  │
+│  │  │     └─ Budget exhausted → Fallback (truncate block)                  │  │
+│  │  └─ NO  → Normal LLM call (Groq / Ollama)                                │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  LLM Summarization Details:                                                   │
+│  - Prompt preserved (academic, exam-safe)                                    │
+│  - Token estimation                                                          │
+│  - Token clipping                                                            │
+│  - Retry with exponential backoff                                             │
+│                                                                              │
+│  Output: partial summaries                                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Combine Block Summaries (Level 1)                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                Is summary length > max_chunk_words?                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ├────────── NO ─────────▶ Skip recursion
+        │
+        ▼ YES
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                 deep_summarize_content() – PASS 2                             │
+│                           (Recursion Level 2)                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        │  Split combined summary into blocks (~900 words)
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         FOR EACH BLOCK (LEVEL 2)                              │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ Gemini?                                                                  │  │
+│  │  ├─ YES → Check Level-2 Budget                                           │  │
+│  │  │     ├─ Budget available → LLM call                                   │  │
+│  │  │     └─ Budget exhausted → Fallback (truncate block)                  │  │
+│  │  └─ NO  → Normal LLM call                                                 │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  Output: refined summaries                                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                   Stop Further Recursion for Gemini                           │
+│                                                                              │
+│  - If recursion level > 2 → BLOCKED                                           │
+│  - Guarantees max 10 Gemini calls total                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Filter Exam-Question Content                              │
+│                                                                              │
+│  - Remove any sections mentioning                                             │
+│    "Exam Questions" / "Examination Questions"                                 │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                  Final Summary Length Check (≤ 1800 words?)                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ├────────── YES ─────────▶ Proceed
+        │
+        ▼ NO
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                  Safe Final Compression (Re-summarize)                        │
+│                                                                              │
+│  - Uses same Gemini limits                                                    │
+│  - Fallback to truncation if all calls fail                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         Save Summary to Cache                                 │
+│                                                                              │
+│  Path: cache/summary_<hash>.pkl                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Return Final Summary                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     generate_question_paper()                                 │
+│                                                                              │
+│  - Uses summary only (no raw PDFs)                                            │
+│  - Applies strict schema                                                      │
+│  - Gemini / Groq structured JSON output                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                             FINAL RESPONSE                                    │
+│                                                                              │
+│  {                                                                           │
+│    "summary": "...",                                                         │
+│    "questions": { structured JSON }                                          │
+│  }                                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+KEY GUARANTEES FROM THIS PIPELINE
+================================================================================
+✔ Token-safe summarization  
+✔ Retry-safe API calls  
+✔ Gemini free-tier protected (5 + 5 calls only)  
+✔ Recursive summarization quality preserved  
+✔ Deterministic, cache-backed behavior  
+✔ Exam-safe output generation  
+
+================================================================================

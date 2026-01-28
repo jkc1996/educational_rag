@@ -1,0 +1,563 @@
+🔹 Select ALL columns
+SELECT *
+FROM HR.EMPLOYEES;
+--------------------------------------------------
+🔹 Select specific columns (BEST PRACTICE)
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+FROM HR.EMPLOYEES;
+
+Why this is better
+
+Faster
+
+Cleaner output
+
+Shows you know what data you need
+-------------------------------------------------
+🔹 Column order matters
+SELECT FIRST_NAME, LAST_NAME, EMPLOYEE_ID
+FROM HR.EMPLOYEES;
+
+
+👉 Output comes in the same order as the SELECT list.
+------------------------------------------------
+
+🔹 SELECT from other HR tables
+Departments
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME
+FROM HR.DEPARTMENTS;
+-----------------------------------------------
+🔹 Renaming columns (Alias)
+
+Very common in interviews 👇
+
+SELECT
+  FIRST_NAME AS FNAME,
+  LAST_NAME AS LNAME,
+  SALARY AS MONTHLY_SALARY
+FROM HR.EMPLOYEES;
+
+Notes
+
+AS is optional in Oracle
+
+Alias improves readability
+--------------------------------------------
+
+🔹 Expressions in SELECT
+
+You can calculate values inside SELECT.
+
+Example: Annual salary
+SELECT
+  FIRST_NAME,
+  SALARY,
+  SALARY * 12 AS ANNUAL_SALARY
+FROM HR.EMPLOYEES;
+-----------------------------------------
+
+📌 Interviewers LOVE this kind of example.
+
+🔹 Using DISTINCT (no duplicates)
+SELECT DISTINCT DEPARTMENT_ID
+FROM HR.EMPLOYEES;
+
+Use case
+
+Find unique department IDs
+
+Avoid duplicate rows
+
+⚠️ DISTINCT applies to all selected columns together
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+2️⃣ WHERE Clause – Filtering Data (CORE SKILL)
+
+WHERE is used to filter rows based on conditions.
+Without WHERE → you get all rows.
+With WHERE → you get only what you want.
+
+Basic Syntax
+SELECT column_name(s)
+FROM table_name
+WHERE condition;
+
+------------------------------------------------
+🔹 Simple WHERE condition
+Employees with salary greater than 10,000
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY
+FROM HR.EMPLOYEES
+WHERE SALARY > 10000;
+
+How this works
+
+Oracle checks each row
+
+Keeps only rows where SALARY > 10000
+
+--------------------------------------------
+
+🔹 Comparison Operators (Must memorize)
+
+| Operator     | Meaning          |
+| ------------ | ---------------- |
+| `=`          | Equal            |
+| `!=` or `<>` | Not equal        |
+| `>`          | Greater than     |
+| `<`          | Less than        |
+| `>=`         | Greater or equal |
+| `<=`         | Less or equal    |
+
+--------------------------------------------
+
+🔹 WHERE with text (strings)
+Employees in IT department (example)
+SELECT FIRST_NAME, LAST_NAME, JOB_ID
+FROM HR.EMPLOYEES
+WHERE JOB_ID = 'IT_PROG';
+
+
+📌 Important
+
+Strings must be inside single quotes
+
+Oracle is case-sensitive for string values
+
+-------------------------------------------
+
+🔹 AND operator (ALL conditions must be TRUE)
+Salary > 10,000 and department = 90
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM HR.EMPLOYEES
+WHERE SALARY > 10000
+AND DEPARTMENT_ID = 90;
+
+
+👉 Both conditions must match.
+
+------------------------------------------
+
+🔹 OR operator (ANY condition TRUE)
+Employees in department 90 or 60
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM HR.EMPLOYEES
+WHERE DEPARTMENT_ID = 90
+OR DEPARTMENT_ID = 60;
+
+-------------------------------------------
+🔹 AND + OR together (INTERVIEW TRAP ⚠️)
+❌ Wrong (logic issue)
+WHERE SALARY > 10000
+AND DEPARTMENT_ID = 90
+OR DEPARTMENT_ID = 60;
+
+
+Oracle evaluates AND first.
+
+MEANING:
+
+-- IN BELOW QUERY WE WILL SEE THAT WITH DEPARTMENT ID 60, NO ONE HAS SALARY >10000
+
+SELECT FIRST_NAME, SALARY FROM HR.EMPLOYEES WHERE DEPARTMENT_ID = 60
+
+-- MEANING OF BELOW QUERY - WHERE (SALARY > 10000 AND DEPARTMENT_ID = 90) OR (DEPARTMENT_ID = 60).. SO IN THIS AND CONDITION HAS PRECEDENCE.. BUT OR CONDION WILL ALSO GETS EXECUTED WHO HAVE DEPT ID = 60(BUT SALARY NOT > 10000 !!),
+
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM HR.EMPLOYEES WHERE SALARY > 10000
+AND DEPARTMENT_ID = 90
+OR DEPARTMENT_ID = 60;
+
+
+
+---------------------------------------------
+
+✅ Correct (use brackets!)
+WHERE SALARY > 10000
+AND (DEPARTMENT_ID = 90 OR DEPARTMENT_ID = 60);
+
+
+📌 Interview tip: Always use parentheses when mixing AND / OR.
+
+----------------------------------------------
+
+🔹 IN operator (cleaner OR)
+Instead of multiple ORs
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM HR.EMPLOYEES
+WHERE DEPARTMENT_ID IN (60, 90, 100);
+
+
+✔ Cleaner
+✔ More readable
+✔ Interview-approved
+
+----------------------------------------------
+
+🔹 NOT IN
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM HR.EMPLOYEES
+WHERE DEPARTMENT_ID NOT IN (60, 90);
+
+
+⚠️ Caution: If column has NULLs, NOT IN behaves differently
+(we’ll cover NULL later).
+
+--------------------------------------------
+
+🔹 BETWEEN (inclusive range)
+
+Salary between 5000 and 10000
+SELECT FIRST_NAME, SALARY
+FROM HR.EMPLOYEES
+WHERE SALARY BETWEEN 5000 AND 10000;
+
+
+📌 BETWEEN is inclusive:
+
+Includes 5000
+
+Includes 10000
+
+--------------------------------------------
+
+🔹 BETWEEN with dates (very common)
+
+Employees hired in 2005
+SELECT FIRST_NAME, HIRE_DATE
+FROM HR.EMPLOYEES
+WHERE HIRE_DATE BETWEEN
+      DATE '2005-01-01' AND DATE '2005-12-31';
+--------------------------------------------
+
+🔹 LIKE operator (pattern matching)
+
+Names starting with 'A'
+SELECT FIRST_NAME
+FROM HR.EMPLOYEES
+WHERE FIRST_NAME LIKE 'A%';
+
+LIKE wildcards:
+
+| Symbol | Meaning                  |
+| ------ | ------------------------ |
+| `%`    | Any number of characters |
+| `_`    | Exactly one character    |
+
+
+Ends with 'n'
+WHERE FIRST_NAME LIKE '%n';
+------------------------------
+Contains 'ar'
+WHERE FIRST_NAME LIKE '%ar%';
+------------------------------
+Second letter is 'a'
+WHERE FIRST_NAME LIKE '_a%';
+-----------------------------------------
+🔹 Case-insensitive LIKE (Oracle trick)
+
+WHERE UPPER(FIRST_NAME) LIKE 'A%';
+
+
+or
+
+WHERE LOWER(FIRST_NAME) LIKE 'a%';
+-------------------------------------------
+🔹 WHERE with NULL (INTERVIEW FAVORITE ❗)
+
+❌ Wrong
+WHERE COMMISSION_PCT = NULL;
+
+✅ Correct
+WHERE COMMISSION_PCT IS NULL;
+
+Not NULL
+WHERE COMMISSION_PCT IS NOT NULL;
+
+----------------------------------------
+
+Common Interview Questions (WHERE)
+❓ WHERE vs HAVING?
+
+WHERE → filters rows
+
+HAVING → filters groups
+
+(We’ll cover HAVING later)
+
+❓ Can WHERE use aliases?
+
+❌ No (Oracle evaluates WHERE before SELECT)
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+				ORDER BY AND DISTINCT (Sorting & De-duplication) - REMEMBER THIS EXECUTION ORDER - FROM, WHERE, SELECT, ORDER BY .... ORDER BY ALWAYS LAST
+
+
+🔹 ORDER BY — Sorting the result set
+
+ORDER BY controls how the output is sorted.
+It always comes at the end of the query.
+---------------------------------------------
+
+🔹 ORDER BY (Ascending – default)
+
+Sort employees by salary (low → high)
+SELECT FIRST_NAME, SALARY
+FROM HR.EMPLOYEES
+ORDER BY SALARY;
+
+
+📌 ASC is default (you don’t need to write it).
+
+-----------------------------------------------
+
+🔹 ORDER BY DESC (Descending)
+
+Highest paid employees first
+
+SELECT FIRST_NAME, SALARY
+FROM HR.EMPLOYEES
+ORDER BY SALARY DESC;
+-------------------------------------
+
+🔹 ORDER BY multiple columns (VERY COMMON)
+
+Sort by department, then salary (high → low)
+
+SELECT FIRST_NAME, DEPARTMENT_ID, SALARY
+FROM HR.EMPLOYEES
+ORDER BY DEPARTMENT_ID ASC, SALARY DESC;
+
+
+👉 Oracle:
+
+Sorts by DEPARTMENT_ID
+
+Within each department, sorts by SALARY
+
+----------------------------------------
+
+🔹 ORDER BY using column position (INTERVIEW TIP)
+
+SELECT FIRST_NAME, SALARY
+FROM HR.EMPLOYEES
+ORDER BY 2 DESC;
+
+
+2 → second column (SALARY)
+
+Works, but not recommended in real projects
+
+Interviewers may ask about it
+
+---------------------------------------
+
+🔹 ORDER BY with WHERE (real-life usage)
+
+SELECT FIRST_NAME, SALARY
+FROM HR.EMPLOYEES
+WHERE DEPARTMENT_ID = 90
+ORDER BY SALARY DESC;
+
+
+📌 Execution order (important concept):
+
+FROM
+
+WHERE
+
+SELECT
+
+ORDER BY
+
+-------------------------------------
+
+🔹 DISTINCT — Remove duplicates
+
+DISTINCT removes duplicate rows from the result.
+
+Example: Unique department IDs
+SELECT DISTINCT DEPARTMENT_ID
+FROM HR.EMPLOYEES;
+
+
+Without DISTINCT → repeated department IDs
+With DISTINCT → each department appears once
+----------------------------------------
+
+🔹 DISTINCT with multiple columns (INTERVIEW FAVORITE)
+SELECT DISTINCT DEPARTMENT_ID, JOB_ID
+FROM HR.EMPLOYEES;
+
+
+⚠️ DISTINCT applies to the combination, not individual columns.
+------------------------------------------
+
+🔹 DISTINCT + ORDER BY (allowed)
+
+SELECT DISTINCT DEPARTMENT_ID
+FROM HR.EMPLOYEES
+ORDER BY DEPARTMENT_ID;
+
+❌ Common mistakes (INTERVIEW TRAPS)
+❌ DISTINCT on one column only? (WRONG thinking)
+SELECT DISTINCT DEPARTMENT_ID, FIRST_NAME
+FROM HR.EMPLOYEES;
+
+
+👉 This does not give unique departments
+It gives unique (department, firstname) pairs.
+----------------------------------------
+
+❌ ORDER BY before WHERE
+-- ❌ INVALID
+SELECT * FROM HR.EMPLOYEES
+ORDER BY SALARY
+WHERE DEPARTMENT_ID = 60;
+
+Common Interview Questions
+❓ Is ORDER BY mandatory?
+
+No — it’s optional.
+Without it, order is not guaranteed.
+
+❓ Can ORDER BY use alias?
+
+✅ Yes
+
+SELECT SALARY * 12 AS ANNUAL_SALARY
+FROM HR.EMPLOYEES
+ORDER BY ANNUAL_SALARY DESC;
+
+❓ DISTINCT vs GROUP BY?
+
+DISTINCT → remove duplicates
+
+GROUP BY → aggregation
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+4️⃣ GROUP BY & Aggregate Functions
+
+Aggregate functions summarize data
+GROUP BY defines how data is summarized
+
+🔹 What are Aggregate Functions?
+
+They work on multiple rows and return one value per group.
+
+Core Aggregate Functions (must-know)
+
+| Function  | What it does   |
+| --------- | -------------- |
+| `COUNT()` | Number of rows |
+| `SUM()`   | Total value    |
+| `AVG()`   | Average        |
+| `MIN()`   | Smallest value |
+| `MAX()`   | Largest value  |
+
+---------------------------------------------
+-- ex-1: Total number of employees
+
+SELECT COUNT(*) AS TOTAL_EMPLOYEES
+FROM HR.EMPLOYEES;
+--------------------------------------------
+-- ex-2: Highest salary in company
+
+SELECT MAX(SALARY) AS MAX_SALARY
+FROM HR.EMPLOYEES;
+
+-------------------------------------------
+-- EX-3: Average salary
+
+SELECT AVG(SALARY)
+FROM HR.EMPLOYEES;
+
+-- DEPARTMENT WISE MAX SALARY
+
+SELECT MAX(SALARY) AS MAX_SALARY, DEPARTMENT_ID
+FROM HR.EMPLOYEES GROUP BY DEPARTMENT_ID;
+--------------------------------------------------
+
+-- EX-4: Correct usage: GROUP BY - Average salary per department
+-- (HERE WE CAN NOT WRITE SELECT DEPARTMENT_ID, AVG(SALARY) WITHOUT GROUPBY AT THE END, BECAUSE DEPARTMENT_ID IS MANY VALUES AND AVG(SALARY) IS JUST ONE VALUE SO WE NEED TO GROUP HERE)
+
+-- Golden Rule (MEMORIZE) - Any column in SELECT that is NOT an aggregate MUST appear in GROUP BY
+
+SELECT DEPARTMENT_ID, AVG(SALARY)
+FROM HR.EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+
+---------------------------------------------------
+
+-- EX-5: Multiple aggregates together - Salary stats per department 
+
+SELECT
+  DEPARTMENT_ID,
+  COUNT(*) AS EMP_COUNT,
+  MIN(SALARY) AS MIN_SAL,
+  MAX(SALARY) AS MAX_SAL,
+  AVG(SALARY) AS AVG_SAL
+FROM HR.EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+
+--------------------------------------------------
+
+-- EX-6: GROUP BY with WHERE (very common) - Avg salary per department (only dept 60 & 90)
+
+-- GOLDEN RULE - WHERE filters rows BEFORE grouping
+
+SELECT DEPARTMENT_ID, AVG(SALARY)
+FROM HR.EMPLOYEES
+WHERE DEPARTMENT_ID IN (60, 90)
+GROUP BY DEPARTMENT_ID;
+
+------------------------------------------------
+
+-- EX-7: HAVING — filtering groups (IMPORTANT) HAVING filters groups, not rows
+
+-- Departments with avg salary > 5000 AND ALSO OMIT DEPARTMENT WITH NULL
+
+SELECT DEPARTMENT_ID, AVG(SALARY) FROM HR.EMPLOYEES WHERE DEPARTMENT_ID IS NOT NULL
+GROUP BY DEPARTMENT_ID HAVING AVG(SALARY) > 5000;
+
+----------------------------------------------
+
+-- EX-8: GROUP BY with multiple columns - Avg salary by department & job - Grouping happens on unique combinations
+
+SELECT DEPARTMENT_ID, JOB_ID, AVG(SALARY)
+FROM HR.EMPLOYEES
+GROUP BY DEPARTMENT_ID, JOB_ID;
+
+-- BELOW ONE WILL COUNT NON NULL VALUES
+
+SELECT COUNT(COMMISSION_PCT) FROM HR.EMPLOYEES; 
+
+-- REGARDING COUNT(*) - THIS WILL GIVE ALL ROWS COUNT
+
+-- SUM, AVG → ignore NULL values
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+						5️⃣ JOINS – Deep Dive (INNER vs LEFT vs RIGHT)
+
+JOIN = combining rows from multiple tables using a related column
+
+In HR schema, relationships look like this:
+
+EMPLOYEES.DEPARTMENT_ID → DEPARTMENTS.DEPARTMENT_ID
+
+EMPLOYEES.JOB_ID → JOBS.JOB_ID
+
+DEPARTMENTS.LOCATION_ID → LOCATIONS.LOCATION_ID
+------------------------------------------------------------
+
+🔹 INNER JOIN (MOST COMMON)
+What it does
+
+👉 Returns only matching rows from both tables
+👉 If no match → row is discarded
+
+

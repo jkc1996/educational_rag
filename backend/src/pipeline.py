@@ -31,7 +31,7 @@ def ingest_pdfs_to_chroma(
 
     if use_llamaparse:
         from src.llamaparse_loader import load_llamaparse_nodes
-        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        from langchain_text_splitters import RecursiveCharacterTextSplitter
         from langchain_core.documents import Document
         from hashlib import md5
         import os, re
@@ -80,7 +80,7 @@ def ingest_pdfs_to_chroma(
                     all_semantic_chunks.append(Document(page_content=chunk_text, metadata=meta))
 
     else:
-        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        from langchain_text_splitters import RecursiveCharacterTextSplitter
         pre_chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         all_semantic_chunks = run_semantic_chunking(pdf_files, pre_chunker, embed_model)
 
@@ -102,7 +102,7 @@ def get_rag_chain(
     chroma_persist_dir,
     top_k=5,
     llm_backend="groq",
-    enable_feedback_rerank: bool = False  # <-- NEW (default OFF)
+    enable_feedback_rerank: bool = False
 ):
     logging.info({...})
     embed_model = get_fastembed_embedding()

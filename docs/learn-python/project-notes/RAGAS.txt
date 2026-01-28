@@ -1,0 +1,225 @@
+1️⃣ What is RAGAS in your project (context first)
+
+Before code:
+
+RAGAS is a framework to evaluate how good a RAG system is — not how fluent the LLM sounds.
+
+It answers questions like:
+
+Did we retrieve the right context?
+
+Did the answer use that context?
+
+Is the answer factually correct?
+
+Is it grounded or hallucinated?
+
+Your project uses RAGAS to benchmark different LLM backends:
+
+Groq
+
+Gemini
+
+Ollama
+
+-----------------------------------------
+
+2️⃣ UI → API: What is sent from the UI?
+UI sends a POST request to:
+POST /evaluate-ragas
+
+Payload (either mode):
+🔹 Single model evaluation
+{
+  "model_name": "groq",
+  "eval_json": "eval_questions.json"
+}
+
+🔹 Multi-model comparison
+{
+  "model_names": ["groq", "gemini", "ollama"],
+  "eval_json": "eval_questions.json"
+}
+
+
+📌 UI does NOT send questions directly
+Instead, it sends:
+
+Which model(s) to evaluate
+
+Which evaluation dataset to use
+
+3️⃣ API Layer: evaluate_ragas_api
+@app.post("/evaluate-ragas/")
+
+Purpose
+
+This endpoint:
+
+Decides single vs multi-model
+
+Calls run_ragas_evaluation() for each model
+
+Returns results to UI
+
+Flow inside API
+UI Request
+   ↓
+evaluate_ragas_api
+   ↓
+(model_name OR model_names)
+   ↓
+run_ragas_evaluation()
+   ↓
+JSON results returned
+
+Multi-model logic
+for m in model_names:
+    results = run_ragas_evaluation(m)
+    all_results[m] = results
+
+
+📌 This enables side-by-side comparison on UI
+
+4️⃣ Core Engine: run_ragas_evaluation()
+
+This is the heart of RAGAS evaluation.
+
+Step 4.1: Fixed evaluation setup
+SUBJECT = "Machine Learning"
+chroma_dir = outputs/chroma_machine_learning
+
+
+Meaning:
+
+All evaluation questions are answered using the same knowledge base
+
+Only the LLM backend changes
+
+This ensures fair comparison
+
+Step 4.2: Result caching (VERY important)
+if os.path.exists(OUTPUT_JSON):
+    return cached_results
+
+
+📌 If evaluation already ran:
+
+No LLM calls
+
+No RAGAS cost
+
+Instant UI response
+
+This is production-grade optimization
+
+5️⃣ Loading evaluation questions (input dataset)
+load_eval_questions(eval_json)
+
+What’s inside eval_questions.json?
+
+Each entry looks like:
+
+{
+  "question": "What is gradient descent?",
+  "contexts": ["expected reference text"],
+  "ground_truth": "Gradient descent is an optimization algorithm..."
+}
+
+
+After loading:
+
+q["id"] = 1, 2, 3...
+
+
+📌 These questions are golden evaluation queries
+(not user queries)
+
+6️⃣ Answer generation phase (RAG execution)
+Function:
+generate_answers()
+
+
+This step runs your actual RAG pipeline.
+
+Step 6.1: Build RAG chain
+rag_chain = get_rag_chain(chroma_dir, llm_backend=model_name)
+
+
+This is the same QA pipeline used in production:
+
+Retriever (Chroma + embeddings)
+
+Reader (LLM)
+
+Prompt
+
+RunnableParallel (answer + sources)
+
+📌 This ensures evaluation reflects real behavior
+
+Step 6.2: Generate answers (per question)
+
+For each evaluation question:
+
+resp = rag_chain.invoke(q["question"])
+
+
+Result:
+
+{
+  "answer": "...",
+  "sources": [Document, Document, ...]
+}
+
+
+Stored as:
+
+q["answer"] = resp["answer"]
+q["retrieved_contexts"] = [chunk text]
+
+
+📌 RAGAS ignores retriever output, but you keep it for:
+
+Debugging
+
+Transparency
+
+Step 6.3: Rate limiting safety
+time.sleep(answer_delay)
+
+
+Why?
+
+Prevent API throttling
+
+Especially critical for Gemini / OpenAI
+
+7️⃣ Dataset preparation for RAGAS
+
+Before evaluation, data is normalized:
+
+df = pd.DataFrame(questions)[
+  ['id', 'question', 'contexts', 'answer', 'ground_truth']
+]
+
+
+This matches RAGAS required schema:
+
+| Column       | Meaning                 |
+| ------------ | ----------------------- |
+| question     | Input query             |
+| contexts     | Retrieved context       |
+| answer       | Model output            |
+| ground_truth | Expected correct answer |
+
+
+Then converted to:
+
+Dataset.from_pandas(...)
+
+
+📌 RAGAS works on HuggingFace Datasets
+
+8️⃣ Metrics used (very important)
+

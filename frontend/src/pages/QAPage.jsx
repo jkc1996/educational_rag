@@ -18,7 +18,7 @@ const LLMS = [
   { value: "gemini", label: "Gemini (Google)" },
   { value: "groq", label: "Groq (Llama3)" },
   { value: "ollama", label: "Ollama (Local)" },
-  { value: "openai", label: "Open AI" }
+  { value: "openai", label: "GPT-4 (Open AI)" }
 ];
 
 function QAPage() {

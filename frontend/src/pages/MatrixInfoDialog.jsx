@@ -8,11 +8,11 @@ const metricInfo = [
     metrics: [
       {
         name: "context_precision",
-        desc: "Proportion of retrieved context that is actually relevant to the ground truth answer."
+        desc: "Measures how much of the retrieved context is actually relevant to the question."
       },
       {
         name: "context_recall",
-        desc: "Proportion of relevant ground truth context that was actually retrieved."
+        desc: "Measures how much of the ground-truth information is successfully retrieved in the provided context"
       },
       {
         name: "faithfulness",

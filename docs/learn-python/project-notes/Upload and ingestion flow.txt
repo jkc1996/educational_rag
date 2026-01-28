@@ -182,6 +182,11 @@ Why semantic chunking:
 - Length-based chunks lose meaning
 - Semantic chunks preserve topic coherence
 
+we have used break-point throld type as - 'percentile'
+
+why ? - percentile = "Relative splitting." It creates chunks based on the statistical peaks of semantic difference within that specific file.
+	It is generally safer than other methods because it adapts to documents that are "fast-paced" (lots of topic changes) or "slow-paced" (long descriptions).
+
 Two-stage chunking strategy:
 ----------------------------
 
@@ -304,3 +309,145 @@ Key strengths to highlight:
 =================================================================
 END OF NOTES
 =================================================================
+
+
+Different chunking methods:
+
+Fixed size chunking
+Recursive Chunking
+Document Specific Chunking
+Semantic Chunking
+Agentic Chunking
+
+
+Fixed Size Chunking: This is the most common and straightforward approach to chunking: we simply decide the number of tokens in our chunk and, optionally, whether there should be any overlap between them. In general, we will want to keep some overlap between chunks to make sure that the semantic context doesn’t get lost between chunks. Fixed-sized chunking will be the best path in most common cases. Compared to other forms of chunking, fixed-sized chunking is computationally cheap and simple to use since it doesn’t require the use of any NLP libraries.
+-------------------------------------------------------
+Recursive Chunking : Recursive chunking divides the input text into smaller chunks in a hierarchical and iterative manner using a set of separators. If the initial attempt at splitting the text doesn’t produce chunks of the desired size or structure, the method recursively calls itself on the resulting chunks with a different separator or criterion until the desired chunk size or structure is achieved. This means that while the chunks aren’t going to be exactly the same size, they’ll still “aspire” to be of a similar size. Leverages what is good about fixed size chunk and overlap.
+---------------
+The RecursiveCharacterTextSplitter in LangChain works by using a list of separators to recursively split large texts into smaller, semantically coherent chunks that do not exceed a specified chunk_size. The chunk_overlap parameter ensures continuity between these chunks. 
+
+How the chunk_size and chunk_overlap Parameters are Used
+
+The process involves the following steps:
+
+Recursive Splitting: The splitter attempts to divide the text using the first separator in its list (default is ["\n\n", "\n", " ", ""] for paragraphs, then newlines, then spaces, then characters). If any resulting chunk is still larger than the chunk_size, it recursively applies the next separator in the list to that oversized chunk, continuing until all chunks are smaller than the chunk_size.
+
+Chunk Merging: After the text is broken into small pieces using the separators, it attempts to merge these pieces back together, adding one piece at a time to a chunk, as long as the total size does not exceed the chunk_size.
+
+Applying chunk_overlap: When creating a new chunk, a portion of the preceding chunk, specified by chunk_overlap, is prepended to the new chunk.
+This overlap helps preserve the context that might otherwise be lost when a semantic unit (like a sentence) is split across two consecutive chunks.
+The size of the overlap is measured by the same length_function (usually character count by default) used for the chunk_size.
+The actual overlap may be less than the requested chunk_overlap if the previous chunk, after the split point, is smaller than the requested overlap size.
+
+Final Chunks: The process results in a list of text chunks, each respecting the maximum chunk_size and containing the specified chunk_overlap with its subsequent chunk. 
+--------------------------------------------------------
+
+Document Specific Chunking: It takes into consideration the structure of the document . Instead of using a set number of characters or recursive process it creates chunks that align with the logical sections of the document like paragraphs or sub sections. By doing this it maintains the author’s organization of the content thereby keeping the text coherent. It makes the retrieved information more relevant and useful, particularly for structured documents with clearly defined sections. It can handle formats such as Markdown, Html, etc.
+---------------------------------------------------------
+Sematic Chunking: Semantic Chunking considers the relationships within the text. It divides the text into meaningful, semantically complete chunks. This approach ensures the information’s integrity during retrieval, leading to a more accurate and contextually appropriate outcome. It is slower compared to the previous chunking strategy
+---------------------------------------------------------
+Agentic Chunk: The hypothesis here is to process documents in a fashion that humans would do.
+
+We start at the top of the document, treating the first part as a chunk.
+We continue down the document, deciding if a new sentence or piece of information belongs with the first chunk or should start a new one
+We keep this up until we reach the end of the document.
+This approach is still being tested and isn't quite ready for the big leagues due to the time it takes to process multiple LLM calls and the cost of those calls. There's no implementation available in public libraries just yet.
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+What is FastEmbed?
+
+FastEmbed is a lightweight, fast embedding inference library designed to generate vector embeddings efficiently without heavy GPU dependencies.
+
+It is optimized for:
+
+⚡ Speed (faster than many Transformers pipelines)
+
+🧠 Low memory usage
+
+🖥️ CPU-friendly (works well without GPU)
+
+📦 Local embedding inference (no API calls)
+
+-------------------
+
+What is BAAI/bge-base-en-v1.5?
+
+This is a BGE (Beijing Academy of AI) sentence embedding model — one of the best open-source embedding models for RAG.
+
+Full name
+
+BGE Base English v1.5
+
+------------------------------
+
+Step-by-Step: What Happens to Your 250-Word Chunk?
+Example chunk (250 words)
+"This document explains how neural networks learn..."
+
+1️⃣ Tokenization — Convert Text → Tokens
+
+Your text is split into tokens (sub-words):
+
+"This document explains neural networks"
+→ ["This", "document", "explains", "neural", "networks"]
+
+
+A 250-word chunk might become:
+👉 ~300–500 tokens
+
+2️⃣ Token → Token Vectors
+
+Each token is converted into a dense numeric vector using learned embeddings:
+
+"neural" → [0.12, -0.44, 0.98, ..., 0.31]
+
+
+So internally:
+
+Token matrix = (num_tokens × hidden_size)
+≈ (400 × 768)
+
+3️⃣ Transformer Reads Context
+
+The transformer model:
+
+Reads all tokens together
+
+Understands context & relationships
+
+Updates token meaning based on neighbors
+
+So:
+
+"bank" near "money" ≠ "bank" near "river"
+
+
+Meaning becomes context-aware.
+
+4️⃣ Pooling — Compress Many Token Vectors → One Vector
+
+Now we have hundreds of token vectors.
+
+We need ONE vector to represent the whole chunk.
+
+The model pools them using strategies like:
+
+Mean pooling (average)
+
+CLS token pooling
+
+Weighted pooling
+
+Result:
+
+[0.021, -0.884, 0.332, ..., 0.119]
+
+🎯 Final output:
+
+👉 1 vector of length = 768
+
+

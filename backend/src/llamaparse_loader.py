@@ -10,7 +10,7 @@ def load_llamaparse_nodes(pdf_path, parsing_instruction=None, result_type="markd
         raise RuntimeError("LLAMA_PARSE_API_KEY not found in environment or .env")
 
     # keep your instruction unchanged
-    parsing_instruction = parsing_instruction or """The provided document is a Natural lngage processing topic related.
+    parsing_instruction = parsing_instruction or """The provided document is a Natural language processing topic related.
         It contains tables too.
         Try to be precise while answering the questions"""
 

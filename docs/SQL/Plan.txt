@@ -1,0 +1,129 @@
+# Oracle SQL – Half-Day Interview Prep Plan
+
+## What Interviewers Expect from “Basic Oracle SQL”
+
+Interviewers mainly test whether you can **work with data day-to-day**, not whether you know advanced internals.
+
+---
+
+## ✅ MUST-KNOW (Daily Use Queries)
+
+These are **non-negotiable**. Almost every SQL interview touches these.
+
+### Data Retrieval
+- `SELECT`
+- `WHERE`
+
+### Conditions & Filters
+- `AND`
+- `OR`
+- `IN`
+- `BETWEEN`
+- `LIKE`
+
+### Sorting & Uniqueness
+- `ORDER BY`
+- `DISTINCT`
+
+### Data Modification
+- `INSERT`
+- `UPDATE`
+- `DELETE`
+
+### Transactions
+- `COMMIT`
+- `ROLLBACK`
+
+---
+
+## ✅ VERY IMPORTANT (Frequently Asked)
+
+These test **real-world data handling**.
+
+### Joins
+- `INNER JOIN`
+- `LEFT JOIN`
+
+### Grouping & Aggregation
+- `GROUP BY`
+- `HAVING`
+
+### Aggregate Functions
+- `COUNT()`
+- `SUM()`
+- `AVG()`
+- `MIN()`
+- `MAX()`
+
+---
+
+## ✅ ORACLE-SPECIFIC (Easy Brownie Points)
+
+Knowing these shows **Oracle exposure**, not just generic SQL.
+
+- `ROWNUM` – limit number of rows
+- `DUAL` table – dummy table used for expressions
+- `NVL()` – handle NULL values
+- `SYSDATE` – current date & time
+
+---
+
+## 🕒 Half-Day Study Plan (Interview-Oriented)
+
+### Step-by-Step Learning Flow
+
+1. 🔹 **SELECT Basics**
+   - Syntax
+   - Selecting columns vs `*`
+   - Basic queries
+
+2. 🔹 **Filtering Data**
+   - `WHERE`
+   - `AND`, `OR`
+   - `IN`, `BETWEEN`
+   - `LIKE` patterns
+
+3. 🔹 **Sorting & Uniqueness**
+   - `ORDER BY`
+   - `DISTINCT`
+
+4. 🔹 **Aggregate Functions**
+   - `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`
+   - `GROUP BY`
+   - `HAVING` vs `WHERE`
+
+5. 🔹 **JOINS (Very Important)**
+   - `INNER JOIN`
+   - `LEFT JOIN`
+   - Join conditions & common mistakes
+
+6. 🔹 **Data Modification**
+   - `INSERT`
+   - `UPDATE`
+   - `DELETE`
+
+7. 🔹 **Transactions**
+   - `COMMIT`
+   - `ROLLBACK`
+   - Why transactions matter
+
+8. 🔹 **Oracle-Specific Features**
+   - `ROWNUM`
+   - `DUAL`
+   - `NVL()`
+   - `SYSDATE`
+
+9. 🔹 **Common Interview Questions & Traps**
+   - `WHERE` vs `HAVING`
+   - `DELETE` vs `TRUNCATE`
+   - `INNER` vs `LEFT JOIN`
+   - Handling NULL values
+
+---
+
+## 🎯 Goal of This Plan
+
+By the end of this:
+- You can **write day-to-day Oracle SQL queries**
+- You can **explain output & logic**
+- You can **answer confidently in interviews**
