@@ -3,24 +3,26 @@
 from langchain_experimental.text_splitter import SemanticChunker
 from src.utils import final_clean_text
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
+from langchain_core.documents import Document
 import logging
 import os
 import hashlib
 
-def _make_chunk_uid(text: str, meta: dict) -> str:
-    base = f"{meta.get('source_pdf','')}_{meta.get('page','')}_{hashlib.md5(text.encode('utf-8')).hexdigest()[:10]}"
-    return base
+CHUNKING_PAGE_ONLY = "page_only"
+CHUNKING_PAGE_RECURSIVE = "page_recursive"
+CHUNKING_PAGE_RECURSIVE_SEMANTIC = "page_recursive_semantic"
 
-def run_semantic_chunking(files, pre_chunker, embed_model):
+# This function alone already gives page-wise chunking.
+def load_pages_as_documents(files):
     """
-    Accepts a list of PDF or DOCX files, performs semantic chunking, and returns all chunks with proper metadata.
+    Loads PDFs/DOCX as page-level Documents with metadata.
+    Each Document == one page.
     """
-    all_semantic_chunks = []
-    semantic_chunker = SemanticChunker(embed_model, breakpoint_threshold_type="percentile")
+    all_docs = []
 
     for filename in files:
         ext = os.path.splitext(filename)[-1].lower()
-        # Pick loader based on extension
+
         if ext == ".pdf":
             loader = PyPDFLoader(filename)
             file_type = "pdf"
@@ -31,54 +33,124 @@ def run_semantic_chunking(files, pre_chunker, embed_model):
             logging.warning({"event": "unsupported_filetype", "file": filename, "ext": ext})
             continue
 
-        logging.info({"event": "prechunk_start", "file": filename})
         docs = loader.load()
-        docs_prechunked = []
+        basename = os.path.basename(filename)
 
         for doc in docs:
-            # Pre-chunk this doc/page
-            partials = pre_chunker.create_documents([doc.page_content])
-
-            # For PDFs: get page number from metadata (0-based), for Word: single page
             if file_type == "pdf":
-                page0 = doc.metadata.get("page", None)
+                page0 = doc.metadata.get("page")
                 page_num = (page0 + 1) if page0 is not None else None
             else:
                 page_num = 1
 
-            for p in partials:
-                p.metadata = getattr(p, "metadata", {})
-                basename = os.path.basename(filename)
-                p.metadata.update({
-                    "source_file": basename,
-                    "source_pdf": basename,   # always fill this, for both PDF and Word
-                    "page": page_num
-                })
-            docs_prechunked.extend(partials)
+            all_docs.append(
+                Document(
+                    page_content=doc.page_content,
+                    metadata={
+                        "source_file": basename,
+                        "source_pdf": basename,
+                        "page": page_num,
+                    },
+                )
+            )
 
-        logging.info({"event": "prechunk_done", "file": filename, "prechunk_count": len(docs_prechunked)})
-        logging.info({"event": "semantic_chunking_start", "file": filename})
+    return all_docs
 
-        # Preserve metadata while semantic-chunking
-        chunks = semantic_chunker.create_documents(
-            [d.page_content for d in docs_prechunked],
-            metadatas=[d.metadata for d in docs_prechunked],
-        )
-
-        logging.info({"event": "semantic_chunking_done", "file": filename, "semantic_chunk_count": len(chunks)})
-        all_semantic_chunks.extend(chunks)
-
+def run_chunking(
+    files,
+    chunking_strategy,
+    embed_model,
+    pre_chunker=None,
+):
+    """
+    Main chunking dispatcher supporting:
+    - page_only
+    - page_recursive
+    - page_recursive_semantic
+    """
     logging.info({
-        "event": "semantic_chunking_total",
-        "total_chunks": len(all_semantic_chunks),
-        "num_files": len(files)
+        "event": "chunking_start",
+        "strategy": chunking_strategy,
+        "num_files": len(files),
     })
 
-    for chunk in all_semantic_chunks:
-        chunk.page_content = final_clean_text(chunk.page_content)
-        m = getattr(chunk, "metadata", {}) or {}
-        if "chunk_uid" not in m:
-            m["chunk_uid"] = _make_chunk_uid(chunk.page_content, m)
-        chunk.metadata = m
+    # 1️⃣ Load page-level documents (common for all)
+    page_docs = load_pages_as_documents(files)
 
-    return all_semantic_chunks
+    # -----------------------------
+    # STRATEGY 1: PAGE ONLY
+    # -----------------------------
+    if chunking_strategy == CHUNKING_PAGE_ONLY:
+        final_docs = page_docs
+
+    # -----------------------------
+    # STRATEGY 2: PAGE → RECURSIVE
+    # -----------------------------
+    elif chunking_strategy == CHUNKING_PAGE_RECURSIVE:
+        if pre_chunker is None:
+            raise ValueError("pre_chunker required for page_recursive")
+
+        final_docs = []
+        for doc in page_docs:
+            splits = pre_chunker.create_documents([doc.page_content])
+            for s in splits:
+                s.metadata = dict(doc.metadata)
+                final_docs.append(s)
+
+    # -----------------------------
+    # STRATEGY 3: PAGE → RECURSIVE → SEMANTIC
+    # -----------------------------
+    elif chunking_strategy == CHUNKING_PAGE_RECURSIVE_SEMANTIC:
+        if pre_chunker is None:
+            raise ValueError("pre_chunker required for semantic chunking")
+
+        semantic_chunker = SemanticChunker(
+            embed_model, breakpoint_threshold_type="percentile"
+        )
+
+        pre_docs = []
+        for doc in page_docs:
+            splits = pre_chunker.create_documents([doc.page_content])
+            for s in splits:
+                s.metadata = dict(doc.metadata)
+                pre_docs.append(s)
+
+        final_docs = semantic_chunker.create_documents(
+            [d.page_content for d in pre_docs],
+            metadatas=[d.metadata for d in pre_docs],
+        )
+
+    else:
+        raise ValueError(f"Unknown chunking strategy: {chunking_strategy}")
+
+    # -----------------------------
+    # CLEAN + UID (common)
+    # -----------------------------
+    for d in final_docs:
+        d.page_content = final_clean_text(d.page_content)
+        m = d.metadata or {}
+        if "chunk_uid" not in m:
+            m["chunk_uid"] = _make_chunk_uid(d.page_content, m)
+        d.metadata = m
+
+    logging.info({
+        "event": "chunking_done",
+        "strategy": chunking_strategy,
+        "total_chunks": len(final_docs),
+    })
+
+    return final_docs
+
+
+
+def _make_chunk_uid(text: str, meta: dict) -> str:
+    base = f"{meta.get('source_pdf','')}_{meta.get('page','')}_{hashlib.md5(text.encode('utf-8')).hexdigest()[:10]}"
+    return base
+
+def run_semantic_chunking(files, pre_chunker, embed_model):
+    return run_chunking(
+        files=files,
+        chunking_strategy=CHUNKING_PAGE_RECURSIVE_SEMANTIC,
+        embed_model=embed_model,
+        pre_chunker=pre_chunker,
+    )

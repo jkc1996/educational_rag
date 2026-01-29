@@ -1,5 +1,10 @@
 from src.loaders import load_pdf_pages
-from src.chunkers import run_semantic_chunking
+from src.chunkers import (
+     run_chunking,
+    CHUNKING_PAGE_ONLY,
+    CHUNKING_PAGE_RECURSIVE,
+    CHUNKING_PAGE_RECURSIVE_SEMANTIC
+)
 from src.embeddings import get_fastembed_embedding
 from src.vectorstore import create_chroma_vectorstore, load_chroma_vectorstore
 from src.llms import get_gemini_llm, get_groq_llm, get_ollama_llm, get_openai_llm
@@ -13,6 +18,7 @@ def ingest_pdfs_to_chroma(
     chunk_size=2000,
     chunk_overlap=100,
     use_llamaparse=False,
+    chunking_strategy=CHUNKING_PAGE_ONLY,  # 👈 change the chunking stratagy here
 ):
     """
     Step 1: Chunk, embed, and store PDFs in ChromaDB.
@@ -81,22 +87,32 @@ def ingest_pdfs_to_chroma(
 
     else:
         from langchain_text_splitters import RecursiveCharacterTextSplitter
-        pre_chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        all_semantic_chunks = run_semantic_chunking(pdf_files, pre_chunker, embed_model)
+
+        pre_chunker = None
+        if chunking_strategy != CHUNKING_PAGE_ONLY:
+            pre_chunker = RecursiveCharacterTextSplitter(
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap
+            )
+
+        all_chunks = run_chunking(
+            files=pdf_files,
+            chunking_strategy=chunking_strategy,
+            embed_model=embed_model,
+            pre_chunker=pre_chunker,
+        )
 
     # Store in Chroma
     vectorstore = create_chroma_vectorstore(
-        all_semantic_chunks, embed_model, persist_directory=chroma_persist_dir
+        all_chunks, embed_model, persist_directory=chroma_persist_dir
     )
 
     logging.info({
         "event": "chroma_ingest_done",
         "chroma_dir": chroma_persist_dir,
-        "total_chunks": len(all_semantic_chunks)
+        "total_chunks": len(all_chunks)
     })
     return True
-
-
 
 def get_rag_chain(
     chroma_persist_dir,
