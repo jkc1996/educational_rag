@@ -3,7 +3,7 @@
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from src.prompts import get_rag_prompt
+from src.generation import get_rag_prompt
 
 def _format_docs_for_prompt(docs):
     # What the LLM sees

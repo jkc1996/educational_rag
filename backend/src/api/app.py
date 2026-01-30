@@ -1,17 +1,19 @@
+from src.api.schemas.feedback import FeedbackIn
+from src.api.schemas.ingest import IngestRequest
 import logging_setup
 from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from threading import Lock
-from src.pipeline import ingest_pdfs_to_chroma, get_rag_chain
-from src.postprocess import spacy_polish
+from src.orchestration import ingest_pdfs_to_chroma, get_rag_chain
+from src.generation import spacy_polish
 import logging
 import json
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi import Body
-from src.run_ragas_eval import run_ragas_evaluation
-from src.question_generation import summarize_selected_pdfs, generate_question_paper
+from src.evaluation import run_ragas_evaluation
+from src.generation import summarize_selected_pdfs, generate_question_paper
 from typing import List, Optional
 from datetime import datetime
 import uuid
@@ -91,11 +93,6 @@ async def upload_pdf(
         "description": description,
         "filename": f"{subject.replace(' ', '_')}_{file.filename}",
     }
-
-class IngestRequest(BaseModel):
-    subject: str
-    filename: str
-    use_llamaparse: bool = False  # default to False if not sent
 
 @app.post("/ingest/")
 async def ingest_pdf(req: IngestRequest = Body(...)):
@@ -233,11 +230,6 @@ async def ask_question(
 
     return response
 
-class FeedbackIn(BaseModel):
-    qa_session_id: str
-    helpful: bool
-    comment: str | None = None
-    llm_backend: str | None = None
 
 @app.post("/api/feedback")
 async def submit_feedback(fb: FeedbackIn):

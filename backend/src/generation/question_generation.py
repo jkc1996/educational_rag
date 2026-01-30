@@ -7,12 +7,12 @@ import time
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from src.vectorstore import load_chroma_vectorstore
-from src.embeddings import get_fastembed_embedding
-from src.llms import get_groq_llm, get_gemini_llm, get_ollama_llm
+from src.generation.schema.question import QuestionPaper
+from src.ingestion import load_chroma_vectorstore
+from src.ingestion import get_fastembed_embedding
+from src.generation import get_groq_llm, get_gemini_llm, get_ollama_llm
 
 from langchain_core.prompts import ChatPromptTemplate
-from src.question_schema import QuestionPaper  # Pydantic schema for strict JSON
 from google import genai
 
 # ======================================================

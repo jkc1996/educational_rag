@@ -5,6 +5,7 @@ langchain_experimental
 langchain-groq
 langchain-google-genai
 langchain-text-splitters
+langchain-chroma
 google-genai
 chromadb
 PyPDF2

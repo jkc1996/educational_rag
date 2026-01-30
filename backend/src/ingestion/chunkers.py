@@ -1,7 +1,7 @@
 # src/chunkers.py
 
 from langchain_experimental.text_splitter import SemanticChunker
-from src.utils import final_clean_text
+from src.core import final_clean_text
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 from langchain_core.documents import Document
 import logging

@@ -45,7 +45,7 @@ This powers the client-server application for the React frontend.
 
 ```
 cd backend
-uvicorn app:app --reload
+uvicorn main:app --reload
 ```
 
 - The backend runs at http://localhost:8000 by default.
@@ -100,7 +100,7 @@ python inspect_chroma_db.py
 | Backend venv   | `python -m venv myenv` + `myenv\Scripts\activate`           |
 | Install reqs   | `pip install -r requirements.txt`                           |
 | Install spaCy  | `python -m spacy download en_core_web_sm`                   |
-| Start backend  | `cd backend`<br>`uvicorn app:app --reload`                  |
+| Start backend  | `cd backend`<br>`uvicorn main:app --reload`                  |
 | Start frontend | `cd frontend`<br>`npm install`<br>`npm start`               |
 | Streamlit UI   | `streamlit run streamlit_app.py`                            |
 | Inspect Chroma | `python inspect_chroma_db.py`                               |

@@ -19,7 +19,7 @@ from ragas.metrics import (
     ContextRelevance,
     ResponseGroundedness
 )
-from src.pipeline import get_rag_chain
+from src.orchestration import get_rag_chain
 from tqdm import tqdm
 
 def run_ragas_evaluation(model_name, answer_delay=30, eval_delay=30, eval_json="eval_questions.json"):

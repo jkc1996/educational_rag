@@ -1,15 +1,14 @@
-from src.loaders import load_pdf_pages
-from src.chunkers import (
+from src.ingestion.chunkers import (
      run_chunking,
     CHUNKING_PAGE_ONLY,
     CHUNKING_PAGE_RECURSIVE,
     CHUNKING_PAGE_RECURSIVE_SEMANTIC
 )
-from src.embeddings import get_fastembed_embedding
-from src.vectorstore import create_chroma_vectorstore, load_chroma_vectorstore
-from src.llms import get_gemini_llm, get_groq_llm, get_ollama_llm, get_openai_llm
-from src.retriever import get_retriever, FeedbackAwareRetriever  # <-- NEW
-from src.chain import get_semantic_rag_chain
+from src.ingestion import get_fastembed_embedding
+from src.ingestion import create_chroma_vectorstore, load_chroma_vectorstore
+from src.generation import get_gemini_llm, get_groq_llm, get_openai_llm, get_ollama_llm
+from src.retrieval import get_retriever, FeedbackAwareRetriever  # <-- NEW
+from .chain import get_semantic_rag_chain
 import logging
 
 def ingest_pdfs_to_chroma(
@@ -36,7 +35,7 @@ def ingest_pdfs_to_chroma(
     embed_model = get_fastembed_embedding()
 
     if use_llamaparse:
-        from src.llamaparse_loader import load_llamaparse_nodes
+        from src.ingestion import load_llamaparse_nodes
         from langchain_text_splitters import RecursiveCharacterTextSplitter
         from langchain_core.documents import Document
         from hashlib import md5
@@ -129,7 +128,7 @@ def get_rag_chain(
     if enable_feedback_rerank:
         try:
             # reuse the in-memory reputation map maintained in app.py
-            from app import CHUNK_REP
+            from src.api.app import CHUNK_REP
             def rep_lookup(uid: str):
                 return CHUNK_REP.get(uid, {"up": 0, "down": 0})
             retriever = FeedbackAwareRetriever(retriever, rep_lookup, beta=0.2)
