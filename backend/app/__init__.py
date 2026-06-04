@@ -1,0 +1,2 @@
+"""Educational RAG backend package."""
+

@@ -1,0 +1,32 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.app-surface {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, #eef3f7 0%, #f7f8fa 32%, #f4f6f8 100%);
+}
+
+.content-shell {
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 48px;
+}
+
+.panel {
+  border: 1px solid #dbe3ea;
+  box-shadow: 0 6px 22px rgba(35, 79, 124, 0.08);
+}
+
+.mono-cell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86rem;
+}
+

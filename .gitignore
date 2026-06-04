@@ -7,3 +7,9 @@ __pycache__/
 myenv/
 .DS_Store
 *.log
+backend/storage/
+backend/**/__pycache__/
+frontend/dist/
+frontend/node_modules/
+node_modules/
+.tmp/
