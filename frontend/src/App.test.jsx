@@ -17,13 +17,13 @@ vi.mock("./hooks/useBootstrap.js", () => ({
 }));
 
 describe("App", () => {
-  it("renders the document workflow", () => {
+  it("renders the ask workspace first", () => {
     render(
       <MemoryRouter>
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByRole("heading", { name: "Documents" })).toBeInTheDocument();
-    expect(screen.getByText("Upload and Ingest")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ask" })).toBeInTheDocument();
+    expect(screen.getByText("Question Setup")).toBeInTheDocument();
   });
 });

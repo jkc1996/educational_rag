@@ -2,7 +2,6 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Box,
   Button,
-  Paper,
   Stack,
   Table,
   TableBody,
@@ -15,8 +14,9 @@ import { useEffect, useState } from "react";
 
 import { api } from "../../api/client.js";
 import { PageHeader } from "../../components/PageHeader.jsx";
+import { KpiCard, WorkPanel } from "../../components/Workspace.jsx";
 
-export function UsagePage() {
+export function UsagePage({ embedded = false }) {
   const [usage, setUsage] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +35,13 @@ export function UsagePage() {
 
   return (
     <>
-      <PageHeader title="Usage" description="OpenAI token telemetry and pricing-table cost calculations captured by backend features." />
+      {!embedded && (
+        <PageHeader
+          eyebrow="System Monitor"
+          title="Usage"
+          description="OpenAI token telemetry and pricing-table cost calculations captured by backend features."
+        />
+      )}
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
         <Button startIcon={<RefreshIcon />} onClick={load} disabled={loading}>
           Refresh
@@ -43,13 +49,13 @@ export function UsagePage() {
       </Stack>
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" }, gap: 2, mb: 2 }}>
-        <Stat label="Prompt tokens" value={usage?.total_prompt_tokens || 0} />
-        <Stat label="Completion tokens" value={usage?.total_completion_tokens || 0} />
-        <Stat label="Cached tokens" value={usage?.total_cached_tokens || 0} />
-        <Stat label="Calculated cost" value={`$${(usage?.estimated_cost_usd || 0).toFixed(4)}`} />
+        <KpiCard label="Prompt tokens" value={usage?.total_prompt_tokens || 0} />
+        <KpiCard label="Completion tokens" value={usage?.total_completion_tokens || 0} tone="secondary" />
+        <KpiCard label="Cached tokens" value={usage?.total_cached_tokens || 0} tone="success" />
+        <KpiCard label="Calculated cost" value={`$${(usage?.estimated_cost_usd || 0).toFixed(4)}`} tone="warning" />
       </Box>
 
-      <Paper className="panel" sx={{ p: 2.5, overflow: "hidden" }}>
+      <WorkPanel>
         <Typography variant="h6" sx={{ mb: 1.5 }}>Recent Records</Typography>
         <Box sx={{ overflowX: "auto" }}>
           <Table size="small">
@@ -87,16 +93,7 @@ export function UsagePage() {
             </TableBody>
           </Table>
         </Box>
-      </Paper>
+      </WorkPanel>
     </>
-  );
-}
-
-function Stat({ label, value }) {
-  return (
-    <Paper className="panel" sx={{ p: 2 }}>
-      <Typography variant="body2" color="text.secondary">{label}</Typography>
-      <Typography variant="h5" color="primary.dark">{value}</Typography>
-    </Paper>
   );
 }

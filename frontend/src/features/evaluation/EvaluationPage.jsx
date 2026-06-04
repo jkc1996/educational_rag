@@ -3,12 +3,12 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   FormControl,
   FormControlLabel,
   InputLabel,
   LinearProgress,
   MenuItem,
-  Paper,
   Select,
   Stack,
   Table,
@@ -22,6 +22,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "../../api/client.js";
+import { KpiCard, WorkPanel } from "../../components/Workspace.jsx";
 import { PageHeader } from "../../components/PageHeader.jsx";
 import { SubjectSelect } from "../../components/SubjectSelect.jsx";
 
@@ -84,11 +85,22 @@ export function EvaluationPage({ models, subjects }) {
 
   return (
     <>
-      <PageHeader title="RAGAS Evaluation" description="Run RAGAS-only evaluations and compare approved OpenAI models." />
+      <PageHeader
+        eyebrow="Quality Lab"
+        title="Evaluate"
+        description="Run RAGAS-only checks across approved OpenAI models and inspect answer quality against your eval sets."
+      />
 
       {message && <Alert severity={message.severity} sx={{ mb: 2 }}>{message.text}</Alert>}
 
-      <Paper className="panel" sx={{ p: 2.5 }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" }, gap: 2, mb: 2 }}>
+        <KpiCard label="Eval sets" value={evalSets.length} />
+        <KpiCard label="Models selected" value={activeModels.length} tone="secondary" />
+        <KpiCard label="Metrics" value={metrics.length} tone="success" />
+        <KpiCard label="Row limit" value={limit} tone="warning" />
+      </Box>
+
+      <WorkPanel>
         {evalSets.length === 0 && (
           <Alert severity="info" sx={{ mb: 2 }}>
             No evaluation sets found. The backend will seed a default set when storage is writable.
@@ -122,7 +134,7 @@ export function EvaluationPage({ models, subjects }) {
         )}
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, mt: 2 }}>
-          <Paper variant="outlined" sx={{ p: 2 }}>
+          <Box className="inline-section">
             <Typography fontWeight={750} sx={{ mb: 1 }}>Models</Typography>
             {models.map((model) => (
               <FormControlLabel
@@ -131,8 +143,8 @@ export function EvaluationPage({ models, subjects }) {
                 label={`${model.label} (${model.role})`}
               />
             ))}
-          </Paper>
-          <Paper variant="outlined" sx={{ p: 2 }}>
+          </Box>
+          <Box className="inline-section">
             <Typography fontWeight={750} sx={{ mb: 1 }}>Metrics</Typography>
             {ragasMetrics.map((metric) => (
               <FormControlLabel
@@ -141,18 +153,21 @@ export function EvaluationPage({ models, subjects }) {
                 label={metric}
               />
             ))}
-          </Paper>
+          </Box>
         </Box>
 
         <Button variant="contained" sx={{ mt: 2 }} disabled={loading || !subject || !evalSet || !metrics.length || !activeModels.length} onClick={run}>
           Run Evaluation
         </Button>
         {loading && <LinearProgress sx={{ mt: 2 }} />}
-      </Paper>
+      </WorkPanel>
 
       {results && (
-        <Paper className="panel" sx={{ mt: 2, p: 2.5, overflow: "hidden" }}>
-          <Typography variant="h6" sx={{ mb: 1.5 }}>Results</Typography>
+        <WorkPanel sx={{ mt: 2 }}>
+          <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1.5 }}>
+            <Typography variant="h6">Results</Typography>
+            <Chip size="small" label={`${Object.values(results).flat().length} rows`} />
+          </Stack>
           <Box sx={{ overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
@@ -173,7 +188,9 @@ export function EvaluationPage({ models, subjects }) {
                       <TableCell>{row.question}</TableCell>
                       <TableCell>{row.answer}</TableCell>
                       {metrics.map((metric) => (
-                        <TableCell key={metric}>{formatMetric(row[metric])}</TableCell>
+                        <TableCell key={metric}>
+                          <MetricCell value={row[metric]} />
+                        </TableCell>
                       ))}
                     </TableRow>
                   ))
@@ -181,14 +198,29 @@ export function EvaluationPage({ models, subjects }) {
               </TableBody>
             </Table>
           </Box>
-        </Paper>
+        </WorkPanel>
       )}
     </>
   );
 }
 
-function formatMetric(value) {
-  if (typeof value === "number") return value.toFixed(3);
-  if (value && typeof value === "object" && typeof value.score === "number") return value.score.toFixed(3);
-  return value ?? "";
+function MetricCell({ value }) {
+  const score = numericMetric(value);
+  if (score === null) return value ?? "";
+  return (
+    <Stack gap={0.5} sx={{ minWidth: 96 }}>
+      <Typography variant="body2" fontWeight={750}>
+        {score.toFixed(3)}
+      </Typography>
+      <Box sx={{ height: 6, borderRadius: 1, bgcolor: "grey.200", overflow: "hidden" }}>
+        <Box sx={{ height: "100%", width: `${Math.max(0, Math.min(1, score)) * 100}%`, bgcolor: score >= 0.75 ? "success.main" : score >= 0.5 ? "warning.main" : "error.main" }} />
+      </Box>
+    </Stack>
+  );
+}
+
+function numericMetric(value) {
+  if (typeof value === "number") return value;
+  if (value && typeof value === "object" && typeof value.score === "number") return value.score;
+  return null;
 }

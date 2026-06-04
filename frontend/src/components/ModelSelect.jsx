@@ -12,6 +12,11 @@ export function ModelSelect({ models, value, onChange, label = "Model", disabled
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled || models.length === 0}
       >
+        {models.length === 0 && (
+          <MenuItem value="" disabled>
+            No models configured
+          </MenuItem>
+        )}
         {models.map((model) => (
           <MenuItem key={model.id} value={model.id}>
             {model.label} ({model.role})
@@ -21,4 +26,3 @@ export function ModelSelect({ models, value, onChange, label = "Model", disabled
     </FormControl>
   );
 }
-

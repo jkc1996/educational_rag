@@ -12,7 +12,6 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Stack,
   Table,
@@ -27,6 +26,7 @@ import { useEffect, useState } from "react";
 
 import { api } from "../../api/client.js";
 import { PageHeader } from "../../components/PageHeader.jsx";
+import { KpiCard, WorkPanel } from "../../components/Workspace.jsx";
 
 const defaultResponse = {
   items: [],
@@ -59,7 +59,7 @@ const levelColors = {
   CRITICAL: "error",
 };
 
-export function LogsPage() {
+export function LogsPage({ embedded = false }) {
   const [logs, setLogs] = useState(defaultResponse);
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState("");
@@ -91,18 +91,24 @@ export function LogsPage() {
 
   return (
     <>
-      <PageHeader title="Logs" description="Application flow traces for QA, ingestion, question papers, evaluation, OpenAI calls, and retries." />
+      {!embedded && (
+        <PageHeader
+          eyebrow="System Monitor"
+          title="Logs"
+          description="Application flow traces for QA, ingestion, question papers, evaluation, OpenAI calls, and retries."
+        />
+      )}
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(6, 1fr)" }, gap: 2, mb: 2 }}>
-        <Stat label="Shown" value={logs.summary.total} />
-        <Stat label="Errors" value={logs.summary.errors} tone={logs.summary.errors ? "error" : "success"} />
-        <Stat label="Warnings" value={logs.summary.warnings} tone={logs.summary.warnings ? "warning" : "success"} />
-        <Stat label="QA Events" value={logs.summary.qa_events} />
-        <Stat label="LLM Events" value={logs.summary.llm_events || logs.summary.openai_events} />
-        <Stat label="Noise" value={logs.summary.noisy_events} tone="muted" />
+        <KpiCard label="Shown" value={logs.summary.total} />
+        <KpiCard label="Errors" value={logs.summary.errors} tone={logs.summary.errors ? "error" : "success"} />
+        <KpiCard label="Warnings" value={logs.summary.warnings} tone={logs.summary.warnings ? "warning" : "success"} />
+        <KpiCard label="QA Events" value={logs.summary.qa_events} />
+        <KpiCard label="LLM Events" value={logs.summary.llm_events || logs.summary.openai_events} tone="secondary" />
+        <KpiCard label="Noise" value={logs.summary.noisy_events} tone="muted" />
       </Box>
 
-      <Paper className="panel" sx={{ p: 2.5, overflow: "hidden" }}>
+      <WorkPanel>
         <Stack direction={{ xs: "column", lg: "row" }} gap={1.5} alignItems={{ xs: "stretch", lg: "center" }} sx={{ mb: 2 }}>
           <TextField
             size="small"
@@ -198,7 +204,7 @@ export function LogsPage() {
             </TableBody>
           </Table>
         </Box>
-      </Paper>
+      </WorkPanel>
     </>
   );
 }
@@ -292,27 +298,6 @@ function LogRow({ row, isOpen, onToggle }) {
         </TableCell>
       </TableRow>
     </>
-  );
-}
-
-function Stat({ label, value, tone = "primary" }) {
-  const colorMap = {
-    primary: "primary.dark",
-    success: "success.main",
-    warning: "warning.main",
-    error: "error.main",
-    muted: "text.secondary",
-  };
-
-  return (
-    <Paper className="panel" sx={{ p: 2 }}>
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="h5" color={colorMap[tone] || colorMap.primary}>
-        {value}
-      </Typography>
-    </Paper>
   );
 }
 
